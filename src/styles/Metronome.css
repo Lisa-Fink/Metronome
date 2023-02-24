@@ -1,0 +1,38 @@
+#metronome-body {
+    margin: auto;
+    background-color: rgb(104, 104, 255);
+    max-width: 800px;
+    padding: 60px;
+}
+
+#tempo-arrows {
+    display: flex;
+    flex-direction: column;
+    font-size: 180%;
+}
+
+.flex-row {
+    display: flex;
+    flex-direction: row;
+}
+
+input {
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 200%;
+    width: 120px;
+}
+
+
+/* Remove arrows on number input for bpm */
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
