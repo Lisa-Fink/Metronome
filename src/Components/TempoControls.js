@@ -9,14 +9,14 @@ function TempoControls({
   paused,
   playClick,
 }) {
-  const MAX_TEMPO = 240;
-  const MIN_TEMPO = 40;
+  const MAX_BPM = 240;
+  const MIN_BPM = 40;
 
   const mouseDownIntervalId = useRef(null);
 
   const incrementBPM = () => {
     setBpm((prevBpm) => {
-      if (prevBpm === MAX_TEMPO) {
+      if (prevBpm === MAX_BPM) {
         clearInterval(mouseDownIntervalId.current);
         return prevBpm;
       } else {
@@ -28,7 +28,7 @@ function TempoControls({
 
   const decrementBPM = () => {
     setBpm((prevBpm) => {
-      if (prevBpm === MIN_TEMPO) {
+      if (prevBpm === MIN_BPM) {
         clearInterval(mouseDownIntervalId.current);
         return prevBpm;
       } else {
@@ -38,7 +38,7 @@ function TempoControls({
   };
 
   const handleMouseDownUpArrow = () => {
-    if (bpm < MAX_TEMPO) {
+    if (bpm < MAX_BPM) {
       // Stop the audio when the mouse button is held down
       if (isPlaying) {
         startStop();
@@ -52,7 +52,7 @@ function TempoControls({
   };
 
   const handleMouseDownDownArrow = () => {
-    if (bpm > MIN_TEMPO) {
+    if (bpm > MIN_BPM) {
       // Stop the audio when the mouse button is held down
       if (isPlaying) {
         startStop();
@@ -78,7 +78,7 @@ function TempoControls({
     setBpm(parseInt(newBpm));
     if (isPlaying) {
       startStop();
-      playClick();
+      paused.current = true;
     }
   };
 
@@ -90,6 +90,13 @@ function TempoControls({
           type="number"
           value={bpm}
           onChange={(e) => setBpm(e.target.value)}
+          onBlur={(e) => {
+            if (e.target.value < MIN_BPM) {
+              setBpm(MIN_BPM);
+            } else if (e.target.value > MAX_BPM) {
+              setBpm(MAX_BPM);
+            }
+          }}
         />
         <div id="tempo-arrows">
           <BiUpArrow
@@ -106,10 +113,16 @@ function TempoControls({
       </div>
       <input
         type="range"
-        min={MIN_TEMPO}
-        max={MAX_TEMPO}
+        min={MIN_BPM}
+        max={MAX_BPM}
         value={bpm}
         onChange={handleBpmSliderChange}
+        onMouseUp={() => {
+          if (paused.current) {
+            startStop();
+            paused.current = false;
+          }
+        }}
       />
     </div>
   );
