@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Michroma&display=swap');
 
-body {
+body, button, input, option, select {
   margin: 0;
   font-family: 'Michroma', sans-serif;
   -webkit-font-smoothing: antialiased;
