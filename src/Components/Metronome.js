@@ -11,97 +11,285 @@ function Metronome() {
   const [bpm, setBpm] = useState(120);
   const [isPlaying, setIsPlaying] = useState(false);
   const [timerId, setTimerId] = useState(null);
+
+  // store audioContext objects to disable/disconnect later
   const [audioContext, setAudioContext] = useState(null);
   const [osc, setOsc] = useState(null);
   const [gain, setGain] = useState(null);
-  const [beat, setBeat] = useState(0);
+  const [downBeatOsc, setDownBeatOsc] = useState(null);
+  const [downBeatGain, setDownBeatGain] = useState(null);
+  const [mainBeatOsc, setMainBeatOsc] = useState(null);
+  const [mainBeatGain, setMainBeatGain] = useState(null);
+
   const [timeSignature, setTimeSignature] = useState(4);
   const [downBeat, setDownBeat] = useState(true);
+  const [subdivide, setSubdivide] = useState(1);
+  const [mainBeat, setMainBeat] = useState(false);
 
-  const [tone, setTone] = useState("click");
-  const [downBeatTone, setDownBeatTone] = useState("click");
+  const [key, setKey] = useState(261.63);
+  const [tone, setTone] = useState("audioContextTone");
+  const [downBeatTone, setDownBeatTone] = useState("audioContextTone");
 
   const paused = useRef(false);
+  const [toneCategory, setToneCategory] = useState("Basic Tones");
 
   // updates to new selected time signature
   useEffect(() => {
     if (isPlaying) {
       restart();
     }
-  }, [timeSignature, downBeat, tone, downBeatTone]);
+  }, [timeSignature, downBeat, tone, downBeatTone, key, subdivide, mainBeat]);
 
   const restart = () => {
     if (isPlaying) {
-      stopClick();
+      clearInterval(timerId);
+      setIsPlaying(false);
+      setTimerId(null);
     }
     startClick();
   };
 
-  const playClickAudio = () => {
+  const playNumberCounter = () => {
+    console.log("numbers");
+    const numberAudioFiles = {
+      1: "./audio/numbers/female-vox-number-one.wav",
+      2: "./audio/numbers/female-vox-number-two.wav",
+      3: "./audio/numbers/female-vox-number-three.wav",
+      4: "./audio/numbers/female-vox-number-four.wav",
+      5: "./audio/numbers/female-vox-number-five.wav",
+      6: "./audio/numbers/female-vox-number-six.wav",
+      7: "./audio/numbers/female-vox-number-seven.wav",
+      8: "./audio/numbers/female-vox-number-eight.wav",
+      9: "./audio/numbers/female-vox-number-nine.wav",
+    };
+    const sounds = [];
+    for (let i = 1; i <= timeSignature; i++) {
+      sounds.push(new Audio(numberAudioFiles[i]));
+    }
     const interval = (60 / bpm) * 1000;
     let beatCount = 1;
     const id = setInterval(() => {
+      const sound = sounds[beatCount - 1];
+      sound.currentTime = 0;
+      sound.play();
+      beatCount++;
+      if (beatCount > timeSignature) {
+        beatCount = 1;
+      }
+    }, interval);
+
+    setTimerId(id);
+    setIsPlaying(true);
+  };
+
+  const playAudio = () => {
+    const interval = (60 / (bpm * subdivide)) * 1000;
+    let beatCount = 1;
+
+    const downBeatSound = new Audio("./audio/woodBlocks/thin-wood-block.wav");
+    const regularSound = new Audio(
+      "./audio/woodBlocks/wood-block-drum-hit.wav"
+    );
+    const mainBeatSound = new Audio("./audio/woodBlocks/wood-block-light.wav");
+
+    const id = setInterval(() => {
+      const sound =
+        downBeat && beatCount === 1
+          ? downBeatSound
+          : subdivide > 1 && mainBeat && (beatCount - 1) % subdivide === 0
+          ? mainBeatSound
+          : regularSound;
+      sound.currentTime = 0;
+      sound.play();
+
+      beatCount++;
+      if (beatCount > timeSignature * subdivide) {
+        beatCount = 1;
+      }
+    }, interval);
+
+    setTimerId(id);
+    setIsPlaying(true);
+  };
+
+  /**********************************************************************************/
+  // Basic Tones (Beep and Flute) w/ AudioContext
+
+  // Returns the audio context or creates a new one if it doesn't exist
+  const getAudioContext = () => {
+    if (!audioContext) {
+      const newAudioContext = new AudioContext();
+      setAudioContext(newAudioContext);
+      return newAudioContext;
+    }
+    return audioContext;
+  };
+
+  const playBeep = (newOsc, newGain) => {
+    newOsc.start();
+    const interval = (60 / (bpm * subdivide)) * 1000;
+    let beatCount = 1;
+    const id = setInterval(() => {
       if (downBeat && beatCount === 1) {
-        const sound = new Audio("./audio/woodBlocks/thin-wood-block.wav");
-        sound.play();
+        newOsc.frequency.value = key * 4; // Set the frequency for high pitch
+      } else if (
+        subdivide > 1 &&
+        mainBeat &&
+        (beatCount - 1) % subdivide === 0
+      ) {
+        newOsc.frequency.value = key * 3; // Set the frequency for main beat
       } else {
-        const sound = new Audio("./audio/woodBlocks/wood-block-drum-hit.wav");
-        sound.play();
-        if (beatCount === timeSignature) {
+        if (beatCount === timeSignature * subdivide) {
           beatCount = 0;
         }
+        newOsc.frequency.value = key * 2;
       }
+      newGain.gain.value = 0.5;
       beatCount++;
+
+      setTimeout(() => {
+        newGain.gain.value = 0;
+      }, interval / 2);
     }, interval);
     setTimerId(id);
     setIsPlaying(true);
   };
 
-  const playClickTone = (newAudioContext, newOsc, newGain) => {
+  const playFlute = (
+    newOsc,
+    newGain,
+    downBeatOsc,
+    downBeatGain,
+    mainBeatOsc,
+    mainBeatGain
+  ) => {
     newOsc.start();
-    const interval = (60 / bpm) * 1000;
+    downBeatOsc.start();
+    if (mainBeat && mainBeatOsc) {
+      mainBeatOsc.start();
+    }
+    const interval = (60 / (bpm * subdivide)) * 1000;
+    let beatCount = 1;
+    let current;
     const id = setInterval(() => {
-      setBeat((prevBeat) => {
-        let newBeat = prevBeat + 1;
-        if (downBeat && newBeat === 1) {
-          newOsc.frequency.value = 880 * 1.5; // Set the frequency for high pitch
-        } else {
-          if (newBeat === timeSignature) {
-            newBeat = 0;
-          }
-          newOsc.frequency.value = 880;
+      if (downBeat && beatCount === 1) {
+        current = downBeatGain;
+      } else if (
+        subdivide > 1 &&
+        mainBeat &&
+        (beatCount - 1) % subdivide === 0
+      ) {
+        current = mainBeatGain;
+      } else {
+        if (beatCount === timeSignature * subdivide) {
+          beatCount = 0;
         }
-        return newBeat;
-      });
-      newGain.gain.value = 0.5;
+        current = newGain;
+      }
+      current.gain.value = 0.5;
+      beatCount++;
+
       setTimeout(() => {
-        newGain.gain.value = 0;
+        current.gain.value = 0;
       }, 100);
     }, interval);
     setTimerId(id);
     setIsPlaying(true);
   };
 
+  const createBeepTone = (audioContext) => {
+    const newOsc = audioContext.createOscillator();
+    const newGain = audioContext.createGain();
+    newOsc.connect(newGain);
+    newGain.connect(audioContext.destination);
+    newGain.gain.value = 0; // Set the initial gain to 0
+
+    return { newOsc, newGain };
+  };
+
+  const createFluteTone = (audioContext, frequency) => {
+    const newOsc = audioContext.createOscillator();
+    const newGain = audioContext.createGain();
+    const convolver = audioContext.createConvolver();
+    const rate = audioContext.sampleRate;
+    const length = rate * 0.05; // Shorten the length to 50ms
+    const buffer = audioContext.createBuffer(2, length, rate);
+    const dataL = buffer.getChannelData(0);
+    const dataR = buffer.getChannelData(1);
+
+    // Generate a simple sine wave
+    for (let i = 0; i < length; i++) {
+      const t = i / rate;
+      const x = Math.sin(2 * Math.PI * frequency * t);
+      dataL[i] = dataR[i] = x;
+    }
+
+    convolver.buffer = buffer;
+    newOsc.connect(newGain);
+    newGain.connect(convolver);
+    convolver.connect(audioContext.destination);
+
+    newOsc.frequency.value = frequency;
+    newGain.gain.value = 0; // Set the initial gain to 0
+
+    return {
+      newOsc,
+      newGain,
+    };
+  };
+
+  const getTone = () => {
+    const audioContext = getAudioContext();
+    if (tone === "audioContextFlute") {
+      return [
+        createFluteTone(audioContext, key),
+        createFluteTone(audioContext, key * 2),
+        createFluteTone(audioContext, key * 1.5),
+      ];
+    }
+    return createBeepTone(audioContext);
+  };
+
+  /**********************************************************************************/
+
   const startClick = () => {
-    if (
-      (tone === "tone-audio" && !audioContext) ||
-      (tone === "tone-audio" && !osc)
-    ) {
-      const newAudioContext = new AudioContext();
-      const newOsc = newAudioContext.createOscillator();
-      const newGain = newAudioContext.createGain();
-      newOsc.connect(newGain);
-      newGain.connect(newAudioContext.destination);
-      newOsc.frequency.value = 880; // Set the frequency to 880Hz (A5)
-      newGain.gain.value = 0; // Set the initial gain to 0
-      setAudioContext(newAudioContext);
-      setOsc(newOsc);
-      setGain(newGain);
-      playClickTone(newAudioContext, newOsc, newGain);
-    } else if (tone === "tone-audio") {
-      playClickTone(audioContext, osc, gain);
+    if (toneCategory === "Basic Tones") {
+      if (tone === "audioContextTone") {
+        const { newOsc, newGain } = getTone();
+        setOsc(newOsc);
+        setGain(newGain);
+        playBeep(newOsc, newGain);
+      } else if (tone === "audioContextFlute") {
+        const [regular, downBeat, mainBeat] = getTone();
+        const { newOsc, newGain } = regular;
+        const downBeatOsc = downBeat.newOsc;
+        const downBeatGain = downBeat.newGain;
+        const mainBeatOsc = mainBeat.newOsc;
+        const mainBeatGain = mainBeat.newGain;
+        setOsc(newOsc);
+        setGain(newGain);
+        setDownBeatOsc(downBeatOsc);
+        setDownBeatGain(downBeatGain);
+        setMainBeatOsc(mainBeatOsc);
+        setMainBeatGain(mainBeatGain);
+        playFlute(
+          newOsc,
+          newGain,
+          downBeatOsc,
+          downBeatGain,
+          mainBeatOsc,
+          mainBeatGain
+        );
+      }
     } else {
-      playClickAudio();
+      if (audioContext) {
+        audioContext.close().then(() => setAudioContext(null));
+      }
+      if (toneCategory === "Percussion") {
+        playAudio();
+      } else if (toneCategory === "Spoken Counts") {
+        playNumberCounter();
+      }
     }
   };
 
@@ -118,10 +306,30 @@ function Metronome() {
     clearInterval(timerId);
     setIsPlaying(false);
     setTimerId(null);
-    // setOsc(null);
-    // audioContext.close().then(() => setAudioContext(null));
-    // gain.disconnect();
-    // setGain(null);
+    if (osc) {
+      // osc.stop();
+      setOsc(null);
+    }
+    if (gain) {
+      gain.disconnect();
+      setGain(null);
+    }
+    if (downBeatOsc) {
+      // downBeatOsc.stop();
+      setDownBeatOsc(null);
+    }
+    if (downBeatGain) {
+      downBeatGain.disconnect();
+      setDownBeatGain(null);
+    }
+    if (mainBeatOsc) {
+      // mainBeatOsc.stop();
+      setMainBeatOsc(null);
+    }
+    if (mainBeatGain) {
+      mainBeatGain.disconnect();
+      setMainBeatGain(null);
+    }
   };
 
   return (
@@ -134,15 +342,26 @@ function Metronome() {
           isPlaying={isPlaying}
           startStop={startStop}
           paused={paused}
-          playClick={playClickTone}
+          playClick={playBeep}
         />
         <ChangeMeter
           setTimeSignature={setTimeSignature}
           downBeat={downBeat}
           setDownBeat={setDownBeat}
+          subdivide={subdivide}
+          setSubdivide={setSubdivide}
+          mainBeat={mainBeat}
+          setMainBeat={setMainBeat}
+          toneCategory={toneCategory}
         />
 
-        <ToneSelector setTone={setTone} setDownBeatTone={setDownBeatTone} />
+        <ToneSelector
+          setTone={setTone}
+          setDownBeatTone={setDownBeatTone}
+          toneCategory={toneCategory}
+          setToneCategory={setToneCategory}
+          setKey={setKey}
+        />
       </div>
 
       <button id="metronome-btn" onClick={startStop}>
