@@ -46,6 +46,10 @@ input {
   border: rgb(82, 82, 82) 2px solid;
 }
 
+.hidden {
+  display: none;
+}
+
 
 /* Remove arrows on number input for bpm */
 /* Chrome, Safari, Edge, Opera */
