@@ -1,20 +1,78 @@
 import React from "react";
 
-function ToneSelector({ setTone, setDownBeatTone }) {
+function ToneSelector({
+  setTone,
+  setDownBeatTone,
+  toneCategory,
+  setToneCategory,
+  setKey,
+}) {
   const changeTone = (e) => {
     setTone(e.target.value);
     setDownBeatTone(e.target.value);
+    const optgroup = e.target.selectedOptions[0].parentNode.label;
+    setToneCategory(optgroup);
   };
+
+  const changeKey = (e) => {
+    const frequencies = {
+      C: 261.63,
+      Db: 277.18,
+      D: 293.66,
+      Eb: 311.13,
+      E: 329.63,
+      F: 349.23,
+      Gb: 369.99,
+      G: 392,
+      Ab: 415.3,
+      A: 440,
+      Bb: 466.16,
+      B: 493.88,
+    };
+    const newKey = frequencies[e.target.value];
+    console.log("key changed to ", newKey);
+    setKey(newKey);
+  };
+
   return (
     <div id="tone-selector">
       <h3>Tone Selector</h3>
       <label htmlFor="tone-category">
         Type of Tone
         <select id="tone-category" onChange={changeTone}>
-          <option value="tone-audio">Generic Tone</option>
-          <option value="wood-block">Wood Block</option>
+          <optgroup label="Basic Tones">
+            <option value="audioContextTone">Generic Beep</option>
+            <option value="audioContextFlute">Synth Flute</option>
+          </optgroup>
+          <optgroup label="Percussion">
+            <option value="wood-block">Wood Block</option>
+          </optgroup>
+          <optgroup label="Spoken Counts">
+            <option value="femaleNumbers">Female Numbers</option>
+          </optgroup>
         </select>
       </label>
+      <div
+        className={toneCategory == "Basic Tones" ? "" : "hidden"}
+        id="key-div"
+      >
+        <label htmlFor="key">
+          Key
+          <select id="key" onChange={changeKey}>
+            <option value="C">C</option>
+            <option value="Db">C#/Db</option>
+            <option value="D">D</option>
+            <option value="Eb">Eb</option>
+            <option value="F">F</option>
+            <option value="Gb">F#/Gb</option>
+            <option value="G">G</option>
+            <option value="Ab">Ab</option>
+            <option value="A">A</option>
+            <option value="Bb">Bb</option>
+            <option value="B">B</option>
+          </select>
+        </label>
+      </div>
     </div>
   );
 }
