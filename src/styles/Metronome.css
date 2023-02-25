@@ -11,6 +11,11 @@
     font-size: 180%;
 }
 
+#change-meter {
+  display: flex;
+  flex-direction: column;
+}
+
 .flex-row {
     display: flex;
     flex-direction: row;
@@ -21,6 +26,24 @@ input {
     border-radius: 10px;
     font-size: 200%;
     width: 120px;
+}
+
+#metronome-btn {
+  background-color: hsl(240, 100%, 10%);
+  color: gray;
+  text-align: center;
+  display: flex;
+  flex-direction: row;
+  width: 80%;
+  align-items: center;
+  justify-content: center;
+  gap:15px;
+  font-weight: bold;
+  padding: 8px 16px;
+  margin: 60px auto 0 auto;
+  border-radius: 15px;
+  font-size: 115%;
+  border: rgb(82, 82, 82) 2px solid;
 }
 
 
