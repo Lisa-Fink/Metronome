@@ -13,10 +13,13 @@ function ChangeMeter({
   const [showSubdivideMenu, setShowSubdivideMenu] = useState(false);
 
   useEffect(() => {
-    if (subdivide > 1) {
+    if (toneCategory !== "Spoken Counts" && subdivide > 1) {
       setShowSubdivideMenu(true);
     }
-  }, []);
+    if (toneCategory === "Spoken Counts") {
+      setShowSubdivideMenu(false);
+    }
+  }, [toneCategory]);
 
   const toggleMenu = () => {
     if (showSubdivideMenu) {
@@ -67,7 +70,7 @@ function ChangeMeter({
           <input
             type="checkbox"
             name="subdivide"
-            defaultChecked={subdivide > 1}
+            checked={subdivide > 1 || showSubdivideMenu}
             onChange={toggleMenu}
           />
         </label>
