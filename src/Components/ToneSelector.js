@@ -45,10 +45,19 @@ function ToneSelector({
             <option value="audioContextFlute">Synth Flute</option>
           </optgroup>
           <optgroup label="Percussion">
-            <option value="wood-block">Wood Block</option>
+            <option value="woodBlock">Wood Block</option>
+            <option value="marimba">Marimba</option>
+            <option value="snare">Snare Drum</option>
+            <option value="clap">Claps</option>
+            <option value="triangle">Triangle</option>
+            <option value="cowbell">Cowbell</option>
+            <option value="hiHat">Hi Hats</option>
           </optgroup>
           <optgroup label="Spoken Counts">
             <option value="femaleNumbers">Female Numbers</option>
+          </optgroup>
+          <optgroup label="Drum Sets">
+            <option value="drumSet">Drum Set</option>
           </optgroup>
         </select>
       </label>
