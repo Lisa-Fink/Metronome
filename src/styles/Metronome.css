@@ -1,6 +1,6 @@
 #metronome-body {
     margin: auto;
-    background-color: rgb(104, 104, 255);
+    background-color: var(--metronome-bg);
     max-width: 800px;
     padding: 60px;
 }
@@ -28,9 +28,15 @@ input {
     width: 120px;
 }
 
+select {
+  padding: 5px;
+  border-radius: 5px;
+  margin: 15px;
+}
+
 #metronome-btn {
-  background-color: hsl(240, 100%, 10%);
-  color: gray;
+  background-color: var(--button-color);
+  color: var(--button-text-color);
   text-align: center;
   display: flex;
   flex-direction: row;
@@ -43,8 +49,12 @@ input {
   margin: 60px auto 0 auto;
   border-radius: 15px;
   font-size: 115%;
-  border: rgb(82, 82, 82) 2px solid;
+  border: var(--button-border-color);
   align-self: center;
+}
+
+#metronome-btn:hover {
+  background-color: var(--button-hover-color);
 }
 
 #volume {
@@ -87,16 +97,10 @@ input[type=number] {
 /* Vertical Slider------------------------------------------------------------- */
 .volume-control {
   position: absolute;
-  top: -200px;
+  top: -105px;
+  left: -55px;
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column;
   height: 200px; /* Set the height of the slider container */
-}
-
-.slider {
-  writing-mode: bt-lr; /* Set the slider to be vertical */
-  -webkit-appearance: slider-vertical; /* Set the appearance of the slider */
-  height: 100%; /* Set the height of the slider to match the container */
-  margin-top: 20px; /* Add some spacing at the top of the slider */
 }
 /* --------------------------------------------------------------------------- */
