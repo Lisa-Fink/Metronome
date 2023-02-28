@@ -82,6 +82,9 @@ function TempoControls({
     }
   };
 
+  const handleBpmChange = (e) => {
+    setBpm(e.target.value);
+  };
   return (
     <div id="tempo">
       <label>
@@ -89,10 +92,11 @@ function TempoControls({
 
         <div className="flex-row">
           <input
+            disabled
             id="tempo-input"
             type="number"
             value={bpm}
-            onChange={(e) => setBpm(e.target.value)}
+            onChange={handleBpmChange}
             onBlur={(e) => {
               if (e.target.value < MIN_BPM) {
                 setBpm(MIN_BPM);
