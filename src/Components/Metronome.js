@@ -31,11 +31,11 @@ function Metronome() {
   const [mainBeat, setMainBeat] = useState(false);
 
   const [key, setKey] = useState(261.63);
-  const [tone, setTone] = useState("audioContextTone");
-  const [downBeatTone, setDownBeatTone] = useState("audioContextTone");
+  const [tone, setTone] = useState("woodBlock");
+  const [downBeatTone, setDownBeatTone] = useState("woodBlock");
 
   const paused = useRef(false);
-  const [toneCategory, setToneCategory] = useState("Basic Tones");
+  const [toneCategory, setToneCategory] = useState("Percussion");
 
   // Practice settings
   const [countIn, setCountIn] = useState(0);
@@ -490,6 +490,7 @@ function Metronome() {
             toneCategory={toneCategory}
             setToneCategory={setToneCategory}
             setKey={setKey}
+            tone={tone}
           />
         </div>
 
@@ -502,6 +503,7 @@ function Metronome() {
           mainBeat={mainBeat}
           setMainBeat={setMainBeat}
           toneCategory={toneCategory}
+          timeSignature={timeSignature}
         />
       </div>
       <Practice

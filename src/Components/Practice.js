@@ -48,10 +48,14 @@ function Practice({
 
   return (
     <div className="practice-div">
-      <div onClick={togglePracticeView}>
+      <div>
         <h3>
-          {viewPractice ? <GoChevronDown /> : <GoChevronRight />} Practice
-          Settings:
+          {viewPractice ? (
+            <GoChevronDown onClick={togglePracticeView} />
+          ) : (
+            <GoChevronRight onClick={togglePracticeView} />
+          )}{" "}
+          Practice Settings
         </h3>
       </div>
       <div className={viewPractice ? "" : "hidden"}>
@@ -60,7 +64,7 @@ function Practice({
             Count In Measures:
             <select
               id="count-in"
-              onSelect={handleCountInChange}
+              onChange={handleCountInChange}
               defaultValue={countIn}
             >
               <option value="0">None</option>
