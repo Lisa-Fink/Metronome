@@ -1,4 +1,4 @@
-header {
+.heading-div {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -6,6 +6,8 @@ header {
     padding: 10px 15px;
     margin-bottom: 85px;
     font-size: 150%;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 header h1 {
