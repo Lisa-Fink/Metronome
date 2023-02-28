@@ -36,7 +36,7 @@ function ToneSelector({
 
   return (
     <div id="tone-selector">
-      <h3>Tone Selector</h3>
+      <h3>Tone Selection:</h3>
       <label htmlFor="tone-category">
         Type of Tone
         <select id="tone-category" onChange={changeTone}>

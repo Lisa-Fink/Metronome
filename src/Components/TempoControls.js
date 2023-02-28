@@ -84,46 +84,51 @@ function TempoControls({
 
   return (
     <div id="tempo">
-      <label>Tempo (BPM):</label>
-      <div className="flex-row">
+      <label>
+        <h3>Tempo (BPM):</h3>
+
+        <div className="flex-row">
+          <input
+            id="tempo-input"
+            type="number"
+            value={bpm}
+            onChange={(e) => setBpm(e.target.value)}
+            onBlur={(e) => {
+              if (e.target.value < MIN_BPM) {
+                setBpm(MIN_BPM);
+              } else if (e.target.value > MAX_BPM) {
+                setBpm(MAX_BPM);
+              }
+            }}
+          />
+          <div id="tempo-arrows">
+            <BiUpArrow
+              onMouseDown={handleMouseDownUpArrow}
+              onMouseUp={stopBpmChange}
+              onMouseLeave={stopBpmChange}
+            />
+            <BiDownArrow
+              onMouseDown={handleMouseDownDownArrow}
+              onMouseUp={stopBpmChange}
+              onMouseLeave={stopBpmChange}
+            />
+          </div>
+        </div>
         <input
-          type="number"
+          id="tempo-slider"
+          type="range"
+          min={MIN_BPM}
+          max={MAX_BPM}
           value={bpm}
-          onChange={(e) => setBpm(e.target.value)}
-          onBlur={(e) => {
-            if (e.target.value < MIN_BPM) {
-              setBpm(MIN_BPM);
-            } else if (e.target.value > MAX_BPM) {
-              setBpm(MAX_BPM);
+          onChange={handleBpmSliderChange}
+          onMouseUp={() => {
+            if (paused.current) {
+              startStop();
+              paused.current = false;
             }
           }}
         />
-        <div id="tempo-arrows">
-          <BiUpArrow
-            onMouseDown={handleMouseDownUpArrow}
-            onMouseUp={stopBpmChange}
-            onMouseLeave={stopBpmChange}
-          />
-          <BiDownArrow
-            onMouseDown={handleMouseDownDownArrow}
-            onMouseUp={stopBpmChange}
-            onMouseLeave={stopBpmChange}
-          />
-        </div>
-      </div>
-      <input
-        type="range"
-        min={MIN_BPM}
-        max={MAX_BPM}
-        value={bpm}
-        onChange={handleBpmSliderChange}
-        onMouseUp={() => {
-          if (paused.current) {
-            startStop();
-            paused.current = false;
-          }
-        }}
-      />
+      </label>
     </div>
   );
 }
