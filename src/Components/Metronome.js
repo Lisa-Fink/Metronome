@@ -76,7 +76,7 @@ function Metronome() {
     let idx = 0;
     let sub = 0;
 
-    const even = [
+    const twoFour = [
       bass,
       undefined,
       snare,
@@ -86,52 +86,127 @@ function Metronome() {
       snare,
       undefined,
     ];
+
+    const three = [bass, snare, snare, bass, snare, undefined];
+    const five = [
+      bass,
+      undefined,
+      snare,
+      bass,
+      snare,
+      bass,
+      undefined,
+      snare,
+      bass,
+      snare,
+    ];
+    const six = [
+      bass,
+      undefined,
+      snare,
+      bass,
+      undefined,
+      snare,
+      bass,
+      undefined,
+      snare,
+      bass,
+      snare,
+      undefined,
+    ];
+    const seven = [
+      bass,
+      undefined,
+      snare,
+      undefined,
+      bass,
+      snare,
+      snare,
+      bass,
+      undefined,
+      snare,
+      undefined,
+      bass,
+      snare,
+      snare,
+    ];
+
+    const nine = [
+      bass,
+      snare,
+      snare,
+      bass,
+      snare,
+      snare,
+      bass,
+      snare,
+      bass,
+      bass,
+      snare,
+      snare,
+      bass,
+      snare,
+      snare,
+      bass,
+      snare,
+      bass,
+    ];
+
+    const rhythmMap = {
+      2: twoFour,
+      3: three,
+      4: twoFour,
+      5: five,
+      6: six,
+      7: seven,
+      9: nine,
+    };
     let current;
     const id = setInterval(() => {
       // even number of beats
-      if (timeSignature % 2 === 0) {
-        if (sub-- > 1) {
-          if (mainBeat) {
-            hiHatSubdivide.currentTime = 0;
-            hiHatSubdivide.volume = volumeRef.current;
-            hiHatSubdivide.play();
-          } else {
-            hiHat.currentTime = 0;
-            hiHat.volume = volumeRef.current;
-            hiHat.play();
-          }
+      const rhythm = rhythmMap[timeSignature];
+      if (sub-- > 1) {
+        if (mainBeat) {
+          hiHatSubdivide.currentTime = 0;
+          hiHatSubdivide.volume = volumeRef.current;
+          hiHatSubdivide.play();
         } else {
-          if (subdivide > 1) {
-            sub = subdivide;
-          }
-          current = even[idx++];
-          if (current === bass) {
-            bass.currentTime = 0;
-          }
-          if (current !== undefined) {
-            current.currentTime = 0;
-            current.volume = volumeRef.current;
-            current.play();
-          }
           hiHat.currentTime = 0;
+          hiHat.volume = volumeRef.current;
           hiHat.play();
         }
-        if (downBeat) {
-          if (beatCount === 0) {
-            main[0].currentTime = 0;
-            main[0].volume = volumeRef.current;
-            main[0].play();
-          } else if (beatCount === timeSignature * subdivide) {
-            main[1].currentTime = 0;
-            main[1].volume = volumeRef.current;
-            main[1].play();
-          }
+      } else {
+        if (subdivide > 1) {
+          sub = subdivide;
         }
-        beatCount++;
-        if (beatCount === timeSignature * subdivide * 2) {
-          beatCount = 0;
-          idx = 0;
+        current = rhythm[idx++];
+        if (current === bass) {
+          bass.currentTime = 0;
         }
+        if (current !== undefined) {
+          current.currentTime = 0;
+          current.volume = volumeRef.current;
+          current.play();
+        }
+        hiHat.currentTime = 0;
+        hiHat.volume = volumeRef.current;
+        hiHat.play();
+      }
+      if (downBeat) {
+        if (beatCount === 0) {
+          main[0].currentTime = 0;
+          main[0].volume = volumeRef.current;
+          main[0].play();
+        } else if (beatCount === timeSignature * subdivide) {
+          main[1].currentTime = 0;
+          main[1].volume = volumeRef.current;
+          main[1].play();
+        }
+      }
+      beatCount++;
+      if (beatCount === timeSignature * subdivide * 2) {
+        beatCount = 0;
+        idx = 0;
       }
     }, interval);
 
