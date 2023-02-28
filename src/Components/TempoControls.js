@@ -1,14 +1,7 @@
 import React, { useRef } from "react";
 import { BiDownArrow, BiUpArrow } from "react-icons/bi";
 
-function TempoControls({
-  bpm,
-  setBpm,
-  isPlaying,
-  startStop,
-  paused,
-  playClick,
-}) {
+function TempoControls({ bpm, setBpm, isPlaying, startStop, paused }) {
   const MAX_BPM = 240;
   const MIN_BPM = 40;
 
