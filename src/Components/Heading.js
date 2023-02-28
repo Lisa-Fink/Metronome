@@ -24,15 +24,17 @@ function Heading() {
   };
   return (
     <header>
-      <h1>
-        Super Metronome <IoMusicalNotesOutline />
-      </h1>
-      <div id="light-mode">
-        {lightMode ? (
-          <MdOutlineDarkMode onClick={toggleLightMode} />
-        ) : (
-          <MdOutlineLightMode onClick={toggleLightMode} />
-        )}
+      <div className="heading-div">
+        <h1>
+          Super Metronome <IoMusicalNotesOutline />
+        </h1>
+        <div id="light-mode">
+          {lightMode ? (
+            <MdOutlineDarkMode onClick={toggleLightMode} />
+          ) : (
+            <MdOutlineLightMode onClick={toggleLightMode} />
+          )}
+        </div>
       </div>
     </header>
   );
