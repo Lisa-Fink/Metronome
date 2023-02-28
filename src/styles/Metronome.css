@@ -30,11 +30,15 @@ h2 {
   margin-bottom: 15px;
 }
 
-#rows {
+#sections {
   display: flex;
   flex-direction: row;
-  justify-content: space-around;
   align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+#sections > div {
+  width: 50%;
 }
 
 #change-meter {
@@ -129,8 +133,8 @@ select {
 }
 /* Remove arrows on number input for bpm */
 /* Chrome, Safari, Edge, Opera */
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
+#tempo-input::-webkit-outer-spin-button,
+#tempo-input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
@@ -151,3 +155,15 @@ input[type=number] {
   height: 200px; /* Set the height of the slider container */
 }
 /* --------------------------------------------------------------------------- */
+
+@media screen and (max-width: 800px) {
+  #sections {
+    flex-direction: column;
+    align-items: center;
+  }
+  .practice-div{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+}
