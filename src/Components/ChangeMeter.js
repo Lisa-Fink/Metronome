@@ -33,6 +33,7 @@ function ChangeMeter({
   };
   return (
     <div id="change-meter">
+      <h3>Rhythm Settings:</h3>
       <label htmlFor="time-signature">
         Time Signature
         <select
@@ -56,7 +57,7 @@ function ChangeMeter({
         </select>
       </label>
       <div className={toneCategory === "Spoken Counts" ? "hidden" : ""}>
-        <label htmlFor="down-beat">
+        <label htmlFor="down-beat" className="checkbox-div">
           DownBeat
           <input
             type="checkbox"
@@ -65,7 +66,7 @@ function ChangeMeter({
             onChange={(e) => setDownBeat(!downBeat)}
           />
         </label>
-        <label htmlFor="subdivide">
+        <label htmlFor="subdivide" className="checkbox-div">
           Subdivide
           <input
             type="checkbox"
@@ -77,12 +78,13 @@ function ChangeMeter({
       </div>
       <div className={showSubdivideMenu ? "" : "hidden"}>
         <label htmlFor="subdivision">
+          Subdivide Rhythm:
           <select
             id="subdivision"
             value={subdivide}
             onChange={(e) => setSubdivide(parseInt(e.target.value))}
           >
-            <option value="1">Select Subdivide</option>
+            <option value="1">Select Rhythm</option>
             <option value="2">2: 8th Notes</option>
             <option value="3">3: Triplets</option>
             <option value="4">4: 16th Notes</option>
@@ -92,7 +94,7 @@ function ChangeMeter({
             <option value="8">8: 32nd notes</option>
           </select>
         </label>
-        <label htmlFor="main-beat">
+        <label htmlFor="main-beat" className="checkbox-div">
           Main beat
           <input
             type="checkbox"
