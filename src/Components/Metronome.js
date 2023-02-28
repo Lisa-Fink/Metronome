@@ -464,16 +464,25 @@ function Metronome() {
 
   return (
     <div id="metronome-body">
-      <h1>Metronome</h1>
-      <div>
-        <TempoControls
-          bpm={bpm}
-          setBpm={setBpm}
-          isPlaying={isPlaying}
-          startStop={startStop}
-          paused={paused}
-          playClick={playBeep}
-        />
+      <h2>Metronome</h2>
+      <div id="rows">
+        <div id="left-col">
+          <TempoControls
+            bpm={bpm}
+            setBpm={setBpm}
+            isPlaying={isPlaying}
+            startStop={startStop}
+            paused={paused}
+            playClick={playBeep}
+          />
+          <ToneSelector
+            setTone={setTone}
+            setDownBeatTone={setDownBeatTone}
+            toneCategory={toneCategory}
+            setToneCategory={setToneCategory}
+            setKey={setKey}
+          />
+        </div>
         <ChangeMeter
           setTimeSignature={setTimeSignature}
           downBeat={downBeat}
@@ -483,14 +492,6 @@ function Metronome() {
           mainBeat={mainBeat}
           setMainBeat={setMainBeat}
           toneCategory={toneCategory}
-        />
-
-        <ToneSelector
-          setTone={setTone}
-          setDownBeatTone={setDownBeatTone}
-          toneCategory={toneCategory}
-          setToneCategory={setToneCategory}
-          setKey={setKey}
         />
       </div>
       <div id="bottom">
