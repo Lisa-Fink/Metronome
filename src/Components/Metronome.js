@@ -7,6 +7,7 @@ import ToneSelector from "./ToneSelector";
 
 import { IoPlayOutline, IoPauseOutline, IoStopOutline } from "react-icons/io5";
 import Volume from "./Volume";
+import Practice from "./Practice";
 
 function Metronome() {
   const [bpm, setBpm] = useState(120);
@@ -25,7 +26,7 @@ function Metronome() {
   const [mainBeatGain, setMainBeatGain] = useState(null);
 
   const [timeSignature, setTimeSignature] = useState(4);
-  const [downBeat, setDownBeat] = useState(true);
+  const [downBeat, setDownBeat] = useState(false);
   const [subdivide, setSubdivide] = useState(1);
   const [mainBeat, setMainBeat] = useState(false);
 
@@ -35,6 +36,14 @@ function Metronome() {
 
   const paused = useRef(false);
   const [toneCategory, setToneCategory] = useState("Basic Tones");
+
+  // Practice settings
+  const [countIn, setCountIn] = useState(0);
+  const [numMeasures, setNumMeasures] = useState(4);
+  const [repeat, setRepeat] = useState(5);
+  const [tempoInc, setTempoInc] = useState(5);
+  const [sectionPractice, setSectionPractice] = useState(false);
+  const [tempoPractice, setTempoPractice] = useState(false);
 
   // updates to new selected time signature
   useEffect(() => {
@@ -465,7 +474,7 @@ function Metronome() {
   return (
     <div id="metronome-body">
       <h2>Metronome</h2>
-      <div id="rows">
+      <div id="sections">
         <div id="left-col">
           <TempoControls
             bpm={bpm}
@@ -483,6 +492,7 @@ function Metronome() {
             setKey={setKey}
           />
         </div>
+
         <ChangeMeter
           setTimeSignature={setTimeSignature}
           downBeat={downBeat}
@@ -494,6 +504,20 @@ function Metronome() {
           toneCategory={toneCategory}
         />
       </div>
+      <Practice
+        countIn={countIn}
+        setCountIn={setCountIn}
+        numMeasures={numMeasures}
+        setNumMeasures={setNumMeasures}
+        repeat={repeat}
+        setRepeat={setRepeat}
+        tempoInc={tempoInc}
+        setTempoInc={setTempoInc}
+        sectionPractice={sectionPractice}
+        setSectionPractice={setSectionPractice}
+        tempoPractice={tempoPractice}
+        setTempoPractice={setTempoPractice}
+      />
       <div id="bottom">
         <button id="metronome-btn" onClick={startStop}>
           {paused.current ? "Paused " : isPlaying ? "Stop " : "Play "}
