@@ -3,17 +3,44 @@
     background-color: var(--metronome-bg);
     max-width: 800px;
     padding: 60px;
+    padding-top: 10px;
+    border-radius: 10px;
+    border: 3px solid var(--metronome-border-color)
 }
 
 #tempo-arrows {
     display: flex;
     flex-direction: column;
-    font-size: 180%;
+    justify-content: center;
+    font-size: 320%;
+}
+
+h2 {
+  text-align: center;
+  font-size: 200%;
+}
+
+#left-col {
+  display:flex;
+  flex-direction: column;
+  gap:30px;
+}
+
+.checkbox-div {
+  margin-bottom: 15px;
+}
+
+#rows {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: flex-start;
 }
 
 #change-meter {
   display: flex;
   flex-direction: column;
+  justify-items: center;
 }
 
 .flex-row {
@@ -24,9 +51,20 @@
 input {
     padding: 10px;
     border-radius: 10px;
-    font-size: 200%;
-    width: 120px;
 }
+
+#tempo-input {
+  padding: 15px 25px;
+  font-size: 400%;
+  width: 220px;
+}
+
+
+#tempo-slider {
+  margin: 15px 0 ;
+  width: 245px;
+}
+
 
 select {
   padding: 5px;
@@ -49,7 +87,7 @@ select {
   margin: 60px auto 0 auto;
   border-radius: 15px;
   font-size: 115%;
-  border: var(--button-border-color);
+  border: solid 2px var(--button-border-color);
   align-self: center;
 }
 
@@ -79,8 +117,16 @@ select {
   position: relative;
 }
 
+#volume-icons{
+  z-index: 1;
+}
 
-
+.checkbox-div {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap:15px;
+}
 /* Remove arrows on number input for bpm */
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
@@ -92,13 +138,14 @@ input::-webkit-inner-spin-button {
 /* Firefox */
 input[type=number] {
   -moz-appearance: textfield;
+  text-align: center;
 }
 
 /* Vertical Slider------------------------------------------------------------- */
 .volume-control {
   position: absolute;
   top: -105px;
-  left: -55px;
+  left: -63px;
   display: flex;
   flex-direction: column;
   height: 200px; /* Set the height of the slider container */
