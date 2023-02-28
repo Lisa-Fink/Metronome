@@ -20,7 +20,7 @@ body, button, input, option, select {
 
 /* Dark Mode */
 .dark-mode {
-  --metronome-bg: hsl(216, 100%, 15%);
+  --metronome-bg: hsl(216, 49%, 19%);
   --metronome-border-color: rgb(153, 153, 153);
   --bg-color: #1a1a1a;
   --button-border-color: #5a5a5a;
