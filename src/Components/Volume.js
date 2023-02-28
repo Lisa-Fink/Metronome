@@ -28,7 +28,7 @@ function Volume({ volume, setVolume, volumeRef }) {
   };
 
   const unMute = (e) => {
-    const old = oldVolume.current;
+    let old = oldVolume.current;
     if (old === 0) {
       old = 0.25;
     }
@@ -50,7 +50,7 @@ function Volume({ volume, setVolume, volumeRef }) {
             className="slider"
           />
         </div>
-        <div>
+        <div id="volume-icons">
           {volume > 0 ? (
             <BsVolumeUp onMouseOver={hoverVolume} onClick={mute} />
           ) : (
