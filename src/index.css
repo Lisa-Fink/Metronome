@@ -20,30 +20,38 @@ body, button, input, option, select {
 
 /* Dark Mode */
 .dark-mode {
-  --metronome-bg: rgb(21, 21, 49);
- --bg-color: #212529;
- --button-border-color: #343a40 2px solid;
- --button-color: #343a40;
- --button-hover-color: #23272b;
- --button-text-color: #ffffff;
- --heading-color: #ffffff;
- --text-color: #ced4da;
- --input-color: #363636;
- --input-slider-color: #ffffff;
+  --metronome-bg: hsl(216, 100%, 15%);
+  --metronome-border-color: rgb(153, 153, 153);
+  --bg-color: #1a1a1a;
+  --button-border-color: #5a5a5a;
+  --button-color: #1a1a1a;
+  --button-hover-color: hsl(0, 0%, 16%);
+  --button-text-color: #f2f2f2;
+  --heading-color: hsl(0, 0%, 90%);
+  --text-color: #cccccc;
+  --input-color: #cccccc;
+  --input-background-color: #1a1a1a;
+  --input-border-color: #5a5a5a;
+  --input-slider-color: #f2f2f2;
+  --input-track-color: #1a1a1a;
 }
 
 /* Light Mode */
 .light-mode {
-  --metronome-bg: rgb(104, 104, 255);
- --bg-color: #f8f9fa;
- --button-border-color: #007bff 2px solid;
- --button-color: #007bff;
- --button-hover-color: #0062cc;
- --button-text-color: #ffffff;
- --heading-color: #212529;
- --text-color: #495057;
- --input-color: #495057;
- --input-slider-color: #202020;
+  --metronome-bg: hsl(216, 100%, 75%);
+  --metronome-border-color: #373c40;
+  --bg-color: #f2f2f2;
+  --button-border-color: #373c40;
+  --button-color: #212529;
+  --button-hover-color: hsl(210, 11%, 25%);
+  --button-text-color: #ffffff;
+  --heading-color: #212529;
+  --text-color: #373c40;
+  --input-color: #373c40;
+  --input-slider-color: rgb(153, 153, 153);
+  --input-track-color: #212529;
+  --input-background-color:#f2f2f2;
+  --input-border-color: #5a5a5a;
 }
 
 body {
@@ -68,20 +76,58 @@ p {
  color: var(--text-color);
 }
 
-input {
+input, select, option {
  color: var(--input-color);
+ background-color: var(--input-background-color);
+ border: 1px solid var(--input-border-color);
 }
+
+input[type="checkbox"] {
+  /* Set the default checkbox styles */
+  position: relative;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--input-border-color);
+  border-radius: 3px;
+  outline: none;
+  transition: all 0.15s ease-in-out;
+  background-color: var(--input-background-color);
+  cursor: pointer;
+}
+
+input[type="checkbox"]:checked {
+  background-color:var(--input-background-color);
+}
+
+input[type="checkbox"]:checked::before {
+  content: '\2714';
+  position: absolute;
+  top: 1px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background-color: transparent;
+  color: var(--text-color);
+  text-align: center;
+  font-size: 14px;
+  line-height: 16px;
+  border-radius: 3px;
+}
+
 
 input[type="range"] {
   /* Style for WebKit-based browsers */
   -webkit-appearance: none;
   height: 5px;
-  background-color: var(--input-color);
+  background-color: var(--input-track-color);
 }
 
 /* Style for Firefox */
 input[type="range"]::-moz-range-track {
-  background-color: var(--input-color);
+  background-color: var(--input-track-color);
 }
 
 input[type="range"]::-moz-range-thumb {
@@ -103,13 +149,13 @@ input[type="range"]::-webkit-slider-thumb {
 
 /* Style for WebKit-based browsers */
 input[type="range"]::-webkit-slider-runnable-track {
-  background-color: var(--input-color);
+  background-color: var(--input-track-color);
 }
 
 input[type="range"].slider {
   -webkit-appearance: none;
   margin-top: 20px;
-  background-color: var(--input-color);
+  background-color: var(--input-track-color);
   transform: rotate(270deg); /* Rotate the slider to a vertical orientation */
 }
 
