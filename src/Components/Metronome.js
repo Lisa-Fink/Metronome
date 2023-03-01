@@ -65,13 +65,27 @@ function Metronome() {
     if (isPlaying) {
       restart();
     }
-  }, [timeSignature, downBeat, tone, downBeatTone, key, subdivide, mainBeat]);
+  }, [
+    timeSignature,
+    downBeat,
+    tone,
+    downBeatTone,
+    key,
+    subdivide,
+    mainBeat,
+    countIn,
+    sectionPractice,
+    numMeasures,
+    repeat,
+    tempoInc,
+  ]);
 
   const restart = () => {
     if (isPlaying) {
       clearInterval(timerId);
       setIsPlaying(false);
       setTimerId(null);
+      setBpm(bpmRef.current);
     }
     startClick();
   };

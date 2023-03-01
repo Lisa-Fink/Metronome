@@ -31,15 +31,45 @@ function Practice({
   };
 
   const handleNumMeasuresChange = (e) => {
+    if (e.target.value === "") {
+      setNumMeasures("");
+      return;
+    }
     setNumMeasures(parseInt(e.target.value));
   };
 
+  const handleNumExit = (e) => {
+    if (e.target.value === "") {
+      setNumMeasures(1);
+    }
+  };
+
   const handleRepeatChange = (e) => {
+    if (e.target.value === "") {
+      setRepeat("");
+      return;
+    }
     setRepeat(parseInt(e.target.value));
   };
 
+  const handleRepeatExit = (e) => {
+    if (e.target.value === "") {
+      setRepeat(1);
+    }
+  };
+
   const handleTempIncChange = (e) => {
+    if (e.target.value === "") {
+      setTempoInc("");
+      return;
+    }
     setTempoInc(parseInt(e.target.value));
+  };
+
+  const handleTempoExit = (e) => {
+    if (e.target.value === "") {
+      setTempoInc(1);
+    }
   };
 
   const handleCountInChange = (e) => {
@@ -98,6 +128,7 @@ function Practice({
                   type="number"
                   value={numMeasures}
                   onChange={handleNumMeasuresChange}
+                  onBlur={handleNumExit}
                   min="1"
                   max="99"
                 />
@@ -115,6 +146,7 @@ function Practice({
                   type="number"
                   value={repeat}
                   onChange={handleRepeatChange}
+                  onBlur={handleRepeatExit}
                   min="1"
                   max="99"
                 />{" "}
@@ -146,6 +178,7 @@ function Practice({
                     id="increase-amount"
                     value={tempoInc}
                     onChange={handleTempIncChange}
+                    onBlur={handleTempoExit}
                     min="1"
                     max="99"
                   />

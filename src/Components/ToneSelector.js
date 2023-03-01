@@ -16,7 +16,6 @@ function ToneSelector({
     setDownBeatTone(e.target.value);
     const optgroup = e.target.selectedOptions[0].parentNode.label;
     setToneCategory(optgroup);
-    console.log("changed");
   };
 
   const toggleToneView = () => {
@@ -39,7 +38,6 @@ function ToneSelector({
       B: 493.88,
     };
     const newKey = frequencies[e.target.value];
-    console.log("key changed to ", newKey);
     setKey(newKey);
   };
 

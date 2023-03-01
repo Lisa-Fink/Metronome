@@ -432,7 +432,6 @@ const createAudioUtils = (
     originalBpm.current = bpm;
 
     let curBpm = bpm;
-    console.log(originalBpm.current, bpm, curBpm);
 
     const downBeatSound = new Audio(downBeats);
     const regularSound = new Audio(beats);
