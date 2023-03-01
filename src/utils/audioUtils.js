@@ -1,3 +1,5 @@
+import { AudioContext } from "standardized-audio-context";
+
 const createAudioUtils = (
   bpm,
   downBeat,
@@ -9,9 +11,16 @@ const createAudioUtils = (
   timeSignature,
   tone,
   volumeRef,
-  volume,
   toneCategory,
-  timerId
+  timerId,
+  countIn,
+  numMeasures,
+  repeat,
+  tempoInc,
+  sectionPractice,
+  tempoPractice,
+  setBpm,
+  originalBpm
 ) => {
   // store audioContext objects to disable/disconnect later
   let audioContext,
@@ -22,6 +31,28 @@ const createAudioUtils = (
     mainBeatGain,
     mainBeatOsc;
 
+  const playCountIn = async () => {
+    setIsPlaying(true);
+    // use triangle down beat
+    const click = new Audio(audioSamples.triangle.downBeats);
+    const interval = (60 / (bpm * subdivide)) * 1000;
+    let beat = 0;
+    const countInPromise = new Promise((resolve) => {
+      const id = setInterval(() => {
+        click.currentTime = 0;
+        click.play();
+        beat++;
+        if (beat == countIn * timeSignature * subdivide) {
+          clearInterval(id);
+          resolve();
+        }
+      }, interval);
+      setTimerId(id);
+    });
+
+    await countInPromise;
+  };
+
   const playDrumSet = () => {
     const bass = new Audio("./audio/bassDrum/solid-kick-bassdrum.wav");
     const hiHat = new Audio(audioSamples.hiHat.mainBeats);
@@ -29,7 +60,7 @@ const createAudioUtils = (
     const snare = new Audio(audioSamples.snare.mainBeats);
     const crash = new Audio(audioSamples.hiHat.downBeats);
     const clap = new Audio(audioSamples.clap.mainBeats);
-    const interval = (60 / (bpm * subdivide)) * 1000;
+    let interval = (60 / (bpm * subdivide)) * 1000;
 
     const main = [crash, clap];
 
@@ -123,7 +154,11 @@ const createAudioUtils = (
       9: nine,
     };
     let current;
-    const id = setInterval(() => {
+    let beat = 0;
+    originalBpm.current = bpm;
+    let curBpm = bpm;
+
+    const intervalFn = () => {
       // even number of beats
       const rhythm = rhythmMap[timeSignature];
       if (sub-- > 1) {
@@ -165,18 +200,49 @@ const createAudioUtils = (
         }
       }
       beatCount++;
+      beat++;
       if (beatCount === timeSignature * subdivide * 2) {
         beatCount = 0;
         idx = 0;
       }
-    }, interval);
+      // handle section practice
+      if (
+        sectionPractice &&
+        beat === numMeasures * timeSignature * subdivide * repeat
+      ) {
+        // section with all repeats have finished
+        clearInterval(id);
+        setIsPlaying(false);
+        setTimerId(null);
+        // clean up tempo change
+        if (tempoPractice && tempoInc > 0) {
+          setBpm(originalBpm.current);
+        }
+      } else if (
+        sectionPractice &&
+        tempoPractice &&
+        beat > 0 &&
+        beat % (timeSignature * subdivide * numMeasures) === 0
+      ) {
+        setBpm((prev) => {
+          curBpm = curBpm + tempoInc;
+          // adjust interval to new bpm
+          const newInterval = (60 / (curBpm * subdivide)) * 1000;
+          clearInterval(id);
+          id = setInterval(intervalFn, newInterval);
+          setTimerId(id);
+          return prev + tempoInc;
+        });
+      }
+    };
+
+    let id = setInterval(intervalFn, interval);
 
     setTimerId(id);
     setIsPlaying(true);
   };
 
   const playNumberCounter = () => {
-    console.log("numbers");
     const numberAudioFiles = {
       1: "./audio/numbers/female-vox-number-one.wav",
       2: "./audio/numbers/female-vox-number-two.wav",
@@ -194,16 +260,51 @@ const createAudioUtils = (
     }
     const interval = (60 / bpm) * 1000;
     let beatCount = 1;
-    const id = setInterval(() => {
+    let beat = 0;
+    let curBpm = bpm;
+    originalBpm.current = bpm;
+
+    const intervalFn = () => {
       const sound = sounds[beatCount - 1];
       sound.volume = 0.25 * volumeRef.current;
       sound.currentTime = 0;
       sound.play();
       beatCount++;
+      beat++;
       if (beatCount > timeSignature) {
         beatCount = 1;
       }
-    }, interval);
+      // handle section practice
+      if (
+        sectionPractice &&
+        beat === numMeasures * timeSignature * subdivide * repeat
+      ) {
+        // section with all repeats have finished
+        clearInterval(id);
+        setIsPlaying(false);
+        setTimerId(null);
+        // clean up tempo change
+        if (tempoPractice && tempoInc > 0) {
+          setBpm(originalBpm.current);
+        }
+      } else if (
+        sectionPractice &&
+        tempoPractice &&
+        beat > 0 &&
+        beat % (timeSignature * subdivide * numMeasures) === 0
+      ) {
+        setBpm((prev) => {
+          curBpm = curBpm + tempoInc;
+          // adjust interval to new bpm
+          const newInterval = (60 / (curBpm * subdivide)) * 1000;
+          clearInterval(id);
+          id = setInterval(intervalFn, newInterval);
+          setTimerId(id);
+          return prev + tempoInc;
+        });
+      }
+    };
+    let id = setInterval(intervalFn, interval);
 
     setTimerId(id);
     setIsPlaying(true);
@@ -248,19 +349,23 @@ const createAudioUtils = (
   };
 
   const getAudioFiles = () => {
-    console.log(tone);
     return audioSamples[tone];
   };
 
   const playAudio = ({ beats, mainBeats, downBeats }) => {
     const interval = (60 / (bpm * subdivide)) * 1000;
     let beatCount = 1;
+    let beat = 0;
+    originalBpm.current = bpm;
+
+    let curBpm = bpm;
+    console.log(originalBpm.current, bpm, curBpm);
 
     const downBeatSound = new Audio(downBeats);
     const regularSound = new Audio(beats);
     const mainBeatSound = new Audio(mainBeats);
 
-    const id = setInterval(() => {
+    const intervalFn = () => {
       const sound =
         downBeat && beatCount === 1
           ? downBeatSound
@@ -274,11 +379,42 @@ const createAudioUtils = (
       sound.play();
 
       beatCount++;
+      beat++;
       if (beatCount > timeSignature * subdivide) {
         beatCount = 1;
       }
-    }, interval);
+      // handle section practice
+      if (
+        sectionPractice &&
+        beat === numMeasures * timeSignature * subdivide * repeat
+      ) {
+        // section with all repeats have finished
+        clearInterval(id);
+        setIsPlaying(false);
+        setTimerId(null);
+        // clean up tempo change
+        if (tempoPractice && tempoInc > 0) {
+          setBpm(originalBpm.current);
+        }
+      } else if (
+        sectionPractice &&
+        tempoPractice &&
+        beat > 0 &&
+        beat % (timeSignature * subdivide * numMeasures) === 0
+      ) {
+        setBpm((prev) => {
+          curBpm = curBpm + tempoInc;
+          // adjust interval to new bpm
+          const newInterval = (60 / (curBpm * subdivide)) * 1000;
+          clearInterval(id);
+          id = setInterval(intervalFn, newInterval);
+          setTimerId(id);
+          return prev + tempoInc;
+        });
+      }
+    };
 
+    let id = setInterval(intervalFn, interval);
     setTimerId(id);
     setIsPlaying(true);
   };
@@ -315,7 +451,6 @@ const createAudioUtils = (
         newOsc.frequency.value = key * 2;
       }
       newGain.gain.value = volumeRef.current;
-      console.log(volume, " volume");
       beatCount++;
 
       setTimeout(() => {
@@ -416,7 +551,10 @@ const createAudioUtils = (
 
   /**********************************************************************************/
 
-  const startClick = () => {
+  const startClick = async () => {
+    if (countIn > 0) {
+      await playCountIn();
+    }
     if (toneCategory === "Basic Tones") {
       if (tone === "audioContextTone") {
         const { newOsc, newGain } = getTone();
@@ -453,6 +591,9 @@ const createAudioUtils = (
     clearInterval(timerId);
     setIsPlaying(false);
     setTimerId(null);
+    if (sectionPractice && tempoPractice) {
+      setBpm(originalBpm.current);
+    }
     if (osc) {
       osc = null;
     }

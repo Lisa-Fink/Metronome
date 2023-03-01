@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
-import { AudioContext } from "standardized-audio-context";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import "../styles/Metronome.css";
 import ChangeMeter from "./ChangeMeter";
 import TempoControls from "./TempoControls";
@@ -12,9 +11,10 @@ import createAudioUtils from "../utils/audioUtils";
 
 function Metronome() {
   const [bpm, setBpm] = useState(120);
+  const bpmRef = useRef(bpm);
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.16);
-  const volumeRef = useRef(volume);
+  const volumeRef = useRef(volume); // updates in realtime during playback
   const [timerId, setTimerId] = useState(null);
 
   const [timeSignature, setTimeSignature] = useState(4);
@@ -48,9 +48,16 @@ function Metronome() {
     timeSignature,
     tone,
     volumeRef,
-    volume,
     toneCategory,
-    timerId
+    timerId,
+    countIn,
+    numMeasures,
+    repeat,
+    tempoInc,
+    sectionPractice,
+    tempoPractice,
+    setBpm,
+    bpmRef
   );
 
   // updates to new selected time signature
