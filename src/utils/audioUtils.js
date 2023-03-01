@@ -508,7 +508,11 @@ const createAudioUtils = (
     newOsc.start();
     const interval = (60 / (bpm * subdivide)) * 1000;
     let beatCount = 1;
-    const id = setInterval(() => {
+    let beat = 0;
+    let curBpm = bpm;
+    originalBpm.current = bpm;
+
+    const intervalFn = () => {
       if (downBeat && beatCount === 1) {
         newOsc.frequency.value = key * 4; // Set the frequency for high pitch
       } else if (
@@ -525,11 +529,43 @@ const createAudioUtils = (
       }
       newGain.gain.value = volumeRef.current;
       beatCount++;
-
+      beat++;
       setTimeout(() => {
         newGain.gain.value = 0;
       }, interval / 2);
-    }, interval);
+
+      // handle section practice
+      if (
+        sectionPractice &&
+        beat === numMeasures * timeSignature * subdivide * repeat
+      ) {
+        // section with all repeats have finished
+        clearInterval(id);
+        setIsPlaying(false);
+        setTimerId(null);
+        // clean up tempo change
+        if (tempoPractice && tempoInc > 0) {
+          setBpm(originalBpm.current);
+        }
+      } else if (
+        sectionPractice &&
+        tempoPractice &&
+        beat > 0 &&
+        beat % (timeSignature * subdivide * numMeasures) === 0
+      ) {
+        setBpm((prev) => {
+          curBpm = curBpm + tempoInc;
+          // adjust interval to new bpm
+          const newInterval = (60 / (curBpm * subdivide)) * 1000;
+          clearInterval(id);
+          id = setInterval(intervalFn, newInterval);
+          setTimerId(id);
+          return prev + tempoInc;
+        });
+      }
+    };
+
+    let id = setInterval(intervalFn, interval);
     setTimerId(id);
     setIsPlaying(true);
   };
@@ -543,7 +579,11 @@ const createAudioUtils = (
     const interval = (60 / (bpm * subdivide)) * 1000;
     let beatCount = 1;
     let current;
-    const id = setInterval(() => {
+    let beat = 0;
+    let curBpm = bpm;
+    originalBpm.current = bpm;
+
+    const intervalFn = () => {
       if (downBeat && beatCount === 1) {
         current = downBeatGain;
       } else if (
@@ -560,11 +600,42 @@ const createAudioUtils = (
       }
       current.gain.value = volumeRef.current;
       beatCount++;
-
+      beat++;
       setTimeout(() => {
         current.gain.value = 0;
       }, 100);
-    }, interval);
+      // handle section practice
+      if (
+        sectionPractice &&
+        beat === numMeasures * timeSignature * subdivide * repeat
+      ) {
+        // section with all repeats have finished
+        clearInterval(id);
+        setIsPlaying(false);
+        setTimerId(null);
+        // clean up tempo change
+        if (tempoPractice && tempoInc > 0) {
+          setBpm(originalBpm.current);
+        }
+      } else if (
+        sectionPractice &&
+        tempoPractice &&
+        beat > 0 &&
+        beat % (timeSignature * subdivide * numMeasures) === 0
+      ) {
+        setBpm((prev) => {
+          curBpm = curBpm + tempoInc;
+          // adjust interval to new bpm
+          const newInterval = (60 / (curBpm * subdivide)) * 1000;
+          clearInterval(id);
+          id = setInterval(intervalFn, newInterval);
+          setTimerId(id);
+          return prev + tempoInc;
+        });
+      }
+    };
+
+    let id = setInterval(intervalFn, interval);
     setTimerId(id);
     setIsPlaying(true);
   };
