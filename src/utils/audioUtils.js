@@ -243,36 +243,109 @@ const createAudioUtils = (
   };
 
   const playNumberCounter = () => {
+    // old doesn't subdivide
+    // const numberAudioFiles2 = {
+    //   1: "./audio/numbers/female-vox-number-one.wav",
+    //   2: "./audio/numbers/female-vox-number-two.wav",
+    //   3: "./audio/numbers/female-vox-number-three.wav",
+    //   4: "./audio/numbers/female-vox-number-four.wav",
+    //   5: "./audio/numbers/female-vox-number-five.wav",
+    //   6: "./audio/numbers/female-vox-number-six.wav",
+    //   7: "./audio/numbers/female-vox-number-seven.wav",
+    //   8: "./audio/numbers/female-vox-number-eight.wav",
+    //   9: "./audio/numbers/female-vox-number-nine.wav",
+    // };
+
     const numberAudioFiles = {
-      1: "./audio/numbers/female-vox-number-one.wav",
-      2: "./audio/numbers/female-vox-number-two.wav",
-      3: "./audio/numbers/female-vox-number-three.wav",
-      4: "./audio/numbers/female-vox-number-four.wav",
-      5: "./audio/numbers/female-vox-number-five.wav",
-      6: "./audio/numbers/female-vox-number-six.wav",
-      7: "./audio/numbers/female-vox-number-seven.wav",
-      8: "./audio/numbers/female-vox-number-eight.wav",
-      9: "./audio/numbers/female-vox-number-nine.wav",
+      1: "./audio/numbers/spoken/1.mp3",
+      2: "./audio/numbers/spoken/2.mp3",
+      3: "./audio/numbers/spoken/3.mp3",
+      4: "./audio/numbers/spoken/4.mp3",
+      5: "./audio/numbers/spoken/5.mp3",
+      6: "./audio/numbers/spoken/6.mp3",
+      7: "./audio/numbers/spoken/7.mp3",
+      8: "./audio/numbers/spoken/8.mp3",
+      9: "./audio/numbers/spoken/9.mp3",
     };
+
+    // creates subdivide audio objects if needed
+    if (
+      subdivide === 2 ||
+      subdivide === 3 ||
+      subdivide === 4 ||
+      subdivide === 6 ||
+      subdivide === 8
+    ) {
+      numberAudioFiles.and = new Audio("./audio/numbers/spoken/and.mp3");
+    }
+    if (subdivide === 3 || subdivide === 4 || subdivide === 8) {
+      numberAudioFiles.a = new Audio("./audio/numbers/spoken/a.mp3");
+    }
+    if (subdivide === 4 || subdivide === 8) {
+      numberAudioFiles.e = new Audio("./audio/numbers/spoken/e.mp3");
+    }
+    if (
+      subdivide === 5 ||
+      subdivide === 6 ||
+      subdivide === 7 ||
+      subdivide === 8
+    ) {
+      numberAudioFiles.ta = new Audio("./audio/numbers/spoken/ta.mp3");
+    }
+
+    // adds the main beat counts followed by subdivide if needed
     const sounds = [];
     for (let i = 1; i <= timeSignature; i++) {
       sounds.push(new Audio(numberAudioFiles[i]));
+      if (subdivide === 2) {
+        sounds.push(numberAudioFiles.and);
+      } else if (subdivide === 3) {
+        sounds.push(numberAudioFiles.and);
+        sounds.push(numberAudioFiles.a);
+      } else if (subdivide === 4) {
+        sounds.push(numberAudioFiles.e);
+        sounds.push(numberAudioFiles.and);
+        sounds.push(numberAudioFiles.a);
+      } else if (subdivide === 5) {
+        for (let i = 0; i < 4; i++) {
+          sounds.push(numberAudioFiles.ta);
+        }
+      } else if (subdivide === 6) {
+        sounds.push(numberAudioFiles.ta);
+        sounds.push(numberAudioFiles.ta);
+        sounds.push(numberAudioFiles.and);
+        sounds.push(numberAudioFiles.ta);
+        sounds.push(numberAudioFiles.ta);
+      } else if (subdivide === 7) {
+        for (let i = 0; i < 6; i++) {
+          sounds.push(numberAudioFiles.ta);
+        }
+      } else if (subdivide === 8) {
+        sounds.push(numberAudioFiles.ta);
+        sounds.push(numberAudioFiles.e);
+        sounds.push(numberAudioFiles.ta);
+        sounds.push(numberAudioFiles.and);
+        sounds.push(numberAudioFiles.ta);
+        sounds.push(numberAudioFiles.a);
+        sounds.push(numberAudioFiles.ta);
+      }
     }
-    const interval = (60 / bpm) * 1000;
-    let beatCount = 1;
+
+    const interval = (60 / (bpm * subdivide)) * 1000;
+    let beatCount = 0;
     let beat = 0;
     let curBpm = bpm;
     originalBpm.current = bpm;
 
     const intervalFn = () => {
-      const sound = sounds[beatCount - 1];
-      sound.volume = 0.25 * volumeRef.current;
+      const sound = sounds[beatCount];
+      sound.volume = volumeRef.current;
       sound.currentTime = 0;
       sound.play();
       beatCount++;
       beat++;
-      if (beatCount > timeSignature) {
-        beatCount = 1;
+      if (beatCount === timeSignature * subdivide) {
+        beatCount = 0;
       }
       // handle section practice
       if (

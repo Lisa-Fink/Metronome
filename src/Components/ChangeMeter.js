@@ -15,15 +15,6 @@ function ChangeMeter({
   const [viewRhythm, setViewRhythm] = useState(false);
   const [showSubdivideMenu, setShowSubdivideMenu] = useState(false);
 
-  useEffect(() => {
-    if (toneCategory !== "Spoken Counts" && subdivide > 1) {
-      setShowSubdivideMenu(true);
-    }
-    if (toneCategory === "Spoken Counts") {
-      setShowSubdivideMenu(false);
-    }
-  }, [toneCategory]);
-
   const toggleMenu = () => {
     if (showSubdivideMenu) {
       setSubdivide(1);
@@ -71,8 +62,13 @@ function ChangeMeter({
             </optgroup>
           </select>
         </label>
-        <div className={toneCategory === "Spoken Counts" ? "hidden" : ""}>
-          <label htmlFor="down-beat" className="checkbox-div">
+        <div>
+          <label
+            htmlFor="down-beat"
+            className={
+              toneCategory === "Spoken Counts" ? "hidden" : "checkbox-div"
+            }
+          >
             DownBeat
             <input
               type="checkbox"
@@ -109,7 +105,12 @@ function ChangeMeter({
               <option value="8">8: 32nd notes</option>
             </select>
           </label>
-          <label htmlFor="main-beat" className="checkbox-div">
+          <label
+            htmlFor="main-beat"
+            className={
+              toneCategory === "Spoken Counts" ? "hidden" : "checkbox-div"
+            }
+          >
             Main beat
             <input
               type="checkbox"
