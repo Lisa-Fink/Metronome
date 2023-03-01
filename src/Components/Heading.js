@@ -26,7 +26,7 @@ function Heading() {
     <header>
       <div className="heading-div">
         <h1>
-          Super Metronome <IoMusicalNotesOutline />
+          My Custom Metronome <IoMusicalNotesOutline />
         </h1>
         <div id="light-mode">
           {lightMode ? (
