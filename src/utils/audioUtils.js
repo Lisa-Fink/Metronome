@@ -20,7 +20,8 @@ const createAudioUtils = (
   sectionPractice,
   tempoPractice,
   setBpm,
-  originalBpm
+  originalBpm,
+  isStopping
 ) => {
   // store audioContext objects to disable/disconnect later
   let audioContext,
@@ -31,30 +32,90 @@ const createAudioUtils = (
     mainBeatGain,
     mainBeatOsc;
 
-  const playCountIn = async () => {
+  const playCountIn = () => {
     setIsPlaying(true);
     // use triangle down beat
     const click = new Audio(audioSamples.triangle.downBeats);
+
     const interval = (60 / (bpm * subdivide)) * 1000;
     let beat = 0;
-    const countInPromise = new Promise((resolve) => {
+    return new Promise((resolve) => {
       const id = setInterval(() => {
+        click.volume = volumeRef.current;
         click.currentTime = 0;
         click.play();
         beat++;
         if (beat == countIn * timeSignature * subdivide) {
           clearInterval(id);
-          resolve();
+          setTimeout(() => {
+            resolve();
+          }, (60 / (bpm * subdivide)) * 1000);
         }
       }, interval);
       setTimerId(id);
     });
+  };
 
-    await countInPromise;
+  const playCustomRhythm = (instrumentData) => {
+    isStopping.current = false;
+    const instruments = [];
+    const rhythms = [];
+
+    for (const obj of instrumentData) {
+      instruments.push(new Audio(obj.instrument));
+      rhythms.push(obj.rhythm);
+    }
+    /*
+    Rhythms:
+    whole note:       48 parts 
+    dotted half note: 36 parts 
+    half note:        24 parts 
+    dotted quarter    18 parts
+    quarter note:     12 parts 
+    dotted eighth      9 parts 
+    eighth note:       6 parts 
+    eighth note trip:  4 parts
+    sixteenth note:    3 parts
+    sixteenth trip:    2 parts 
+    */
+
+    let cur;
+
+    const intervalFunc = async () => {
+      const beats = rhythms[0].length;
+      for (let beat = 0; beat < beats; beat++) {
+        instruments.forEach((sound, key) => {
+          if (isStopping.current) {
+            clearInterval(id);
+            return;
+          }
+          cur = rhythms[key][beat];
+          if (cur > 0) {
+            sound.currentTime = 0;
+            sound.volume = volumeRef.current;
+            sound.play();
+          } else if (cur < 0) {
+            if (!sound.currentTime === 0) {
+              sound.stop();
+            }
+          }
+        });
+        await new Promise((resolve) => {
+          setTimeout(() => {
+            resolve();
+          }, (60 / (bpm * 12)) * 1000);
+        });
+      }
+    };
+    // interval includes the entire rhythm (1 or 2 measures)
+    intervalFunc();
+    let id = setInterval(intervalFunc, (60 / (bpm * 0.25)) * 1000);
+    setTimerId(id);
+    setIsPlaying(true);
   };
 
   const playDrumSet = () => {
-    const bass = new Audio("./audio/bassDrum/solid-kick-bassdrum.wav");
+    const bass = new Audio(audioSamples.bassDrum.beats);
     const hiHat = new Audio(audioSamples.hiHat.mainBeats);
     const hiHatSubdivide = new Audio(audioSamples.hiHat.beats);
     const snare = new Audio(audioSamples.snare.mainBeats);
@@ -235,7 +296,7 @@ const createAudioUtils = (
         });
       }
     };
-
+    intervalFn();
     let id = setInterval(intervalFn, interval);
 
     setTimerId(id);
@@ -377,6 +438,7 @@ const createAudioUtils = (
         });
       }
     };
+    intervalFn();
     let id = setInterval(intervalFn, interval);
 
     setTimerId(id);
@@ -418,6 +480,9 @@ const createAudioUtils = (
       beats: "./audio/cymbal/hihat/dry-open-hi-hat-fluffy.wav",
       mainBeats: "./audio/cymbal/hihat/boomin-hat-high.wav",
       downBeats: "./audio/cymbal/metro-high-crash_109bpm_F_major.wav",
+    },
+    bassDrum: {
+      beats: "./audio/bassDrum/solid-kick-bassdrum.wav",
     },
   };
 
@@ -485,7 +550,7 @@ const createAudioUtils = (
         });
       }
     };
-
+    intervalFn();
     let id = setInterval(intervalFn, interval);
     setTimerId(id);
     setIsPlaying(true);
@@ -563,7 +628,7 @@ const createAudioUtils = (
         });
       }
     };
-
+    intervalFn();
     let id = setInterval(intervalFn, interval);
     setTimerId(id);
     setIsPlaying(true);
@@ -633,7 +698,7 @@ const createAudioUtils = (
         });
       }
     };
-
+    intervalFn();
     let id = setInterval(intervalFn, interval);
     setTimerId(id);
     setIsPlaying(true);
@@ -725,7 +790,34 @@ const createAudioUtils = (
       } else if (toneCategory === "Spoken Counts") {
         playNumberCounter();
       } else if (toneCategory === "Drum Sets") {
-        playDrumSet();
+        // playDrumSet();
+        // TODO create function to transform rests
+        const rhythm = [
+          -6, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0,
+          0, -6, 0, 0, 0, 0, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0,
+          0, 0,
+        ];
+
+        const bassRhythm = [
+          18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0,
+          0, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0,
+          0, 0,
+        ];
+
+        const hiHatRhythm = [
+          6, 0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 6, 0, 0, 0, 0, 0, 3, 0, 0, 3, 0,
+          0, 6, 0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0,
+          0, 0,
+        ];
+        const snareInst = audioSamples.snare.beats;
+        const bassInst = audioSamples.bassDrum.beats;
+        const hiHatInst = audioSamples.hiHat.beats;
+        const data = [
+          { instrument: snareInst, rhythm: rhythm },
+          { instrument: bassInst, rhythm: bassRhythm },
+          { instrument: hiHatInst, rhythm: hiHatRhythm },
+        ];
+        playCustomRhythm(data);
       }
     }
   };
@@ -734,6 +826,9 @@ const createAudioUtils = (
     clearInterval(timerId);
     setIsPlaying(false);
     setTimerId(null);
+
+    isStopping.current = true;
+
     if (sectionPractice && tempoPractice) {
       setBpm(originalBpm.current);
     }
