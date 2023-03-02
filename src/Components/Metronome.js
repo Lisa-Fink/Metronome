@@ -1,65 +1,56 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useEffect, useContext } from "react";
 import "../styles/Metronome.css";
 import ChangeMeter from "./ChangeMeter";
 import TempoControls from "./TempoControls";
 import ToneSelector from "./ToneSelector";
 
-import { IoPlayOutline, IoPauseOutline, IoStopOutline } from "react-icons/io5";
-import Volume from "./Volume";
 import Practice from "./Practice";
-import createAudioUtils from "../utils/audioUtils";
+import BottomControls from "./BottomControls";
+import { AppContext } from "../contexts/AppContext";
 
 function Metronome() {
-  const [bpm, setBpm] = useState(120);
-  const bpmRef = useRef(bpm);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(0.16);
-  const volumeRef = useRef(volume); // updates in realtime during playback
-  const [timerId, setTimerId] = useState(null);
-
-  const [timeSignature, setTimeSignature] = useState(4);
-  const [downBeat, setDownBeat] = useState(false);
-  const [subdivide, setSubdivide] = useState(1);
-  const [mainBeat, setMainBeat] = useState(false);
-
-  const [key, setKey] = useState(261.63);
-  const [tone, setTone] = useState("woodBlock");
-  const [downBeatTone, setDownBeatTone] = useState("woodBlock");
-
-  const paused = useRef(false);
-  const [toneCategory, setToneCategory] = useState("Percussion");
-
-  // Practice settings
-  const [countIn, setCountIn] = useState(0);
-  const [numMeasures, setNumMeasures] = useState(4);
-  const [repeat, setRepeat] = useState(5);
-  const [tempoInc, setTempoInc] = useState(5);
-  const [sectionPractice, setSectionPractice] = useState(false);
-  const [tempoPractice, setTempoPractice] = useState(false);
-
-  const { startClick, stopClick } = createAudioUtils(
+  const {
     bpm,
-    downBeat,
-    setIsPlaying,
-    key,
-    mainBeat,
-    setTimerId,
-    subdivide,
-    timeSignature,
-    tone,
-    volumeRef,
-    toneCategory,
-    timerId,
-    countIn,
-    numMeasures,
-    repeat,
-    tempoInc,
-    sectionPractice,
-    tempoPractice,
     setBpm,
-    bpmRef
-  );
-
+    bpmRef,
+    isPlaying,
+    setIsPlaying,
+    isStopping,
+    volume,
+    setVolume,
+    volumeRef,
+    timerId,
+    setTimerId,
+    timeSignature,
+    setTimeSignature,
+    downBeat,
+    setDownBeat,
+    subdivide,
+    setSubdivide,
+    mainBeat,
+    setMainBeat,
+    key,
+    setKey,
+    tone,
+    setTone,
+    paused,
+    toneCategory,
+    setToneCategory,
+    countIn,
+    setCountIn,
+    numMeasures,
+    setNumMeasures,
+    repeat,
+    setRepeat,
+    tempoInc,
+    setTempoInc,
+    sectionPractice,
+    setSectionPractice,
+    tempoPractice,
+    setTempoPractice,
+    startClick,
+    stopClick,
+  } = useContext(AppContext);
   // updates to new selected time signature
   useEffect(() => {
     if (isPlaying) {
@@ -69,7 +60,6 @@ function Metronome() {
     timeSignature,
     downBeat,
     tone,
-    downBeatTone,
     key,
     subdivide,
     mainBeat,
@@ -82,7 +72,9 @@ function Metronome() {
 
   const restart = () => {
     if (isPlaying) {
+      isStopping.current = true;
       clearInterval(timerId);
+
       setIsPlaying(false);
       setTimerId(null);
       setBpm(bpmRef.current);
@@ -100,7 +92,7 @@ function Metronome() {
   };
 
   return (
-    <div id="metronome-body">
+    <div className="metronome-body">
       <h2>Metronome</h2>
       <div id="sections">
         <div id="left-col">
@@ -113,7 +105,6 @@ function Metronome() {
           />
           <ToneSelector
             setTone={setTone}
-            setDownBeatTone={setDownBeatTone}
             toneCategory={toneCategory}
             setToneCategory={setToneCategory}
             setKey={setKey}
@@ -147,20 +138,14 @@ function Metronome() {
         tempoPractice={tempoPractice}
         setTempoPractice={setTempoPractice}
       />
-      <div id="bottom">
-        <button id="metronome-btn" onClick={startStop}>
-          {paused.current ? "Paused " : isPlaying ? "Stop " : "Play "}
-
-          {paused.current ? (
-            <IoPauseOutline />
-          ) : isPlaying ? (
-            <IoStopOutline />
-          ) : (
-            <IoPlayOutline />
-          )}
-        </button>
-        <Volume volume={volume} setVolume={setVolume} volumeRef={volumeRef} />
-      </div>
+      <BottomControls
+        startStop={startStop}
+        paused={paused}
+        isPlaying={isPlaying}
+        volume={volume}
+        setVolume={setVolume}
+        volumeRef={volumeRef}
+      />
     </div>
   );
 }
