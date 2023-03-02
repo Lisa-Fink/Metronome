@@ -13,3 +13,12 @@
 header h1 {
     margin: 0;
 }
+
+#light-mode {
+    padding: 8px 15px;
+    border-radius: 55px;
+}
+
+#light-mode:hover {
+    background-color: var(--header-icon-hover);
+}

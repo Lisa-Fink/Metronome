@@ -88,7 +88,7 @@ function Practice({
           Practice Settings
         </h3>
       </div>
-      <div className={viewPractice ? "" : "hidden"}>
+      <div className={viewPractice ? "indented-child" : "hidden"}>
         <div>
           <label htmlFor="count-in">
             Count In Measures:

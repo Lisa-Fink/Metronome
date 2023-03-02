@@ -3,7 +3,6 @@ import { GoChevronRight, GoChevronDown } from "react-icons/go";
 
 function ToneSelector({
   setTone,
-  setDownBeatTone,
   toneCategory,
   setToneCategory,
   setKey,
@@ -13,7 +12,6 @@ function ToneSelector({
 
   const changeTone = (e) => {
     setTone(e.target.value);
-    setDownBeatTone(e.target.value);
     const optgroup = e.target.selectedOptions[0].parentNode.label;
     setToneCategory(optgroup);
   };
@@ -51,7 +49,10 @@ function ToneSelector({
         )}
         Tone Selection
       </h3>
-      <div id="tone-container" className={viewTone ? "" : "hidden"}>
+      <div
+        id="tone-container"
+        className={viewTone ? "indented-child" : "hidden"}
+      >
         <label htmlFor="tone-category">
           Type of Tone
           <select id="tone-category" onChange={changeTone} value={tone}>

@@ -23,15 +23,19 @@ body, button, input, option, select {
   --metronome-bg: hsl(216, 49%, 19%);
   --metronome-border-color: rgb(153, 153, 153);
   --bg-color: #1a1a1a;
-  --button-border-color: #5a5a5a;
+  --header-icon-hover: hsl(0, 0%, 13%);
+  --button-border-color: #cccccc;
   --button-color: #1a1a1a;
-  --button-hover-color: hsl(0, 0%, 16%);
+  --button-hover-color: hsl(0, 0%, 8%);
+  --button-hover-text-color: hsl(0, 0%, 44%);
+  --button-border-hover: hsl(0, 0%, 44%);
   --button-text-color: #f2f2f2;
   --heading-color: hsl(0, 0%, 90%);
   --text-color: #cccccc;
+  --body-color-hover: hsl(0, 0%, 44%);
   --input-color: #cccccc;
   --input-background-color: #1a1a1a;
-  --input-border-color: #5a5a5a;
+  --input-border-color: #cccccc;
   --input-slider-color: #f2f2f2;
   --input-track-color: #1a1a1a;
 }
@@ -41,12 +45,15 @@ body, button, input, option, select {
   --metronome-bg: hsl(216, 100%, 75%);
   --metronome-border-color: #373c40;
   --bg-color: hsl(0, 0%, 85%);
+  --header-icon-hover: hsl(0, 0%, 80%);
   --button-border-color: #373c40;
   --button-color: #212529;
-  --button-hover-color: hsl(210, 11%, 25%);
+  --button-hover-color: hsl(216, 100%, 95%);
+  --button-hover-text-color: #212529;
   --button-text-color: #ffffff;
   --heading-color: #212529;
   --text-color: #373c40;
+  --body-color-hover: hsl(216, 100%, 95%);
   --input-color: #373c40;
   --input-slider-color: rgb(153, 153, 153);
   --input-track-color: #212529;
@@ -81,6 +88,7 @@ input, select, option {
  background-color: var(--input-background-color);
  border: 1px solid var(--input-border-color);
 }
+
 
 input[type="checkbox"] {
   /* Set the default checkbox styles */
@@ -174,6 +182,36 @@ input[type="range"].slider::-webkit-slider-thumb {
   background-color: var(--input-slider-color);
   border-radius: 50%;
 }
+
+/* hover over range thumb --------------------------------------*/
+/* For webkit-based browsers */
+input[type="range"]::-webkit-slider-thumb:hover {
+  background-color: var(--body-color-hover);
+}
+
+/* For Mozilla-based browsers */
+input[type="range"]::-moz-range-thumb:hover {
+  background-color: var(--body-color-hover);
+}
+
+/* For Microsoft Edge and Internet Explorer */
+input[type="range"]::-ms-thumb:hover {
+  background-color: var(--body-color-hover);
+}
+
+/* For all other browsers */
+input[type="range"]:hover::-webkit-slider-thumb {
+  background-color: var(--body-color-hover);
+}
+
+input[type="range"]:hover::-moz-range-thumb {
+  background-color: var(--body-color-hover);
+}
+
+input[type="range"]:hover::-ms-thumb {
+  background-color: var(--body-color-hover);
+}
+/* ---------------------------------------------------------- */
 
 
 

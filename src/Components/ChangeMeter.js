@@ -39,7 +39,7 @@ function ChangeMeter({
         )}{" "}
         Rhythm Settings
       </h3>
-      <div className={viewRhythm ? "" : "hidden"}>
+      <div className={viewRhythm ? "indented-child" : "hidden"}>
         <label htmlFor="time-signature">
           Time Signature
           <select
