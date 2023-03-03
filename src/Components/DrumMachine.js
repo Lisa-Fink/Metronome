@@ -1,48 +1,18 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import TempoControls from "./TempoControls";
 import BottomControls from "./BottomControls";
 import { AppContext } from "../contexts/AppContext";
+import "../styles/DrumMachine.css";
 
 function DrumMachine() {
   const {
-    bpm,
     setBpm,
     bpmRef,
     isPlaying,
     setIsPlaying,
     isStopping,
-    volume,
-    setVolume,
-    volumeRef,
     timerId,
     setTimerId,
-    timeSignature,
-    setTimeSignature,
-    downBeat,
-    setDownBeat,
-    subdivide,
-    setSubdivide,
-    mainBeat,
-    setMainBeat,
-    key,
-    setKey,
-    tone,
-    setTone,
-    paused,
-    toneCategory,
-    setToneCategory,
-    countIn,
-    setCountIn,
-    numMeasures,
-    setNumMeasures,
-    repeat,
-    setRepeat,
-    tempoInc,
-    setTempoInc,
-    sectionPractice,
-    setSectionPractice,
-    tempoPractice,
-    setTempoPractice,
     startClick,
     stopClick,
   } = useContext(AppContext);
@@ -53,6 +23,10 @@ function DrumMachine() {
   //       restart();
   //     }
   //   }, []);
+
+  const [rhythm, setRhythm] = useState(1);
+  const [measures, setMeasures] = useState(1);
+  const [timeSig, setTimeSig] = useState(4);
 
   const restart = () => {
     if (isPlaying) {
@@ -75,25 +49,101 @@ function DrumMachine() {
     }
   };
 
+  const handleRhythmClick = (num) => {
+    setRhythm(num);
+  };
+
+  const handleMeasureChange = (e) => {
+    setMeasures(parseInt(e.target.value));
+  };
+
+  const handleTimeSigChange = (e) => {
+    setTimeSig(parseInt(e.target.value));
+  };
+
+  const rhythms = [
+    ["𝅗", 4],
+    ["𝅗𝅥.", 3],
+    ["𝅗𝅥", 2],
+    ["𝅘𝅥.", 1.5],
+    ["𝅘𝅥", 1],
+    ["𝅘𝅥𝅮.", 0.75],
+    ["𝅘𝅥𝅮", 0.5],
+    ["𝅘𝅥𝅯", 0.25],
+  ];
+
   return (
     <div className="metronome-body">
       <h2>Drum Machine</h2>
-      <TempoControls
-        bpm={bpm}
-        setBpm={setBpm}
-        isPlaying={isPlaying}
-        startStop={startStop}
-        paused={paused}
-      />
+      <div className="top">
+        <div className="left">
+          <TempoControls startStop={startStop} />
+        </div>
 
-      <BottomControls
-        startStop={startStop}
-        paused={paused}
-        isPlaying={isPlaying}
-        volume={volume}
-        setVolume={setVolume}
-        volumeRef={volumeRef}
-      />
+        <div className="right">
+          <div className="dm-settings">
+            <label>
+              Beats Per Measure:
+              <div className="dm-input-div">
+                <input
+                  type="range"
+                  min="2"
+                  max="9"
+                  value={timeSig}
+                  onChange={handleTimeSigChange}
+                />
+                {timeSig}
+              </div>
+            </label>
+          </div>
+          <div className="dm-settings">
+            <label>
+              Measures:
+              <div className="dm-input-div">
+                <span
+                  className={
+                    measures === 1 ? "input-selected" : "input-unselected"
+                  }
+                >
+                  1
+                </span>
+                <input
+                  id="measure-range"
+                  type="range"
+                  min="1"
+                  max="2"
+                  value={measures}
+                  onChange={handleMeasureChange}
+                />
+                <span
+                  className={
+                    measures === 2 ? "input-selected" : "input-unselected"
+                  }
+                >
+                  2
+                </span>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div className="rhythm-div">
+        <h4>Rhythms</h4>
+        <div>
+          {rhythms.map(([note, num]) => (
+            <button
+              className={rhythm === num ? "selected" : ""}
+              onClick={() => handleRhythmClick(num)}
+            >
+              <div className="music-note">{note}</div>
+              {num}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div id="drum-machine"></div>
+
+      <BottomControls startStop={startStop} />
     </div>
   );
 }
