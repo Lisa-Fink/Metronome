@@ -1,4 +1,4 @@
-.heading-div {
+#heading-container {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -8,17 +8,45 @@
     font-size: 150%;
     max-width: 1200px;
     margin: 0 auto 40px auto;
+    gap: 120px;
 }
 
 header h1 {
     margin: 0;
 }
 
-#light-mode {
+#light-mode, #settings {
     padding: 8px 15px;
     border-radius: 55px;
 }
+#settings {
+    font-size: 90%;
+}
 
-#light-mode:hover {
+#light-mode:hover, #settings:hover {
     background-color: var(--header-icon-hover);
+}
+
+nav {
+    display: flex;
+    flex-direction: row;
+}
+
+#heading-right {
+    display: flex;
+    flex-direction: row;
+}
+
+#user-div {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.type {
+    background-color: var(--metronome-bg);
+}
+
+.type:hover {
+    background-color: var(--metronome-bg);
 }
