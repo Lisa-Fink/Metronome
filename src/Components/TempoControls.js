@@ -1,7 +1,10 @@
-import React, { useRef } from "react";
+import React, { useRef, useContext } from "react";
 import { BiDownArrow, BiUpArrow } from "react-icons/bi";
+import { AppContext } from "../contexts/AppContext";
 
-function TempoControls({ bpm, setBpm, isPlaying, startStop, paused }) {
+function TempoControls({ startStop }) {
+  const { bpm, setBpm, isPlaying, paused } = useContext(AppContext);
+
   const MAX_BPM = 240;
   const MIN_BPM = 40;
 

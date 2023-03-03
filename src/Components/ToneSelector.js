@@ -1,13 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { GoChevronRight, GoChevronDown } from "react-icons/go";
+import { AppContext } from "../contexts/AppContext";
 
-function ToneSelector({
-  setTone,
-  toneCategory,
-  setToneCategory,
-  setKey,
-  tone,
-}) {
+function ToneSelector() {
+  const { setKey, tone, setTone, toneCategory, setToneCategory } =
+    useContext(AppContext);
+
   const [viewTone, setViewTone] = useState(false);
 
   const changeTone = (e) => {

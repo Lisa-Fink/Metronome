@@ -1,21 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { GoChevronRight, GoChevronDown } from "react-icons/go";
 import "../styles/Practice.css";
+import { AppContext } from "../contexts/AppContext";
 
-function Practice({
-  countIn,
-  setCountIn,
-  numMeasures,
-  setNumMeasures,
-  repeat,
-  setRepeat,
-  tempoInc,
-  setTempoInc,
-  sectionPractice,
-  setSectionPractice,
-  tempoPractice,
-  setTempoPractice,
-}) {
+function Practice() {
+  const {
+    countIn,
+    setCountIn,
+    numMeasures,
+    setNumMeasures,
+    repeat,
+    setRepeat,
+    tempoInc,
+    setTempoInc,
+    sectionPractice,
+    setSectionPractice,
+    tempoPractice,
+    setTempoPractice,
+  } = useContext(AppContext);
   const [viewPractice, setViewPractice] = useState(false);
 
   const togglePracticeView = () => {

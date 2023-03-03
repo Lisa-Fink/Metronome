@@ -1,17 +1,20 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { GoChevronRight, GoChevronDown } from "react-icons/go";
+import { AppContext } from "../contexts/AppContext";
 
-function ChangeMeter({
-  setTimeSignature,
-  downBeat,
-  setDownBeat,
-  subdivide,
-  setSubdivide,
-  mainBeat,
-  setMainBeat,
-  toneCategory,
-  timeSignature,
-}) {
+function ChangeMeter() {
+  const {
+    timeSignature,
+    setTimeSignature,
+    downBeat,
+    setDownBeat,
+    subdivide,
+    setSubdivide,
+    mainBeat,
+    setMainBeat,
+    toneCategory,
+  } = useContext(AppContext);
+
   const [viewRhythm, setViewRhythm] = useState(false);
   const [showSubdivideMenu, setShowSubdivideMenu] = useState(false);
 

@@ -1,15 +1,12 @@
-import React from "react";
+import React, { useContext } from "react";
 import Volume from "./Volume";
 import { IoPlayOutline, IoPauseOutline, IoStopOutline } from "react-icons/io5";
+import { AppContext } from "../contexts/AppContext";
 
-function BottomControls({
-  startStop,
-  paused,
-  isPlaying,
-  volume,
-  setVolume,
-  volumeRef,
-}) {
+function BottomControls({ startStop }) {
+  const { isPlaying, volume, setVolume, volumeRef, paused } =
+    useContext(AppContext);
+
   return (
     <div id="bottom">
       <button id="metronome-btn" onClick={startStop}>
