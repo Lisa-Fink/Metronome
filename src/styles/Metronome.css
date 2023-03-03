@@ -80,9 +80,6 @@ select {
 }
 
 #metronome-btn {
-  background-color: var(--button-color);
-  color: var(--button-text-color);
-  text-align: center;
   display: flex;
   flex-direction: row;
   width: 80%;
@@ -90,18 +87,10 @@ select {
   justify-content: center;
   gap:15px;
   font-weight: bold;
-  padding: 8px 16px;
   margin: 60px auto 0 auto;
-  border-radius: 15px;
   font-size: 115%;
-  border: solid 2px var(--button-border-color);
   align-self: center;
-}
-
-#metronome-btn:hover {
-  background-color: var(--button-hover-color);
-  color: var(--button-hover-text-color);
-  border-color: var(--button-border-hover);
+  padding: 8px 16px;
 }
 
 #volume {
