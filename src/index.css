@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Michroma&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Music&display=swap');
 
 body {
   background-color: var(--bg-color);
@@ -13,14 +14,12 @@ body, button, input, option, select {
 
 :root {
   color: var(--text-color);
- /* common variables */
  --input-color: #343a40;
- --input-slider-color: #007bff;
 }
 
 /* Dark Mode */
 .dark-mode {
-  --metronome-bg: hsl(216, 49%, 19%);
+  --metronome-bg: hsl(216, 55%, 20%);
   --metronome-border-color: rgb(153, 153, 153);
   --bg-color: #1a1a1a;
   --header-icon-hover: hsl(0, 0%, 13%);
@@ -38,6 +37,14 @@ body, button, input, option, select {
   --input-border-color: #cccccc;
   --input-slider-color: #f2f2f2;
   --input-track-color: #1a1a1a;
+  --pop-up-background: hsl(0, 0%, 12%);
+  --pop-up-border: hsl(0, 0%, 40%);
+  --pop-up-transparent: rgba(255, 255, 255, 0.1);
+  --pop-up-input-bg: #cccccc;
+  --pop-up-input-color: #1a1a1a;
+  --link-color: hsl(240, 50%, 57%);
+  --link-hover-color: hsl(240, 50%, 72%);
+  --selected:hsl(216, 70%, 50%);
 }
 
 /* Light Mode */
@@ -59,6 +66,15 @@ body, button, input, option, select {
   --input-track-color: #212529;
   --input-background-color:#f2f2f2;
   --input-border-color: #5a5a5a;
+  --pop-up-background: hsl(0, 0%, 75%);
+  --pop-up-border: hsl(207, 8%, 20%);
+  --pop-up-transparent: rgba(0, 0, 0, 0.4);
+  --pop-up-input-bg: #ffffff;
+  --pop-up-input-color: #212529;
+  --link-color: hsl(240, 50%, 57%);
+  --link-hover-color: hsl(240, 50%, 37%);
+  --selected:hsl(216, 100%, 60%);
+  
 }
 
 body {
@@ -69,10 +85,17 @@ button {
  border: var(--button-border-color);
  background-color: var(--button-color);
  color: var(--button-text-color);
+ text-align: center;
+ border: solid 2px var(--button-border-color);
+ border-radius: 15px;
+ padding: 6px 12px;
+ margin: 6px;
 }
 
 button:hover {
  background-color: var(--button-hover-color);
+ color: var(--button-hover-text-color);
+ border-color: var(--button-border-hover);
 }
 
 h1, h2, h3, h4, h5, h6 {
