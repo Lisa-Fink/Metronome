@@ -1,0 +1,106 @@
+.music-note {
+    font-family: 'Noto Music', sans-serif;
+    font-size: 40px;
+}
+
+.selected {
+    color: var(--selected);
+    border-color: var(--selected);
+}
+
+.dm-settings {
+    padding: 12px;
+}
+
+.dm-settings input {
+    margin-left: 8px;
+}
+
+.dm-input-div {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap:6px;
+    justify-content: center;
+    margin-top: 4px;
+}
+
+.left {
+    margin-right: 15px;
+}
+
+.right {
+    margin-left: 26px;
+    display: flex;
+}
+.top, .rhythm-div {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 16px;
+    margin-top: -20px;
+    flex-wrap: wrap;
+}
+
+.top {
+    justify-content: flex-start;
+}
+
+.rhythm-div {
+    justify-content: center;
+}
+
+#drum-machine {
+    background-color: var(--bg-color);
+    width: 100%;
+    height: 400px;
+}
+
+#measure-range {
+    width: 50px;
+}
+
+.input-selected {
+    font-weight: bold;
+}
+
+.input-unselected {
+   color: hsla(0, 0%, 80%, 0.3);
+}
+
+.selected:hover {
+    color: var(--selected);
+    border-color: var(--selected);
+}
+
+.top label {
+    font-weight: bold;
+}
+
+
+/* Adjust tempo input size----------------- */
+.top #tempo {
+    margin-top: -40px;
+}
+
+.top h3 {
+    font-size: 100%;
+    margin: 6px;
+}
+
+.top #tempo input{
+    font-size: 200%;
+}
+
+.top #tempo-input {
+    padding: 0;
+}
+
+.top #tempo-slider {
+    width: 200px;
+}
+
+.top #tempo-arrows {
+    font-size: 120%;
+}
+/* ------------------------------------------ */
