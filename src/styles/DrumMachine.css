@@ -297,3 +297,7 @@
   .instrument-icon {
     font-size: 160%;
   }
+
+  .add-inst:hover {
+    color: var(--button-hover-text-color);
+  }

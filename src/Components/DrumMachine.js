@@ -4,6 +4,7 @@ import BottomControls from "./BottomControls";
 import { AppContext } from "../contexts/AppContext";
 import { IoAddCircleOutline } from "react-icons/io5";
 import "../styles/DrumMachine.css";
+import ChooseInstPopUp from "./ChooseInstPopUp";
 
 function DrumMachine() {
   const {
@@ -27,24 +28,26 @@ function DrumMachine() {
   //     }
   //   }, []);
   const NUM_CELLS_PER_BEAT = 12;
+  const MAX_INSTRUMENTS = 4;
   const createRhythmGrid = () =>
-    Array.from({ length: 4 }, () =>
+    Array.from({ length: MAX_INSTRUMENTS }, () =>
       Array(NUM_CELLS_PER_BEAT * timeSignature).fill(false)
     );
+
+  const [isChooseInstOpen, setIsChooseInstOpen] = useState(false);
+  const instrumentIdx = useRef(0);
 
   const [rhythm, setRhythm] = useState(1);
   const [measures, setMeasures] = useState(1);
   const [rhythmGrid, setRhythmGrid] = useState(createRhythmGrid());
   const [hoverGrid, setHoverGrid] = useState(createRhythmGrid());
-  const [instruments, setInstruments] = useState([
-    "bass-drum",
-    undefined,
-    undefined,
-    undefined,
-  ]);
+  // Instrument [name, descriptive name, index]
+  const [instruments, setInstruments] = useState(
+    Array.from({ length: MAX_INSTRUMENTS }, () => Array(3).fill(undefined))
+  );
   const hoverGridRef = useRef(createRhythmGrid());
   const rhythmSequence = useRef(
-    Array.from({ length: 4 }, () =>
+    Array.from({ length: MAX_INSTRUMENTS }, () =>
       Array(NUM_CELLS_PER_BEAT * timeSignature).fill(0)
     )
   );
@@ -68,6 +71,7 @@ function DrumMachine() {
 
   const startStop = () => {
     if (isPlaying) {
+      // TODO change to stop/start drumMachine func?
       // stopping
       stopClick();
     } else {
@@ -88,10 +92,6 @@ function DrumMachine() {
     if (newTimeSignature === timeSignature) {
       return;
     }
-    //   rhythmGrid, setRhythmGrid] = useState(createRhythmGrid());
-    // const [hoverGrid, setHoverGrid] = useState(createRhythmGrid());
-    // const hoverGridRef = useRef(createRhythmGrid());
-    // const rhythmSequence
     if (newTimeSignature > timeSignature) {
       // add to the arrays
       const adding = (newTimeSignature - timeSignature) * 12;
@@ -211,8 +211,16 @@ function DrumMachine() {
     hoverGridRef.current = newHoverGrid;
   };
 
-  const addInstrument = (instrumentIdx) => {
-    console.log(instrumentIdx);
+  const addInstrument = (idx) => {
+    instrumentIdx.current = idx;
+    setIsChooseInstOpen(true);
+  };
+
+  const deleteInstrument = (idx) => {
+    // TODO clear rhythmsequence
+    const newInstruments = [...instruments];
+    newInstruments[idx] = [undefined, undefined, undefined];
+    setInstruments(newInstruments);
   };
 
   const rhythms = [
@@ -265,11 +273,20 @@ function DrumMachine() {
   const instrumentDiv = (
     <div className="instrument-name">
       {instruments.map((inst, i) => {
-        if (inst) {
-          return <div key={`instrument-${i}`}>{inst}</div>;
-        } else {
+        if (inst[0]) {
           return (
             <div key={`instrument-${i}`}>
+              <h4>{inst[0]}</h4>
+              <p>{inst[1]}</p>
+              <div className="inst-edit">
+                <button onClick={() => addInstrument(i)}>Change</button>
+                <button onClick={() => deleteInstrument(i)}>Delete</button>
+              </div>
+            </div>
+          );
+        } else {
+          return (
+            <div className="add-inst" key={`instrument-${i}`}>
               <IoAddCircleOutline
                 className="instrument-icon"
                 key={`instrument-${i}-icon`}
@@ -285,7 +302,7 @@ function DrumMachine() {
   const rhythmGridDiv = (
     <div className="rhythm-grid-container">
       {rhythmGrid.map((row, rowIdx) => {
-        if (instruments[rowIdx] === undefined) {
+        if (instruments[rowIdx][0] === undefined) {
           return (
             <div className="rhythm-grid-no-inst-row" key={rowIdx}>
               <div
@@ -423,6 +440,15 @@ function DrumMachine() {
       {drumMachineDiv}
 
       <BottomControls startStop={startStop} />
+
+      {isChooseInstOpen && (
+        <ChooseInstPopUp
+          instArr={instruments}
+          setInstArr={setInstruments}
+          instrumentIdx={instrumentIdx.current}
+          setIsChooseInstOpen={setIsChooseInstOpen}
+        />
+      )}
     </div>
   );
 }
