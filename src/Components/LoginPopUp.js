@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import app from "../firebase";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import "firebase/auth";
-import "../styles/LoginSignUp.css";
+import "../styles/PopUp.css";
 
 import { AiOutlineClose, AiOutlineCheckCircle } from "react-icons/ai";
 
