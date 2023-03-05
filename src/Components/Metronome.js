@@ -53,6 +53,9 @@ function Metronome() {
     tempoPractice,
   ]);
 
+  // TODO when changing view to drum machine or back to metronome, store current state that may get
+  // changed as a ref, and restore it on rerender. (timeSignature)
+
   const restart = () => {
     if (isPlaying) {
       isStopping.current = true;

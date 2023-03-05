@@ -50,12 +50,6 @@
     justify-content: center;
 }
 
-#drum-machine {
-    background-color: var(--bg-color);
-    width: 100%;
-    height: 400px;
-}
-
 #measure-range {
     width: 50px;
 }
@@ -104,3 +98,202 @@
     font-size: 120%;
 }
 /* ------------------------------------------ */
+.drum-machine-container {
+    display: grid;
+    grid-template-columns: minmax(0, auto) 1fr;
+    background-color: var(--drum-machine-bg);
+    padding: 10px;
+  }
+  
+  .instrument-name {
+    grid-column: 1;
+    grid-row:2;
+    display: grid;
+    grid-template-rows: repeat(4, 1fr);
+    align-items: center;
+    text-align: center;
+    margin-right: 10px;
+  }
+  
+  .rhythm-grid-container {
+    grid-column: 2;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 10px 0;
+  }
+
+  .rhythm-grid-no-inst-row {
+    height: 80px;
+    background-color: var(--no-instrument-bg);
+  }
+
+  .rhythm-grid-no-inst-row>div {
+    border:none;
+  }
+  
+
+#counts {
+    display: grid;
+    grid-row: 1;
+    grid-column: 2;
+}
+    /* Time signature layouts */
+    #counts.two {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    #counts.three {
+    grid-template-columns: repeat(6, 1fr);
+    }
+    #counts.four {
+        grid-template-columns: repeat(8, 1fr);
+      }
+    #counts.five {
+        grid-template-columns: repeat(10, 1fr);
+    }
+    #counts.six {
+        grid-template-columns: repeat(12, 1fr);
+      }
+    #counts.seven {
+    grid-template-columns: repeat(14, 1fr);
+    }
+    #counts.eight {
+    grid-template-columns: repeat(16, 1fr);
+    }
+    #counts.nine {
+    grid-template-columns: repeat(18, 1fr);
+    }
+
+
+#counts > div {
+    grid-row: 1;
+    margin-left: -4px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+/* Drum Machine Grid ------------------------ */
+.rhythm-grid {
+    background-color: var(--bg-color);
+    display: grid;
+    grid-auto-flow: column;
+    gap: 0;
+    border: 1px solid black;
+  }
+
+    /* Time signature layouts */
+    .rhythm-grid.two {
+        grid-template-columns: repeat(24, 1fr);
+      }
+    .rhythm-grid.three {
+    grid-template-columns: repeat(36, 1fr);
+    }
+    .rhythm-grid.four {
+        grid-template-columns: repeat(48, 1fr);
+      }
+    .rhythm-grid.five {
+        grid-template-columns: repeat(60, 1fr);
+    }
+    .rhythm-grid.six {
+        grid-template-columns: repeat(72, 1fr);
+      }
+    .rhythm-grid.seven {
+    grid-template-columns: repeat(84, 1fr);
+    }
+    .rhythm-grid.eight {
+    grid-template-columns: repeat(96, 1fr);
+    }
+    .rhythm-grid.nine {
+    grid-template-columns: repeat(108, 1fr);
+    }
+  
+  .cell {
+    /* width: 20px; */
+    height: 80px;
+    border: 1px solid rgb(21, 21, 21);
+    box-sizing: border-box;
+  }
+
+  .beat-cell  {
+    border-left: 1.5px solid yellow
+  }
+
+  .half-beat-cell {
+    border-left: 1.5px solid hsl(60, 100%, 21%)
+  }
+
+  .quarter-beat-cell {
+    border-left: 1.5px solid hsl(60, 100%, 9%)
+  }
+
+  .cell.has-first-value {
+    border-right: none;
+  }
+  .cell.has-middle-value {
+    border-left:none;
+    border-right:none;
+  }
+  .cell.has-last-value {
+    border-left:none;
+  }
+
+  .cell.has-first-value, .cell.has-middle-value, .cell.has-last-value {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .cell.has-first-value > div, 
+  .cell.has-middle-value > div, 
+  .cell.has-last-value > div {
+    width: 100%;
+}
+
+  .first {
+    border: none;
+    border-top: 2px solid black;
+    border-top-left-radius: 15px;
+    border-bottom-left-radius: 15px;
+    border-bottom: 2px solid black;
+    border-left: 2px solid black;
+    background-color: var(--selected-cell);
+    vertical-align: middle;
+  }
+  
+  .middle {
+    border: none;
+    border-top: 2px solid black;
+    border-bottom: 2px solid black;
+    background-color: var(--selected-cell);
+  }
+  
+  .last {
+    border: none;
+    border-top: 2px solid black;
+    border-top-right-radius: 15px;
+    border-bottom-right-radius: 15px;
+    border-bottom: 2px solid black;
+    border-right: 2px solid black;
+    background-color: var(--selected-cell);
+  }
+
+  .hover {
+    background-color: rgba(81, 81, 81, 0.393);
+  }
+
+  .hover.cell.has-first-value > div,
+  .hover.cell.has-middle-value > div,
+  .hover.cell.has-last-value > div
+   {
+    background-color: hsla(241, 100%, 16%, 0.393);
+  }
+
+
+  /* ------------------------------------------ */
+
+
+  .instrument-icon {
+    font-size: 160%;
+  }
