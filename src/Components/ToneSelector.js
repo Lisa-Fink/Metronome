@@ -1,12 +1,23 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { GoChevronRight, GoChevronDown } from "react-icons/go";
 import { AppContext } from "../contexts/AppContext";
 
 function ToneSelector() {
-  const { setKey, tone, setTone, toneCategory, setToneCategory } =
-    useContext(AppContext);
+  const {
+    setKey,
+    tone,
+    setTone,
+    toneCategory,
+    setToneCategory,
+    getInstrumentList,
+  } = useContext(AppContext);
 
   const [viewTone, setViewTone] = useState(false);
+
+  useEffect(() => {
+    setTone("Wood Block");
+    setToneCategory("Percussion");
+  }, []);
 
   const changeTone = (e) => {
     setTone(e.target.value);
@@ -59,13 +70,11 @@ function ToneSelector() {
               <option value="audioContextFlute">Synth Flute</option>
             </optgroup>
             <optgroup label="Percussion">
-              <option value="woodBlock">Wood Block</option>
-              <option value="marimba">Marimba</option>
-              <option value="snare">Snare Drum</option>
-              <option value="clap">Claps</option>
-              <option value="triangle">Triangle</option>
-              <option value="cowbell">Cowbell</option>
-              <option value="hiHat">Hi Hats</option>
+              {getInstrumentList().map((inst, i) => (
+                <option key={i} value={inst}>
+                  {inst}
+                </option>
+              ))}
             </optgroup>
             <optgroup label="Spoken Counts">
               <option value="femaleNumbers">Female Numbers</option>
