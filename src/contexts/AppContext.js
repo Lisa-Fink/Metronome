@@ -18,10 +18,10 @@ export const AppProvider = ({ children }) => {
   const [mainBeat, setMainBeat] = useState(false);
 
   const [key, setKey] = useState(261.63);
-  const [tone, setTone] = useState("woodBlock");
+  const [tone, setTone] = useState();
 
   const paused = useRef(false);
-  const [toneCategory, setToneCategory] = useState("Percussion");
+  const [toneCategory, setToneCategory] = useState();
 
   // Practice settings
   const [countIn, setCountIn] = useState(0);
@@ -31,29 +31,30 @@ export const AppProvider = ({ children }) => {
   const [sectionPractice, setSectionPractice] = useState(false);
   const [tempoPractice, setTempoPractice] = useState(false);
 
-  const { startClick, stopClick } = createAudioUtils(
-    bpm,
-    downBeat,
-    setIsPlaying,
-    key,
-    mainBeat,
-    setTimerId,
-    subdivide,
-    timeSignature,
-    tone,
-    volumeRef,
-    toneCategory,
-    timerId,
-    countIn,
-    numMeasures,
-    repeat,
-    tempoInc,
-    sectionPractice,
-    tempoPractice,
-    setBpm,
-    bpmRef,
-    isStopping
-  );
+  const { startClick, stopClick, getInstrumentList, playSample } =
+    createAudioUtils(
+      bpm,
+      downBeat,
+      setIsPlaying,
+      key,
+      mainBeat,
+      setTimerId,
+      subdivide,
+      timeSignature,
+      tone,
+      volumeRef,
+      toneCategory,
+      timerId,
+      countIn,
+      numMeasures,
+      repeat,
+      tempoInc,
+      sectionPractice,
+      tempoPractice,
+      setBpm,
+      bpmRef,
+      isStopping
+    );
 
   const contextValue = {
     bpm,
@@ -96,6 +97,8 @@ export const AppProvider = ({ children }) => {
     setTempoPractice,
     startClick,
     stopClick,
+    getInstrumentList,
+    playSample,
   };
 
   return (
