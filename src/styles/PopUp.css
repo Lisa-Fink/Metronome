@@ -68,3 +68,20 @@
     margin-bottom: 16px;
     font-size: 84%;
 }
+
+.pop-up-inst {
+    position: fixed;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--pop-up-background);
+    padding: 60px 160px 60px 160px;
+    border: 3px solid var(--pop-up-border);
+    z-index: 3;
+    max-height: 600px;
+}
+
+.inst-list {
+    overflow-y:auto;
+    height: 400px;
+}
