@@ -446,44 +446,84 @@ const createAudioUtils = (
   };
 
   const audioSamples = {
-    woodBlock: {
+    "Wood Block": {
       beats: "./audio/woodBlocks/wood-block-drum-hit.wav",
       mainBeats: "./audio/woodBlocks/wood-block-light.wav",
       downBeats: "./audio/woodBlocks/thin-wood-block.wav",
+      descriptions: ["Drum Hit", "Light", "Thin"],
     },
-    marimba: {
+    Marimba: {
       beats: "./audio/marimba/marimba-hit-c3_C_major.wav",
       mainBeats: "./audio/marimba/marimba-hit-c4.wav",
       downBeats: "./audio/marimba/marimba-hit-c5.wav",
+      descriptions: ["Lowest C3", "Middle C4", "Highest C5"],
     },
-    snare: {
+    "Snare Drum": {
       beats: "./audio/snare/clean-snare.wav",
       mainBeats: "./audio/snare/drum-dry-hit-snare.wav",
       downBeats: "./audio/snare/drum-percussion-rim-4_F_major.wav",
+      descriptions: ["Clean", "Dry Hit", "Rim"],
     },
-    clap: {
+    Clap: {
       beats: "./audio/clap/mellow-clap.wav",
       mainBeats: "./audio/clap/808-clap-1.wav",
       downBeats: "./audio/clap/snap-fat.wav",
+      descriptions: ["Mellow", "Mid", "Fat"],
     },
-    triangle: {
+    Triangle: {
       beats: "./audio/triangle/bright-clean-triangle.wav",
       mainBeats: "./audio/triangle/percussive-hit-triangle-quick.wav",
       downBeats: "./audio/triangle/simple-thin-bell-ding.wav",
+      descriptions: ["Bright Clean", "Percussive", "Thin Ding"],
     },
-    cowbell: {
+    Cowbell: {
       beats: "./audio/cowbell/cowbell.wav",
       mainBeats: "./audio/cowbell/cowbell-hit-dry.wav",
       downBeats: "./audio/cowbell/cowbell-hit-dry-7.wav",
+      descriptions: ["Plain", "Hit Dry", "Hit Dry 2"],
     },
-    hiHat: {
+    Cymbal: {
       beats: "./audio/cymbal/hihat/dry-open-hi-hat-fluffy.wav",
       mainBeats: "./audio/cymbal/hihat/boomin-hat-high.wav",
       downBeats: "./audio/cymbal/metro-high-crash_109bpm_F_major.wav",
+      descriptions: ["Open Hi Hat", "Closed Hi Hat", "Crash"],
     },
-    bassDrum: {
+    "Bass Drum": {
       beats: "./audio/bassDrum/solid-kick-bassdrum.wav",
+      mainBeats: "./audio/bassDrum/solid-kick-bassdrum.wav",
+      downBeats: "./audio/bassDrum/solid-kick-bassdrum.wav",
+      descriptions: ["Solid Kick"],
     },
+  };
+
+  const getDescriptiveInstrumentList = () => {
+    // create new object
+    const audio = [];
+    for (const inst in audioSamples) {
+      const instArr = [];
+      instArr.push(inst);
+      instArr.push([...audioSamples[inst].descriptions]);
+      audio.push(instArr);
+    }
+    return audio;
+  };
+
+  const getInstrumentList = (description) => {
+    if (description) {
+      return getDescriptiveInstrumentList();
+    }
+    const instArr = [];
+    for (const inst in audioSamples) {
+      instArr.push(inst);
+    }
+    return instArr;
+  };
+
+  const playSample = (name, idx, volume) => {
+    const idxToBeat = { 0: "beats", 1: "mainBeats", 2: "downBeats" };
+    const sample = new Audio(audioSamples[name][idxToBeat[idx]]);
+    sample.volume = volume;
+    sample.play();
   };
 
   const getAudioFiles = () => {
@@ -856,7 +896,7 @@ const createAudioUtils = (
       mainBeatGain = null;
     }
   };
-  return { startClick, stopClick };
+  return { startClick, stopClick, playSample, getInstrumentList };
 };
 
 export default createAudioUtils;
