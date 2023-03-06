@@ -10,77 +10,100 @@ body, button, input, option, select {
   font-family: 'Michroma', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  color: var(--text-color);
 }
 
 :root {
-  color: var(--text-color);
- --input-color: #343a40;
+--transparent-black: rgba(0, 0, 0, 0.4);
+--transparent-white: rgba(255, 255, 255, 0.1);
+
+--very-dark-grey-2: hsl(0, 0%, 6%);
+--very-dark-grey: hsl(0, 0%, 10%);
+--dark-grey-2: hsl(0, 0%, 12%);
+--medium-grey: hsl(0, 0%, 35%);
+--medium-grey-2: hsl(0, 0%, 60%);
+--light-grey-2: hsl(0, 0%, 75%);
+--light-grey: hsl(0, 0%, 80%);
+--very-light-grey-2: hsl(0, 0%, 85%);
+--almost-white: hsl(0, 0%, 90%);
+--very-light-grey: hsl(0, 0%, 95%);
+
+--dark-grey: hsl(210, 11%, 15%);
+--dark-bluish-grey: hsl(207, 8%, 20%);
+
+--dark-blue: hsl(216, 55%, 20%);
+--medium-blue: hsl(216, 70%, 50%);
+--medium-blue-2: hsl(216, 100%, 60%);
+--light-blue: hsl(216, 100%, 75%);
+--blue-white: hsl(216, 100%, 95%);
+
+--blue-purple: hsl(240, 50%, 37%);
+--light-blue-purple: hsl(240, 50%, 57%);
+
 }
 
-/* Dark Mode */
 .dark-mode {
-  --metronome-bg: hsl(216, 55%, 20%);
-  --metronome-border-color: rgb(153, 153, 153);
-  --bg-color: #1a1a1a;
-  --header-icon-hover: hsl(0, 0%, 13%);
-  --button-border-color: #cccccc;
-  --button-color: #1a1a1a;
-  --button-hover-color: hsl(0, 0%, 8%);
-  --button-hover-text-color: hsl(0, 0%, 44%);
-  --button-border-hover: hsl(0, 0%, 44%);
-  --button-text-color: #f2f2f2;
-  --heading-color: hsl(0, 0%, 90%);
-  --text-color: #cccccc;
-  --body-color-hover: hsl(0, 0%, 44%);
-  --input-color: #cccccc;
-  --input-background-color: #1a1a1a;
-  --input-border-color: #cccccc;
-  --input-slider-color: #f2f2f2;
-  --input-track-color: #1a1a1a;
-  --pop-up-background: hsl(0, 0%, 12%);
-  --pop-up-border: hsl(0, 0%, 40%);
-  --pop-up-transparent: rgba(255, 255, 255, 0.1);
-  --pop-up-input-bg: #cccccc;
-  --pop-up-input-color: #1a1a1a;
-  --link-color: hsl(240, 50%, 57%);
-  --link-hover-color: hsl(240, 50%, 72%);
-  --selected:hsl(216, 70%, 50%);
+  --metronome-bg: var(--dark-blue);
+  --metronome-border-color: var(--medium-grey-2);
+  --bg-color: var(--very-dark-grey);
+  --header-icon-hover: var(--dark-grey-2);
+  --button-border-color: var(--light-grey);
+  --button-color: var(--very-dark-grey);
+  --button-hover-color: var(--very-dark-grey-2);
+  --button-hover-text-color: var(--medium-grey);
+  --button-border-hover: var(--medium-grey);
+  --button-text-color: var(--very-light-grey);
+  --heading-color: var(--almost-white);
+  --text-color: var(--light-grey);
+  --body-color-hover: var(--medium-grey);
+  --input-color: var(--light-grey);
+  --input-background-color: var(--very-dark-grey);
+  --input-border-color: var(--light-grey);
+  --input-slider-color: var(--very-light-grey);
+  --input-track-color: var(--very-dark-grey);
+  --pop-up-background: var(--dark-grey-2);
+  --pop-up-border: var(--medium-grey);
+  --pop-up-transparent: var(--transparent-white);
+  --pop-up-input-bg: var(--light-grey);
+  --pop-up-input-color: var(--very-dark-grey);
+  --link-color: var(--light-blue-purple);
+  --link-hover-color: var(--medium-blue);
+  --selected: var(--medium-blue);
   --selected-cell: var(--accent-color);
-  --accent-color: hsl(216, 70%, 50%);
-  --drum-machine-bg: hsl(0, 0%, 6%);
-  --no-instrument-bg: hsl(0, 0%, 5%);
-}
+  --accent-color: var(--medium-blue-2);
+  --drum-machine-bg: var(--very-dark-grey-2);
+  --no-instrument-bg: var(--very-dark-grey-2);
+  }
 
-/* Light Mode */
-.light-mode {
-  --metronome-bg: hsl(216, 100%, 75%);
-  --metronome-border-color: #373c40;
-  --bg-color: hsl(0, 0%, 85%);
-  --header-icon-hover: hsl(0, 0%, 80%);
-  --button-border-color: #373c40;
-  --button-color: #212529;
-  --button-hover-color: hsl(216, 100%, 95%);
-  --button-hover-text-color: #212529;
-  --button-text-color: #ffffff;
-  --heading-color: #212529;
-  --text-color: #373c40;
-  --body-color-hover: hsl(216, 100%, 95%);
-  --input-color: #373c40;
-  --input-slider-color: rgb(153, 153, 153);
-  --input-track-color: #212529;
-  --input-background-color:#f2f2f2;
-  --input-border-color: #5a5a5a;
-  --pop-up-background: hsl(0, 0%, 75%);
-  --pop-up-border: hsl(207, 8%, 20%);
-  --pop-up-transparent: rgba(0, 0, 0, 0.4);
-  --pop-up-input-bg: #ffffff;
-  --pop-up-input-color: #212529;
-  --link-color: hsl(240, 50%, 57%);
-  --link-hover-color: hsl(240, 50%, 37%);
-  --selected:hsl(216, 100%, 60%);
-  --selected-cell: var(--accent-color);
-  --accent-color: hsl(216, 100%, 60%);
-}
+  .light-mode {
+    --metronome-bg: var(--light-blue);
+    --metronome-border-color: var(--dark-bluish-grey);
+    --bg-color: var(--very-light-grey-2);
+    --header-icon-hover: var(--almost-white);
+    --button-border-color: var(--dark-bluish-grey);
+    --button-color: var(--dark-grey);
+    --button-hover-color: var(--blue-white);
+    --button-hover-text-color: var(--dark-grey);
+    --button-text-color: var(--very-light-grey);
+    --heading-color: var(--dark-grey);
+    --text-color: var(--dark-bluish-grey);
+    --body-color-hover: var(--blue-white);
+    --input-color: var(--dark-bluish-grey);
+    --input-slider-color: var(--medium-grey-2);
+    --input-track-color: var(--dark-grey);
+    --input-background-color: var(--very-light-grey);
+    --input-border-color: var(--medium-grey);
+    --pop-up-background: var(--very-light-grey-2);
+    --pop-up-border: var(--dark-bluish-grey);
+    --pop-up-transparent: var(--transparent-black);
+    --pop-up-input-bg: var(--very-light-grey);
+    --pop-up-input-color: var(--dark-grey);
+    --link-color: var(--light-blue-purple);
+    --link-hover-color: var(--blue-purple);
+    --selected: var(--medium-blue-2);
+    --selected-cell: var(--accent-color);
+    --accent-color: var(--medium-blue);
+    }
 
 body {
  background-color: var(--bg-color);
