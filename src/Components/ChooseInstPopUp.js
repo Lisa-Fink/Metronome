@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import "../styles/PopUp.css";
 
 import { AiOutlineClose } from "react-icons/ai";
@@ -16,6 +16,22 @@ function ChooseInstPopUp({
   const [viewInstrument, setViewInstrument] = useState(
     Array.from({ length: instrumentData.length }, () => false)
   );
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.keyCode === 27) {
+        // Escape key
+        setIsChooseInstOpen(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [setIsChooseInstOpen]);
+
   const handleClose = (e) => {
     if (e) {
       e.preventDefault();
