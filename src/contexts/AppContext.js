@@ -31,30 +31,36 @@ export const AppProvider = ({ children }) => {
   const [sectionPractice, setSectionPractice] = useState(false);
   const [tempoPractice, setTempoPractice] = useState(false);
 
-  const { startClick, stopClick, getInstrumentList, playSample } =
-    createAudioUtils(
-      bpm,
-      downBeat,
-      setIsPlaying,
-      key,
-      mainBeat,
-      setTimerId,
-      subdivide,
-      timeSignature,
-      tone,
-      volumeRef,
-      toneCategory,
-      timerId,
-      countIn,
-      numMeasures,
-      repeat,
-      tempoInc,
-      sectionPractice,
-      tempoPractice,
-      setBpm,
-      bpmRef,
-      isStopping
-    );
+  const {
+    startClick,
+    stopClick,
+    getInstrumentList,
+    playSample,
+    startDrumMachine,
+    stopDrumMachine,
+  } = createAudioUtils(
+    bpm,
+    downBeat,
+    setIsPlaying,
+    key,
+    mainBeat,
+    setTimerId,
+    subdivide,
+    timeSignature,
+    tone,
+    volumeRef,
+    toneCategory,
+    timerId,
+    countIn,
+    numMeasures,
+    repeat,
+    tempoInc,
+    sectionPractice,
+    tempoPractice,
+    setBpm,
+    bpmRef,
+    isStopping
+  );
 
   const contextValue = {
     bpm,
@@ -99,6 +105,8 @@ export const AppProvider = ({ children }) => {
     stopClick,
     getInstrumentList,
     playSample,
+    startDrumMachine,
+    stopDrumMachine,
   };
 
   return (

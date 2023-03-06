@@ -15,18 +15,13 @@ function DrumMachine() {
     isStopping,
     timerId,
     setTimerId,
-    startClick,
-    stopClick,
     timeSignature,
     setTimeSignature,
+    stopClick,
+    startDrumMachine,
+    stopDrumMachine,
   } = useContext(AppContext);
 
-  //   When a state change needs to make the drum machine restart if it's playing
-  //   useEffect(() => {
-  //     if (isPlaying) {
-  //       restart();
-  //     }
-  //   }, []);
   const NUM_CELLS_PER_BEAT = 12;
   const MAX_INSTRUMENTS = 4;
   const createRhythmGrid = () =>
@@ -52,30 +47,36 @@ function DrumMachine() {
     )
   );
 
+  // Stops the metronome on load if it was playing
+  useEffect(() => {
+    if (isPlaying) {
+      stopClick();
+    }
+  }, []);
+  // Resets the drum machine if settings are changed and playing
+  useEffect(() => {
+    if (isPlaying) {
+      restart();
+    }
+  }, [timeSignature, measures, bpmRef, rhythmGrid]);
+
   // TODO snap to - the aligns the rhythms to a certain beat like eighth notes or quarter notes etc.
   // TODO light-mode colors
   // TODO condense color variables
   // TODO delete - click anywhere on a note and delete it, hover is different /write mode
 
-  const restart = () => {
+  const restart = async () => {
     if (isPlaying) {
-      isStopping.current = true;
-      clearInterval(timerId);
-
-      setIsPlaying(false);
-      setTimerId(null);
-      setBpm(bpmRef.current);
+      await stopDrumMachine();
+      startDrumMachine(instruments, rhythmSequence.current);
     }
-    startClick();
   };
 
-  const startStop = () => {
+  const startStop = async () => {
     if (isPlaying) {
-      // TODO change to stop/start drumMachine func?
-      // stopping
-      stopClick();
+      await stopDrumMachine();
     } else {
-      startClick("drum machine");
+      startDrumMachine(instruments, rhythmSequence.current);
     }
   };
 
@@ -271,11 +272,15 @@ function DrumMachine() {
   );
 
   const instrumentDiv = (
-    <div className="instrument-name">
+    // <div className="instrument-name">
+    <>
       {instruments.map((inst, i) => {
         if (inst[0]) {
           return (
-            <div key={`instrument-${i}`}>
+            <div
+              className={`row${i + 2} col1 inst-detail`}
+              key={`instrument-${i}`}
+            >
               <h4>{inst[0]}</h4>
               <p>{inst[1]}</p>
               <div className="inst-edit">
@@ -286,7 +291,10 @@ function DrumMachine() {
           );
         } else {
           return (
-            <div className="add-inst" key={`instrument-${i}`}>
+            <div
+              className={`row${i + 2} col1 add-inst inst-detail`}
+              key={`instrument-${i}`}
+            >
               <IoAddCircleOutline
                 className="instrument-icon"
                 key={`instrument-${i}-icon`}
@@ -296,15 +304,20 @@ function DrumMachine() {
           );
         }
       })}
-    </div>
+      {/* </div> */}
+    </>
   );
 
   const rhythmGridDiv = (
-    <div className="rhythm-grid-container">
+    // <div className="rhythm-grid-container">
+    <>
       {rhythmGrid.map((row, rowIdx) => {
         if (instruments[rowIdx][0] === undefined) {
           return (
-            <div className="rhythm-grid-no-inst-row" key={rowIdx}>
+            <div
+              className={`rhythm-grid-no-inst-row row${rowIdx + 2} col2`}
+              key={rowIdx}
+            >
               <div
                 className={"rhythm-grid " + timeSigMap[timeSignature]}
                 key={`${rowIdx}-${timeSignature}`}
@@ -313,7 +326,10 @@ function DrumMachine() {
           );
         } else {
           return (
-            <div className="rhythm-grid-row" key={rowIdx}>
+            <div
+              className={`rhythm-grid-row row${rowIdx + 2} col2`}
+              key={rowIdx}
+            >
               <div
                 className={"rhythm-grid " + timeSigMap[timeSignature]}
                 key={`${rowIdx}-${timeSignature}`}
@@ -354,7 +370,8 @@ function DrumMachine() {
           );
         }
       })}
-    </div>
+      {/* </div> */}
+    </>
   );
 
   const drumMachineDiv = (

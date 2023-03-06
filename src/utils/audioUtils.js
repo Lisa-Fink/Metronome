@@ -56,37 +56,17 @@ const createAudioUtils = (
     });
   };
 
-  const playCustomRhythm = (instrumentData) => {
+  const playCustomRhythm = (instrumentArr, rhythms) => {
     isStopping.current = false;
-    const instruments = [];
-    const rhythms = [];
-
-    for (const obj of instrumentData) {
-      instruments.push(new Audio(obj.instrument));
-      rhythms.push(obj.rhythm);
-    }
-    /*
-    Rhythms:
-    whole note:       48 parts 
-    dotted half note: 36 parts 
-    half note:        24 parts 
-    dotted quarter    18 parts
-    quarter note:     12 parts 
-    dotted eighth      9 parts 
-    eighth note:       6 parts 
-    eighth note trip:  4 parts
-    sixteenth note:    3 parts
-    sixteenth trip:    2 parts 
-    */
-
-    let cur;
+    let cur, id;
 
     const intervalFunc = async () => {
       const beats = rhythms[0].length;
       for (let beat = 0; beat < beats; beat++) {
-        instruments.forEach((sound, key) => {
+        instrumentArr.forEach((sound, key) => {
           if (isStopping.current) {
             clearInterval(id);
+            id = null;
             return;
           }
           cur = rhythms[key][beat];
@@ -100,16 +80,21 @@ const createAudioUtils = (
             }
           }
         });
+        if (isStopping.current) {
+          isStopping.current = false;
+          return;
+        }
         await new Promise((resolve) => {
           setTimeout(() => {
             resolve();
+            // (12 parts per beat)
           }, (60 / (bpm * 12)) * 1000);
         });
       }
     };
     // interval includes the entire rhythm (1 or 2 measures)
     intervalFunc();
-    let id = setInterval(intervalFunc, (60 / (bpm * 0.25)) * 1000);
+    id = setInterval(intervalFunc, (60 / (bpm * (1 / timeSignature))) * 1000);
     setTimerId(id);
     setIsPlaying(true);
   };
@@ -519,8 +504,9 @@ const createAudioUtils = (
     return instArr;
   };
 
+  const idxToBeat = { 0: "beats", 1: "mainBeats", 2: "downBeats" };
+
   const playSample = (name, idx, volume) => {
-    const idxToBeat = { 0: "beats", 1: "mainBeats", 2: "downBeats" };
     const sample = new Audio(audioSamples[name][idxToBeat[idx]]);
     sample.volume = volume;
     sample.play();
@@ -857,9 +843,42 @@ const createAudioUtils = (
           { instrument: bassInst, rhythm: bassRhythm },
           { instrument: hiHatInst, rhythm: hiHatRhythm },
         ];
-        playCustomRhythm(data);
+        // playCustomRhythm(data);
       }
     }
+  };
+
+  const startDrumMachine = (instruments, rhythms) => {
+    if (timerId) {
+      clearInterval(timerId);
+    }
+
+    const instData = [];
+    instruments.forEach((instrument, i) => {
+      if (instrument[0] !== undefined) {
+        instData.push(
+          new Audio(audioSamples[instrument[0]][idxToBeat[instrument[2]]])
+        );
+      }
+    });
+    if (instData.length > 0) {
+      playCustomRhythm(instData, rhythms);
+    }
+  };
+
+  const stopDrumMachine = () => {
+    isStopping.current = true;
+    setIsPlaying(false);
+    return new Promise((resolve) => {
+      const checkIsStopping = () => {
+        if (!isStopping.current) {
+          resolve();
+        } else {
+          setTimeout(checkIsStopping, 10); // check again in 10 milliseconds
+        }
+      };
+      checkIsStopping();
+    });
   };
 
   const stopClick = () => {
@@ -896,7 +915,14 @@ const createAudioUtils = (
       mainBeatGain = null;
     }
   };
-  return { startClick, stopClick, playSample, getInstrumentList };
+  return {
+    startClick,
+    stopClick,
+    playSample,
+    getInstrumentList,
+    startDrumMachine,
+    stopDrumMachine,
+  };
 };
 
 export default createAudioUtils;
