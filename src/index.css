@@ -31,31 +31,33 @@ body, button, input, option, select {
 --dark-grey: hsl(210, 11%, 15%);
 --dark-bluish-grey: hsl(207, 8%, 20%);
 
---dark-blue: hsl(216, 55%, 20%);
+
 --medium-blue: hsl(216, 70%, 50%);
 --medium-blue-2: hsl(216, 100%, 60%);
 --light-blue: hsl(216, 100%, 75%);
 --blue-white: hsl(216, 100%, 95%);
 
---blue-purple: hsl(240, 50%, 37%);
---light-blue-purple: hsl(240, 50%, 57%);
+--blue-purple-medium: hsl(230, 50%, 20%);
+--blue-purple: hsl(230, 50%, 37%);
+--light-blue-purple: hsl(230, 50%, 57%);
+--lighter-blue-purple: hsl(230, 50%, 67%);
 
 }
 
 .dark-mode {
-  --metronome-bg: var(--dark-blue);
+  --metronome-bg: var(--blue-purple-medium);
   --metronome-border-color: var(--medium-grey-2);
   --bg-color: var(--very-dark-grey);
   --header-icon-hover: var(--dark-grey-2);
   --button-border-color: var(--light-grey);
   --button-color: var(--very-dark-grey);
   --button-hover-color: var(--very-dark-grey-2);
-  --button-hover-text-color: var(--medium-grey);
-  --button-border-hover: var(--medium-grey);
+  --button-hover-text-color: var(--medium-grey-2);
+  --button-border-hover: var(--medium-grey-2);
   --button-text-color: var(--very-light-grey);
   --heading-color: var(--almost-white);
   --text-color: var(--light-grey);
-  --body-color-hover: var(--medium-grey);
+  --body-color-hover: var(--medium-grey-2);
   --input-color: var(--light-grey);
   --input-background-color: var(--very-dark-grey);
   --input-border-color: var(--light-grey);
@@ -67,12 +69,14 @@ body, button, input, option, select {
   --pop-up-input-bg: var(--light-grey);
   --pop-up-input-color: var(--very-dark-grey);
   --link-color: var(--light-blue-purple);
-  --link-hover-color: var(--medium-blue);
-  --selected: var(--medium-blue);
-  --selected-cell: var(--accent-color);
-  --accent-color: var(--medium-blue-2);
+  --link-hover-color: var(--lighter-blue-purple);
+  --selected: var(--accent-color);
+  --selected-cell: var(--blue-purple);
+  --accent-color: var(--light-blue-purple);
   --drum-machine-bg: var(--very-dark-grey-2);
-  --no-instrument-bg: var(--very-dark-grey-2);
+  --no-instrument-bg: var(--very-dark-grey);
+  --icon-hover: var(--body-color-hover);
+  --rg-bg: var(--bg-color);
   }
 
   .light-mode {
@@ -103,6 +107,10 @@ body, button, input, option, select {
     --selected: var(--medium-blue-2);
     --selected-cell: var(--accent-color);
     --accent-color: var(--medium-blue);
+    --drum-machine-bg: var(--bg-color);
+    --no-instrument-bg: var(--medium-grey-2);
+    --icon-hover: var(--medium-blue);
+    --rg-bg: var(--dark-grey);
     }
 
 body {

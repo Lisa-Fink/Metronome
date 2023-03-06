@@ -190,7 +190,7 @@
 }
 
 .rhythm-grid {
-    background-color: var(--bg-color);
+    background-color: var(--rg-bg);
     display: grid;
     grid-auto-flow: column;
     gap: 0;
@@ -317,12 +317,24 @@
     background-color: rgba(81, 81, 81, 0.393);
   }
 
+  .hover-delete.cell {
+    background-color: inherit;
+  }
+
   .hover.cell.has-first-value > div,
   .hover.cell.has-middle-value > div,
   .hover.cell.has-last-value > div
    {
     background-color: hsla(241, 100%, 16%, 0.393);
   }
+
+  .hover-delete.cell.has-first-value > div,
+  .hover-delete.cell.has-middle-value > div,
+  .hover-delete.cell.has-last-value > div
+   {
+    background-color: hsla(0, 100%, 8%, 0.393);
+  }
+
 
 
   /* ------------------------------------------ */
@@ -350,7 +362,7 @@
   }
 
   .add-inst:hover {
-    color: var(--button-hover-text-color);
+    color: var(--icon-hover);
   }
 
 

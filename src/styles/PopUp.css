@@ -28,8 +28,8 @@
     margin-top: -40px;
 }
 
-#x-icon:hover {
-    color: var(--body-color-hover);
+#x-icon:hover, .inst-list h3>svg:hover {
+    color: var(--icon-hover);
 }
 
 .validate {
