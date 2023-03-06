@@ -1,4 +1,10 @@
-import React, { useContext, useEffect, useState, useRef } from "react";
+import React, {
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+} from "react";
 import TempoControls from "./TempoControls";
 import BottomControls from "./BottomControls";
 import { AppContext } from "../contexts/AppContext";
@@ -69,13 +75,28 @@ function DrumMachine() {
     }
   };
 
-  const startStop = async () => {
+  const startStop = useCallback(async () => {
     if (isPlaying) {
       await stopDrumMachine();
     } else {
       startDrumMachine(instruments, rhythmSequence.current);
     }
-  };
+  }, [isPlaying]);
+  // Adds start/stop with space bar press
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.keyCode === 32) {
+        // Space key
+        startStop();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [startStop, isPlaying]);
 
   const handleRhythmClick = (num) => {
     setRhythm(num);

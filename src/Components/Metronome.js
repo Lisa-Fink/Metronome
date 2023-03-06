@@ -1,4 +1,4 @@
-import React, { useEffect, useContext } from "react";
+import React, { useEffect, useContext, useCallback } from "react";
 import "../styles/Metronome.css";
 import ChangeMeter from "./ChangeMeter";
 import TempoControls from "./TempoControls";
@@ -65,17 +65,40 @@ function Metronome() {
       setTimerId(null);
       setBpm(bpmRef.current);
     }
+
     startClick();
   };
 
-  const startStop = () => {
+  // Memoize the startStop function with useCallback
+  const startStop = useCallback(() => {
     if (isPlaying) {
       // stopping
       stopClick();
     } else {
+      // Stops playing incase there is an interval running
+      if (timerId) {
+        clearInterval(timerId);
+        setTimerId(null);
+      }
       startClick();
     }
-  };
+  }, [isPlaying, timerId]);
+
+  // Adds start/stop with space bar press
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.keyCode === 32) {
+        // Space key
+        startStop();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [startStop]);
 
   return (
     <div className="metronome-body">
