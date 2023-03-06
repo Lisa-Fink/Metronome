@@ -3,18 +3,14 @@ import TempoControls from "./TempoControls";
 import BottomControls from "./BottomControls";
 import { AppContext } from "../contexts/AppContext";
 import { IoAddCircleOutline } from "react-icons/io5";
+import { CiEraser, CiEdit } from "react-icons/ci";
 import "../styles/DrumMachine.css";
 import ChooseInstPopUp from "./ChooseInstPopUp";
 
 function DrumMachine() {
   const {
-    setBpm,
     bpmRef,
     isPlaying,
-    setIsPlaying,
-    isStopping,
-    timerId,
-    setTimerId,
     timeSignature,
     setTimeSignature,
     stopClick,
@@ -24,6 +20,7 @@ function DrumMachine() {
 
   const NUM_CELLS_PER_BEAT = 12;
   const MAX_INSTRUMENTS = 4;
+
   const createRhythmGrid = () =>
     Array.from({ length: MAX_INSTRUMENTS }, () =>
       Array(NUM_CELLS_PER_BEAT * timeSignature).fill(false)
@@ -34,6 +31,7 @@ function DrumMachine() {
 
   const [rhythm, setRhythm] = useState(1);
   const [measures, setMeasures] = useState(1);
+  const [isEditDelete, setIsEditDelete] = useState(true);
   const [rhythmGrid, setRhythmGrid] = useState(createRhythmGrid());
   const [hoverGrid, setHoverGrid] = useState(createRhythmGrid());
   // Instrument [name, descriptive name, index]
@@ -61,9 +59,8 @@ function DrumMachine() {
   }, [timeSignature, measures, bpmRef, rhythmGrid]);
 
   // TODO snap to - the aligns the rhythms to a certain beat like eighth notes or quarter notes etc.
-  // TODO light-mode colors
-  // TODO condense color variables
   // TODO delete - click anywhere on a note and delete it, hover is different /write mode
+  // TODO zoom in/out/scroll horizontal for 2 measures
 
   const restart = async () => {
     if (isPlaying) {
@@ -117,7 +114,7 @@ function DrumMachine() {
       // remove cells from the arrays
       const removing = (timeSignature - newTimeSignature) * 12;
       const newRhythmGrid = rhythmGrid.map((row) => row.slice(0, -removing));
-      const newHoverGrid = hoverGrid.map((row) => row.slice(0, -removing));
+      // const newHoverGrid = hoverGrid.map((row) => row.slice(0, -removing));
       const newHoverGridRef = hoverGridRef.current.map((row) =>
         row.slice(0, -removing)
       );
@@ -125,7 +122,7 @@ function DrumMachine() {
         row.slice(0, -removing)
       );
       setRhythmGrid(newRhythmGrid);
-      setHoverGrid(newHoverGrid);
+      setHoverGrid(newHoverGridRef);
       hoverGridRef.current = newHoverGridRef;
       rhythmSequence.current = newRhythmSequence;
     }
@@ -182,19 +179,20 @@ function DrumMachine() {
     rhythmSequence.current = newRhythmSequence;
   };
 
-  const handleExitCellHover = (instrumentIdx) => {
-    if (!instruments[instrumentIdx]) {
+  const handleExitCellHover = (instrumentIdx, cellIdx) => {
+    if (
+      !instruments[instrumentIdx] ||
+      (!isEditDelete && !rhythmGrid[instrumentIdx][cellIdx])
+    ) {
       return;
     }
-    const blank = Array.from({ length: 4 }, () =>
-      Array(rhythmGrid.length).fill(false)
-    );
+    const blank = createRhythmGrid();
     setHoverGrid(blank);
     hoverGridRef.current = blank;
   };
 
   const handleCellHover = (instrumentIdx, startOfNote) => {
-    if (!instruments[instrumentIdx]) {
+    if (!instruments[instrumentIdx] || !isEditDelete) {
       return;
     }
     const newHoverGrid = [...hoverGridRef.current];
@@ -222,6 +220,64 @@ function DrumMachine() {
     const newInstruments = [...instruments];
     newInstruments[idx] = [undefined, undefined, undefined];
     setInstruments(newInstruments);
+  };
+
+  const toggleEditDelete = () => {
+    setIsEditDelete(!isEditDelete);
+  };
+
+  const handleCellDeleteHover = (instIdx, rhythmIdx) => {
+    const newHoverGrid = [...hoverGridRef.current];
+
+    // find all cells for note and add to hover grid
+    let first = rhythmIdx;
+    let last = rhythmIdx;
+    while (first >= 0 && rhythmGrid[instIdx][first] !== "first") {
+      newHoverGrid[instIdx][first] = true;
+      first--;
+    }
+    newHoverGrid[instIdx][first] = true; // Note: don't need to change bounds
+    while (
+      last < rhythmGrid[instIdx].length &&
+      rhythmGrid[instIdx][last] !== "last"
+    ) {
+      newHoverGrid[instIdx][last] = true;
+      last++;
+    }
+    newHoverGrid[instIdx][last] = true;
+    setHoverGrid(newHoverGrid);
+    hoverGridRef.current = newHoverGrid;
+  };
+
+  const handleCellDeleteClick = (instIdx, rhythmIdx) => {
+    const newRhythmGrid = [...rhythmGrid];
+    const newRhythmSequence = [...rhythmSequence.current];
+
+    // find all cells for note and add to hover grid
+    let first = rhythmIdx;
+    let last = rhythmIdx;
+
+    while (first >= 0 && rhythmGrid[instIdx][first] !== "first") {
+      newRhythmGrid[instIdx][first] = false;
+      first--;
+    }
+    newRhythmGrid[instIdx][first] = false; // Note: don't need to change bounds
+    newRhythmSequence[instIdx][first] = 0;
+
+    while (
+      last < rhythmGrid[instIdx].length &&
+      rhythmGrid[instIdx][last] !== "last"
+    ) {
+      newRhythmGrid[instIdx][last] = false;
+      last++;
+    }
+    newRhythmGrid[instIdx][last] = false;
+    setRhythmGrid(newRhythmGrid);
+    rhythmSequence.current = newRhythmSequence;
+    // reset hover grid
+    const blank = createRhythmGrid();
+    setHoverGrid(blank);
+    hoverGridRef.current = blank;
   };
 
   const rhythms = [
@@ -345,7 +401,11 @@ function DrumMachine() {
                   }
 
                   if (hoverGrid[rowIdx][i]) {
-                    cellClasses.push("hover");
+                    if (isEditDelete) {
+                      cellClasses.push("hover");
+                    } else {
+                      cellClasses.push("hover-delete");
+                    }
                   }
 
                   if (value) {
@@ -355,12 +415,31 @@ function DrumMachine() {
                     <div
                       key={`${rowIdx}-${i}`}
                       className={cellClasses.join(" ")}
-                      onClick={() => handleCellClick(rowIdx, i)}
+                      onClick={
+                        isEditDelete ? () => handleCellClick(rowIdx, i) : null
+                      }
                       onMouseEnter={() => handleCellHover(rowIdx, i)}
-                      onMouseLeave={() => handleExitCellHover(rowIdx)}
+                      onMouseLeave={() => handleExitCellHover(rowIdx, i)}
                     >
                       {value !== false && (
-                        <div className={`cell ${value}`}></div>
+                        <div
+                          className={`cell ${value}`}
+                          onMouseOver={
+                            !isEditDelete
+                              ? () => handleCellDeleteHover(rowIdx, i)
+                              : null
+                          }
+                          onClick={
+                            !isEditDelete
+                              ? () => handleCellDeleteClick(rowIdx, i)
+                              : null
+                          }
+                          onMouseLeave={
+                            !isEditDelete
+                              ? () => handleExitCellHover(rowIdx, i)
+                              : null
+                          }
+                        ></div>
                       )}
                     </div>
                   );
@@ -437,21 +516,38 @@ function DrumMachine() {
           </div>
         </div>
       </div>
-      <div className="rhythm-div">
-        <h4>Rhythms</h4>
+      <div>
+        <div className="rhythm-div">
+          <h4>Rhythms</h4>
+          <div>
+            {rhythms.map(([note, num]) => (
+              <button
+                key={num}
+                className={rhythm === num ? "selected" : ""}
+                onClick={() => handleRhythmClick(num)}
+              >
+                <div key={`note-${num}`} className="music-note">
+                  {note}
+                </div>
+                {num}
+              </button>
+            ))}
+          </div>
+        </div>
         <div>
-          {rhythms.map(([note, num]) => (
-            <button
-              key={num}
-              className={rhythm === num ? "selected" : ""}
-              onClick={() => handleRhythmClick(num)}
-            >
-              <div key={`note-${num}`} className="music-note">
-                {note}
-              </div>
-              {num}
-            </button>
-          ))}
+          {/* edit - delete selection */}
+          <button
+            className={isEditDelete ? "selected" : ""}
+            onClick={toggleEditDelete}
+          >
+            Add <CiEdit />
+          </button>
+          <button
+            className={!isEditDelete ? "selected" : ""}
+            onClick={toggleEditDelete}
+          >
+            Delete <CiEraser />
+          </button>
         </div>
       </div>
       {drumMachineDiv}
