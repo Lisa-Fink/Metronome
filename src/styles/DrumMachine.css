@@ -154,24 +154,39 @@
     #counts.three {
     grid-template-columns: repeat(6, 1fr);
     }
-    #counts.four {
+    #counts.four, #counts.two.m2 {
         grid-template-columns: repeat(8, 1fr);
       }
     #counts.five {
         grid-template-columns: repeat(10, 1fr);
     }
-    #counts.six {
+    #counts.six,  #counts.three.m2 {
         grid-template-columns: repeat(12, 1fr);
       }
     #counts.seven {
     grid-template-columns: repeat(14, 1fr);
     }
-    #counts.eight {
+    #counts.eight,  #counts.four.m2 {
     grid-template-columns: repeat(16, 1fr);
     }
     #counts.nine {
     grid-template-columns: repeat(18, 1fr);
     }
+      #counts.five.m2 {
+        grid-template-columns: repeat(20, 1fr);
+      }
+      #counts.six.m2 {
+          grid-template-columns: repeat(24, 1fr);
+        }
+      #counts.seven.m2 {
+      grid-template-columns: repeat(28, 1fr);
+      }
+      #counts.eight.m2 {
+      grid-template-columns: repeat(32, 1fr);
+      }
+      #counts.nine.m2 {
+      grid-template-columns: repeat(36, 1fr);
+      }
 
 
 #counts > div {
@@ -224,24 +239,39 @@
     .rhythm-grid.three {
     grid-template-columns: repeat(36, 1fr);
     }
-    .rhythm-grid.four {
+    .rhythm-grid.four, .rhythm-grid.two.m2 {
         grid-template-columns: repeat(48, 1fr);
       }
     .rhythm-grid.five {
         grid-template-columns: repeat(60, 1fr);
     }
-    .rhythm-grid.six {
+    .rhythm-grid.six, .rhythm-grid.three.m2 {
         grid-template-columns: repeat(72, 1fr);
       }
     .rhythm-grid.seven {
     grid-template-columns: repeat(84, 1fr);
     }
-    .rhythm-grid.eight {
+    .rhythm-grid.eight, .rhythm-grid.four.m2 {
     grid-template-columns: repeat(96, 1fr);
     }
     .rhythm-grid.nine {
     grid-template-columns: repeat(108, 1fr);
     }
+      .rhythm-grid.five.m2 {
+        grid-template-columns: repeat(120, 1fr);
+      }
+      .rhythm-grid.six.m2 {
+          grid-template-columns: repeat(144, 1fr);
+        }
+      .rhythm-grid.seven.m2 {
+      grid-template-columns: repeat(168, 1fr);
+      }
+      .rhythm-grid.eight.m2 {
+      grid-template-columns: repeat(192, 1fr);
+      }
+      .rhythm-grid.nine.m2 {
+      grid-template-columns: repeat(216, 1fr);
+      }
   
   .cell {
     /* width: 20px; */

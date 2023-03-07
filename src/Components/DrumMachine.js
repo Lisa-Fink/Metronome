@@ -12,6 +12,7 @@ import { IoAddCircleOutline } from "react-icons/io5";
 import { CiEraser, CiEdit } from "react-icons/ci";
 import "../styles/DrumMachine.css";
 import ChooseInstPopUp from "./ChooseInstPopUp";
+// TODO snap to - the aligns the rhythms to a certain beat like eighth notes or quarter notes etc.
 
 function DrumMachine() {
   const {
@@ -27,16 +28,18 @@ function DrumMachine() {
   const NUM_CELLS_PER_BEAT = 12;
   const MAX_INSTRUMENTS = 4;
 
-  const createRhythmGrid = () =>
+  const [measures, setMeasures] = useState(1);
+
+  const createRhythmGrid = (num_measures = measures) =>
     Array.from({ length: MAX_INSTRUMENTS }, () =>
-      Array(NUM_CELLS_PER_BEAT * timeSignature).fill(false)
+      Array(NUM_CELLS_PER_BEAT * timeSignature * num_measures).fill(false)
     );
 
   const [isChooseInstOpen, setIsChooseInstOpen] = useState(false);
   const instrumentIdx = useRef(0);
 
   const [rhythm, setRhythm] = useState(1);
-  const [measures, setMeasures] = useState(1);
+
   const [isEditDelete, setIsEditDelete] = useState(true);
   const [rhythmGrid, setRhythmGrid] = useState(createRhythmGrid());
   const [hoverGrid, setHoverGrid] = useState(createRhythmGrid());
@@ -47,7 +50,7 @@ function DrumMachine() {
   const hoverGridRef = useRef(createRhythmGrid());
   const rhythmSequence = useRef(
     Array.from({ length: MAX_INSTRUMENTS }, () =>
-      Array(NUM_CELLS_PER_BEAT * timeSignature).fill(0)
+      Array(NUM_CELLS_PER_BEAT * timeSignature * measures).fill(0)
     )
   );
 
@@ -62,11 +65,19 @@ function DrumMachine() {
     if (isPlaying) {
       restart();
     }
-  }, [timeSignature, measures, bpmRef, rhythmGrid]);
+  }, [bpmRef]);
 
-  // TODO snap to - the aligns the rhythms to a certain beat like eighth notes or quarter notes etc.
-  // TODO delete - click anywhere on a note and delete it, hover is different /write mode
-  // TODO zoom in/out/scroll horizontal for 2 measures
+  useEffect(() => {
+    if (isPlaying) {
+      if (rhythmGrid.flat().every((instRhythm) => instRhythm === false)) {
+        // Stop if all rhythms are false
+        // Note: could move this to any function that could remove rhythms
+        stopDrumMachine();
+        return;
+      }
+      restart();
+    }
+  }, [timeSignature, measures, rhythmGrid, instruments]);
 
   const restart = async () => {
     if (isPlaying) {
@@ -81,7 +92,7 @@ function DrumMachine() {
     } else {
       startDrumMachine(instruments, rhythmSequence.current);
     }
-  }, [isPlaying]);
+  }, [isPlaying, instruments, rhythmSequence]);
   // Adds start/stop with space bar press
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -103,51 +114,114 @@ function DrumMachine() {
   };
 
   const handleMeasureChange = (e) => {
-    setMeasures(parseInt(e.target.value));
+    const newMeasures = parseInt(e.target.value);
+    if (newMeasures === measures) {
+      return;
+    }
+    // change rhythmGrid, hoverGrid, rhythmSequence
+    // Increasing measures
+    let newRhythmGrid, newRhythmSequence;
+    if (newMeasures > measures) {
+      // Note: This should change if allowed measures > 2 in the future.
+      const adding = newMeasures - measures;
+      newRhythmGrid = rhythmGrid.map((row) => [
+        ...row,
+        ...Array(NUM_CELLS_PER_BEAT * timeSignature * adding).fill(false),
+      ]);
+      newRhythmSequence = rhythmSequence.current.map((row) => [
+        ...row,
+        ...Array(NUM_CELLS_PER_BEAT * timeSignature * adding).fill(0),
+      ]);
+    } else {
+      // Removing
+      const removing = measures - newMeasures;
+      const newEnd =
+        rhythmGrid[0].length - timeSignature * NUM_CELLS_PER_BEAT * removing;
+      newRhythmSequence = rhythmSequence.current.map((row) => [
+        ...row.slice(0, newEnd),
+      ]);
+      newRhythmGrid = rhythmGrid.map((row) => [...row.slice(0, newEnd)]);
+    }
+    rhythmSequence.current = newRhythmSequence;
+    setRhythmGrid(newRhythmGrid);
+    setHoverGrid(createRhythmGrid());
+    hoverGridRef.current = createRhythmGrid();
+    setMeasures(newMeasures);
   };
 
   const handleTimeSignatureChange = (e) => {
+    // Time Signature Changes maintain the beat number associated with the rhythm.
+    // If that beat is larger than the new time signature it is deleted.
     const newTimeSignature = parseInt(e.target.value);
     if (newTimeSignature === timeSignature) {
       return;
     }
     if (newTimeSignature > timeSignature) {
       // add to the arrays
-      const adding = (newTimeSignature - timeSignature) * 12;
-      const newRhythmGrid = rhythmGrid.map((row) => [
-        ...row,
-        ...Array(adding).fill(false),
-      ]);
+      const adding = (newTimeSignature - timeSignature) * NUM_CELLS_PER_BEAT;
+      let newRhythmGrid, newRhythmSequence;
+      if (measures === 1) {
+        newRhythmGrid = rhythmGrid.map((row) => [
+          ...row,
+          ...Array(adding).fill(false),
+        ]);
 
-      const newHoverGrid = hoverGrid.map((row) => [
-        ...row,
-        ...Array(adding).fill(false),
-      ]);
-      const newRhythmSequence = rhythmSequence.current.map((row) => [
-        ...row,
-        ...Array(adding).fill(0),
-      ]);
+        newRhythmSequence = rhythmSequence.current.map((row) => [
+          ...row,
+          ...Array(adding).fill(0),
+        ]);
+      } else {
+        // 2 Measures
+        // NOTE: Change this is allowing > 2 measures. Convert to
+        // multidimensional arrays (an array for each measure)
+
+        // get last index of 1st measure
+        let lastIdx = timeSignature * NUM_CELLS_PER_BEAT; // this is lastIdx + 1
+        newRhythmGrid = rhythmGrid.map((row) => [
+          ...row.slice(0, lastIdx),
+          ...Array(adding).fill(false),
+          ...row.slice(lastIdx),
+          ...Array(adding).fill(false),
+        ]);
+
+        newRhythmSequence = rhythmSequence.current.map((row) => [
+          ...row.slice(0, lastIdx),
+          ...Array(adding).fill(0),
+          ...row.slice(lastIdx),
+          ...Array(adding).fill(0),
+        ]);
+      }
       setRhythmGrid(newRhythmGrid);
-      setHoverGrid(newHoverGrid);
-      hoverGridRef.current = newHoverGrid;
       rhythmSequence.current = newRhythmSequence;
     } else {
+      let newRhythmGrid, newRhythmSequence;
       // remove cells from the arrays
-      const removing = (timeSignature - newTimeSignature) * 12;
-      const newRhythmGrid = rhythmGrid.map((row) => row.slice(0, -removing));
-      // const newHoverGrid = hoverGrid.map((row) => row.slice(0, -removing));
-      const newHoverGridRef = hoverGridRef.current.map((row) =>
-        row.slice(0, -removing)
-      );
-      const newRhythmSequence = rhythmSequence.current.map((row) =>
-        row.slice(0, -removing)
-      );
+      const removing = (timeSignature - newTimeSignature) * NUM_CELLS_PER_BEAT;
+
+      if (measures === 1) {
+        newRhythmGrid = rhythmGrid.map((row) => row.slice(0, -removing));
+        newRhythmSequence = rhythmSequence.current.map((row) =>
+          row.slice(0, -removing)
+        );
+      } else {
+        // Measures === 2. Note: Change this if allowing more measures.
+        let lastIdx = timeSignature * NUM_CELLS_PER_BEAT; // this is lastIdx + 1
+        let newLastIdx = lastIdx - removing;
+        newRhythmGrid = rhythmGrid.map((row) => [
+          ...row.slice(0, newLastIdx),
+          ...row.slice(lastIdx, -removing),
+        ]);
+        newRhythmSequence = rhythmGrid.map((row) => [
+          ...row.slice(0, newLastIdx),
+          ...row.slice(lastIdx, -removing),
+        ]);
+      }
       setRhythmGrid(newRhythmGrid);
-      setHoverGrid(newHoverGridRef);
-      hoverGridRef.current = newHoverGridRef;
       rhythmSequence.current = newRhythmSequence;
     }
 
+    setHoverGrid(createRhythmGrid());
+    hoverGridRef.current = createRhythmGrid();
     setTimeSignature(newTimeSignature);
   };
 
@@ -237,9 +311,18 @@ function DrumMachine() {
   };
 
   const deleteInstrument = (idx) => {
-    // TODO clear rhythmsequence
     const newInstruments = [...instruments];
     newInstruments[idx] = [undefined, undefined, undefined];
+    const newSequence = [...rhythmSequence.current];
+    newSequence[idx] = Array(
+      NUM_CELLS_PER_BEAT * timeSignature * measures
+    ).fill(0);
+    const newRhythmGrid = [...rhythmGrid];
+    newRhythmGrid[idx] = Array(
+      NUM_CELLS_PER_BEAT * timeSignature * measures
+    ).fill(false);
+    setRhythmGrid(newRhythmGrid);
+    rhythmSequence.current = newSequence;
     setInstruments(newInstruments);
   };
 
@@ -279,7 +362,9 @@ function DrumMachine() {
     let last = rhythmIdx;
 
     while (first >= 0 && rhythmGrid[instIdx][first] !== "first") {
-      newRhythmGrid[instIdx][first] = false;
+      if (newRhythmGrid[instIdx][first] !== "last") {
+        newRhythmGrid[instIdx][first] = false;
+      }
       first--;
     }
     newRhythmGrid[instIdx][first] = false; // Note: don't need to change bounds
@@ -293,12 +378,12 @@ function DrumMachine() {
       last++;
     }
     newRhythmGrid[instIdx][last] = false;
+
     setRhythmGrid(newRhythmGrid);
     rhythmSequence.current = newRhythmSequence;
     // reset hover grid
-    const blank = createRhythmGrid();
-    setHoverGrid(blank);
-    hoverGridRef.current = blank;
+    setHoverGrid(createRhythmGrid());
+    hoverGridRef.current = createRhythmGrid();
   };
 
   const rhythms = [
@@ -334,7 +419,10 @@ function DrumMachine() {
   };
 
   const countDiv = (
-    <div id="counts" className={timeSigMap[timeSignature]}>
+    <div
+      id="counts"
+      className={`${timeSigMap[timeSignature]} ${measures > 1 ? "m2" : ""}`}
+    >
       {Array.from(Array(timeSignature).keys()).map((count, index) => (
         <React.Fragment key={index}>
           <div key={index} className={`count-${timeSignature}`}>
@@ -345,6 +433,18 @@ function DrumMachine() {
           </div>
         </React.Fragment>
       ))}
+      {measures === 2
+        ? Array.from(Array(timeSignature).keys()).map((count, index) => (
+            <React.Fragment key={index}>
+              <div key={`m2-${index}`} className={`count-${timeSignature}`}>
+                {count + 1}
+              </div>
+              <div key={index + "-a"} className={`count-${timeSignature}`}>
+                {"+"}
+              </div>
+            </React.Fragment>
+          ))
+        : ""}
     </div>
   );
 
@@ -396,7 +496,9 @@ function DrumMachine() {
               key={rowIdx}
             >
               <div
-                className={"rhythm-grid " + timeSigMap[timeSignature]}
+                className={`rhythm-grid ${timeSigMap[timeSignature]} ${
+                  measures === 2 ? "m2" : ""
+                }`}
                 key={`${rowIdx}-${timeSignature}`}
               ></div>
             </div>
@@ -408,7 +510,9 @@ function DrumMachine() {
               key={rowIdx}
             >
               <div
-                className={"rhythm-grid " + timeSigMap[timeSignature]}
+                className={`rhythm-grid ${timeSigMap[timeSignature]} ${
+                  measures === 2 ? "m2" : ""
+                }`}
                 key={`${rowIdx}-${timeSignature}`}
               >
                 {row.map((value, i) => {

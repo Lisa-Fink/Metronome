@@ -57,6 +57,7 @@ const createAudioUtils = (
   };
 
   const playCustomRhythm = (instrumentArr, rhythms) => {
+    const beats = rhythms[0].length;
     isStopping.current = false;
     let cur, id;
 
@@ -94,7 +95,8 @@ const createAudioUtils = (
     };
     // interval includes the entire rhythm (1 or 2 measures)
     intervalFunc();
-    id = setInterval(intervalFunc, (60 / (bpm * (1 / timeSignature))) * 1000);
+    // NUM_BEAT_PER_MEASURE is 12
+    id = setInterval(intervalFunc, (60 / (bpm * (1 / (beats / 12)))) * 1000);
     setTimerId(id);
     setIsPlaying(true);
   };
@@ -816,8 +818,7 @@ const createAudioUtils = (
       } else if (toneCategory === "Spoken Counts") {
         playNumberCounter();
       } else if (toneCategory === "Drum Sets") {
-        // playDrumSet();
-        // TODO create function to transform rests
+        playDrumSet();
         const rhythm = [
           -6, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0,
           0, -6, 0, 0, 0, 0, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0,
