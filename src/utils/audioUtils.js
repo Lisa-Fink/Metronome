@@ -102,12 +102,12 @@ const createAudioUtils = (
   };
 
   const playDrumSet = () => {
-    const bass = new Audio(audioSamples.bassDrum.beats);
-    const hiHat = new Audio(audioSamples.hiHat.mainBeats);
-    const hiHatSubdivide = new Audio(audioSamples.hiHat.beats);
-    const snare = new Audio(audioSamples.snare.mainBeats);
-    const crash = new Audio(audioSamples.hiHat.downBeats);
-    const clap = new Audio(audioSamples.clap.mainBeats);
+    const bass = new Audio(audioSamples["Bass Drum"].beats);
+    const hiHat = new Audio(audioSamples.Cymbal.mainBeats);
+    const hiHatSubdivide = new Audio(audioSamples.Cymbal.beats);
+    const snare = new Audio(audioSamples["Snare Drum"].mainBeats);
+    const crash = new Audio(audioSamples.Cymbal.downBeats);
+    const clap = new Audio(audioSamples.Clap.mainBeats);
     let interval = (60 / (bpm * subdivide)) * 1000;
 
     const main = [crash, clap];
@@ -819,32 +819,6 @@ const createAudioUtils = (
         playNumberCounter();
       } else if (toneCategory === "Drum Sets") {
         playDrumSet();
-        const rhythm = [
-          -6, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0,
-          0, -6, 0, 0, 0, 0, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0,
-          0, 0,
-        ];
-
-        const bassRhythm = [
-          18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0,
-          0, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0,
-          0, 0,
-        ];
-
-        const hiHatRhythm = [
-          6, 0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 6, 0, 0, 0, 0, 0, 3, 0, 0, 3, 0,
-          0, 6, 0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0,
-          0, 0,
-        ];
-        const snareInst = audioSamples.snare.beats;
-        const bassInst = audioSamples.bassDrum.beats;
-        const hiHatInst = audioSamples.hiHat.beats;
-        const data = [
-          { instrument: snareInst, rhythm: rhythm },
-          { instrument: bassInst, rhythm: bassRhythm },
-          { instrument: hiHatInst, rhythm: hiHatRhythm },
-        ];
-        // playCustomRhythm(data);
       }
     }
   };
