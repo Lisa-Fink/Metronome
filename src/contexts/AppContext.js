@@ -18,10 +18,10 @@ export const AppProvider = ({ children }) => {
   const [mainBeat, setMainBeat] = useState(false);
 
   const [key, setKey] = useState(261.63);
-  const [tone, setTone] = useState();
+  const [tone, setTone] = useState("Wood Block");
 
   const paused = useRef(false);
-  const [toneCategory, setToneCategory] = useState();
+  const [toneCategory, setToneCategory] = useState("Percussion");
 
   // Practice settings
   const [countIn, setCountIn] = useState(0);
