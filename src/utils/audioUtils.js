@@ -35,7 +35,7 @@ const createAudioUtils = (
   const playCountIn = () => {
     setIsPlaying(true);
     // use triangle down beat
-    const click = new Audio(audioSamples.triangle.downBeats);
+    const click = new Audio(audioSamples.Triangle.downBeats);
 
     const interval = (60 / (bpm * subdivide)) * 1000;
     let beat = 0;
