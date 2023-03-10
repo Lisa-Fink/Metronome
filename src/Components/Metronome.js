@@ -63,7 +63,9 @@ function Metronome() {
 
       setIsPlaying(false);
       setTimerId(null);
-      setBpm(bpmRef.current);
+      if (tempoPractice) {
+        setBpm(bpmRef.current);
+      }
     }
 
     startClick();
@@ -82,7 +84,22 @@ function Metronome() {
       }
       startClick();
     }
-  }, [isPlaying, timerId]);
+  }, [
+    isPlaying,
+    timerId,
+    timeSignature,
+    downBeat,
+    tone,
+    key,
+    subdivide,
+    mainBeat,
+    countIn,
+    sectionPractice,
+    numMeasures,
+    repeat,
+    tempoInc,
+    tempoPractice,
+  ]);
 
   // Adds start/stop with space bar press
   useEffect(() => {
