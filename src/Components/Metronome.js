@@ -1,4 +1,4 @@
-import React, { useEffect, useContext, useCallback } from "react";
+import React, { useEffect, useContext, useCallback, useRef } from "react";
 import "../styles/Metronome.css";
 import ChangeMeter from "./ChangeMeter";
 import TempoControls from "./TempoControls";
@@ -8,8 +8,9 @@ import Practice from "./Practice";
 import BottomControls from "./BottomControls";
 import { AppContext } from "../contexts/AppContext";
 
-function Metronome() {
+function Metronome({ savedState, isChanging }) {
   const {
+    bpm,
     setBpm,
     bpmRef,
     isPlaying,
@@ -18,6 +19,7 @@ function Metronome() {
     timerId,
     setTimerId,
     timeSignature,
+    setTimeSignature,
     downBeat,
     subdivide,
     mainBeat,
@@ -32,29 +34,6 @@ function Metronome() {
     startClick,
     stopClick,
   } = useContext(AppContext);
-
-  // updates to new selected time signature
-  useEffect(() => {
-    if (isPlaying) {
-      restart();
-    }
-  }, [
-    timeSignature,
-    downBeat,
-    tone,
-    key,
-    subdivide,
-    mainBeat,
-    countIn,
-    sectionPractice,
-    numMeasures,
-    repeat,
-    tempoInc,
-    tempoPractice,
-  ]);
-
-  // TODO when changing view to drum machine or back to metronome, store current state that may get
-  // changed as a ref, and restore it on rerender. (timeSignature)
 
   const restart = () => {
     if (isPlaying) {
@@ -116,6 +95,44 @@ function Metronome() {
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [startStop]);
+
+  // updates to new selected time signature
+  useEffect(() => {
+    if (isPlaying) {
+      restart();
+    }
+  }, [
+    timeSignature,
+    downBeat,
+    tone,
+    key,
+    subdivide,
+    mainBeat,
+    countIn,
+    sectionPractice,
+    numMeasures,
+    repeat,
+    tempoInc,
+    tempoPractice,
+  ]);
+
+  useEffect(() => {
+    if (isChanging.current) {
+      if (savedState.current.bpm !== undefined) {
+        setBpm(savedState.current.bpm);
+        setTimeSignature(savedState.current.timeSignature);
+      }
+      isChanging.current = false;
+    }
+    return () => {
+      if (isChanging.current) {
+        savedState.current = Object.assign({}, savedState.current, {
+          bpm,
+          timeSignature,
+        });
+      }
+    };
+  }, [bpm, timeSignature]);
 
   return (
     <div className="metronome-body">

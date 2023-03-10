@@ -14,7 +14,7 @@ import "../styles/DrumMachine.css";
 import ChooseInstPopUp from "./ChooseInstPopUp";
 // TODO snap to - the aligns the rhythms to a certain beat like eighth notes or quarter notes etc.
 
-function DrumMachine() {
+function DrumMachine({ savedState, isChanging }) {
   const {
     bpmRef,
     isPlaying,
@@ -23,6 +23,8 @@ function DrumMachine() {
     stopClick,
     startDrumMachine,
     stopDrumMachine,
+    bpm,
+    setBpm,
   } = useContext(AppContext);
 
   const NUM_CELLS_PER_BEAT = 12;
@@ -78,6 +80,25 @@ function DrumMachine() {
       restart();
     }
   }, [timeSignature, measures, rhythmGrid, instruments]);
+
+  // Saves and loads bpm and time signature settings when changing/loading view
+  useEffect(() => {
+    if (isChanging.current) {
+      if (savedState.current.bpm !== undefined) {
+        setBpm(savedState.current.bpm);
+        setTimeSignature(savedState.current.timeSignature);
+      }
+      isChanging.current = false;
+    }
+    return () => {
+      if (isChanging.current) {
+        savedState.current = Object.assign({}, savedState.current, {
+          bpm,
+          timeSignature,
+        });
+      }
+    };
+  }, [bpm, timeSignature]);
 
   const restart = async () => {
     if (isPlaying) {

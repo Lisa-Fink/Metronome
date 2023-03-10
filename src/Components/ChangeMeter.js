@@ -44,24 +44,20 @@ function ChangeMeter() {
       </h3>
       <div className={viewRhythm ? "indented-child" : "hidden"}>
         <label htmlFor="time-signature">
-          Time Signature
+          Beats Per Measure
           <select
             id="time-signature"
-            defaultValue={timeSignature}
+            value={timeSignature}
             onChange={(e) => setTimeSignature(parseInt(e.target.value))}
           >
             <optgroup>
-              <option value="2">2/4</option>
-              <option value="3">3/4</option>
-              <option value="4">4/4</option>
-              <option value="5">5/4</option>
-              <option value="6">6/4</option>
-              <option value="7">7/4</option>
-            </optgroup>
-            <optgroup>
-              <option value="3">3/8</option>
-              <option value="6">6/8</option>
-              <option value="9">9/8</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="9">9</option>
             </optgroup>
           </select>
         </label>

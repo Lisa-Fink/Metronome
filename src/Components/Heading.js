@@ -7,7 +7,7 @@ import LoginPopUp from "./LoginPopUp";
 import SignUpPopup from "./SignUpPopUp";
 import { getAuth, signOut } from "firebase/auth";
 
-function Heading({ user, setUser, view, setView }) {
+function Heading({ user, setUser, view, setView, isChanging }) {
   const [lightMode, setLightMode] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isSignUpOpen, setIsSignUpOpen] = useState(false);
@@ -61,10 +61,12 @@ function Heading({ user, setUser, view, setView }) {
   };
 
   const handleRhythmClick = () => {
+    isChanging.current = true;
     setView("rhythm");
   };
 
   const handleMetronomeClick = () => {
+    isChanging.current = true;
     setView("metronome");
   };
 
@@ -79,9 +81,13 @@ function Heading({ user, setUser, view, setView }) {
         <nav>
           <div id="change-view">
             {view === "metronome" ? (
-              <button className="type" onClick={handleRhythmClick}>Rhythm Machine</button>
+              <button className="type" onClick={handleRhythmClick}>
+                Rhythm Machine
+              </button>
             ) : (
-              <button className="type" onClick={handleMetronomeClick}>Metronome</button>
+              <button className="type" onClick={handleMetronomeClick}>
+                Metronome
+              </button>
             )}
           </div>
           {user ? (
