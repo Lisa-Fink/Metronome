@@ -1,0 +1,17 @@
+###
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+    "uid": "abc123",
+    "drumMachines": [],
+    "metronomes": [],
+    "lightSetting": true
+}
+###
+
+###
+GET http://localhost:3000/users/abc123
+Content-Type: application/json
+###
+

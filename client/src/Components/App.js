@@ -25,7 +25,7 @@ function App() {
       <main>
         <AppProvider>
           {view === "metronome" ? (
-            <Metronome savedState={savedMetState} isChanging={isChanging} />
+            <Metronome savedState={savedMetState} isChanging={isChanging} user={user}/>
           ) : (
             <DrumMachine savedState={savedDMState} isChanging={isChanging} />
           )}

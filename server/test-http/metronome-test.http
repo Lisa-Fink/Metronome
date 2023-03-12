@@ -1,0 +1,56 @@
+### Create Metronome ###
+POST http://localhost:3000/users/640cf8676046e86bae85a52c/metronomes
+Content-Type: application/json
+Authorization: Bearer 69
+
+{
+  "settings": {
+    "bpm": 120,
+    "timeSignature": 4,
+    "downBeat": true,
+    "subdivide": 2,
+    "mainBeat": true,
+    "key": 0,
+    "tone": "A440",
+    "countIn": 1,
+    "numMeasures": 4,
+    "repeat": 1,
+    "tempoInc": 0,
+    "sectionPractice": true,
+    "tempoPractice": true,
+    "title": "Test Metronome 2"
+  }
+}
+
+
+### Retrieve Metronomes for User ###
+GET http://localhost:3000/users/640cf8676046e86bae85a52c/metronomes
+
+### Retrieve Nonexistent User's Metronomes ###
+GET  http://localhost:3000/users/notreal/metronomes
+
+### Update Metronome ###
+PUT http://localhost:3000/users/640cf8676046e86bae85a52c/metronomes/
+Content-Type: application/json
+
+{
+  "settings": {
+    "bpm": 140,
+    "timeSignature": 3,
+    "downBeat": false,
+    "subdivide": 3,
+    "mainBeat": false,
+    "key": 2,
+    "tone": "A432",
+    "countIn": 2,
+    "numMeasures": 8,
+    "repeat": 2,
+    "tempoInc": 1,
+    "sectionPractice": false,
+    "tempoPractice": false,
+    "title": "Updated Metronome"
+  }
+}
+
+### Delete Metronome ###
+DELETE http://localhost:3000/users/640cf8676046e86bae85a52c/metronomes/640d1ae22030c40fccb9e4f0

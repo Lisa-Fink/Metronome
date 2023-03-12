@@ -1,0 +1,38 @@
+### POST /users/:_id/drum-machines
+POST http://localhost:3000/users/640cf8676046e86bae85a52c/drum-machines
+Content-Type: application/json
+
+{
+  "settings": {
+  "bpm": 60,
+  "timeSignature": 4,
+  "instruments": [],
+  "rhythmSequence": [],
+  "rhythmGrid": [],
+  "title": "test3"
+  }
+}
+
+### GET /users/:_id/drum-machines
+GET http://localhost:3000/users/640cf8676046e86bae85a52c/drum-machines
+
+### GET /users/:_id/drum-machines/:dm_id
+GET http://localhost:3000/users/640cf8676046e86bae85a52c/drum-machines/640d42c6ba70c8a2d0731c67
+
+### PUT /users/:_id/drum-machines/:dm_id
+PUT http://localhost:3000/users/640cf8676046e86bae85a52c/drum-machines/640d42c6ba70c8a2d0731c67
+Content-Type: application/json
+
+{
+  "settings": {
+  "bpm": 120,
+  "timeSignature": 4,
+  "instruments": [],
+  "rhythmSequence": [],
+  "rhythmGrid": [],
+  "title": "edited test2"
+  }
+}
+
+### DELETE /users/:_id/drum-machines/:dm_id
+DELETE http://localhost:3000/users/640cf8676046e86bae85a52c/drum-machines/640d431f4db02eb486e3236f

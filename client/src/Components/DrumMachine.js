@@ -13,8 +13,8 @@ import { CiEraser, CiEdit } from "react-icons/ci";
 import "../styles/DrumMachine.css";
 import ChooseInstPopUp from "./ChooseInstPopUp";
 // TODO snap to - the aligns the rhythms to a certain beat like eighth notes or quarter notes etc.
-
-function DrumMachine({ savedState, isChanging }) {
+// TODO save rhythms
+function DrumMachine({ savedState, isChanging, user }) {
   const {
     bpmRef,
     isPlaying,
@@ -39,22 +39,44 @@ function DrumMachine({ savedState, isChanging }) {
 
   const [isChooseInstOpen, setIsChooseInstOpen] = useState(false);
   const instrumentIdx = useRef(0);
-
   const [rhythm, setRhythm] = useState(1);
-
   const [isEditDelete, setIsEditDelete] = useState(true);
+
+  // ui data about note lengths "first" "middle" "last"
   const [rhythmGrid, setRhythmGrid] = useState(createRhythmGrid());
   const [hoverGrid, setHoverGrid] = useState(createRhythmGrid());
+  const hoverGridRef = useRef(createRhythmGrid());
+
   // Instrument [name, descriptive name, index]
   const [instruments, setInstruments] = useState(
     Array.from({ length: MAX_INSTRUMENTS }, () => Array(3).fill(undefined))
   );
-  const hoverGridRef = useRef(createRhythmGrid());
+
+  // audio data about when to start notes 1=start 0=not start
   const rhythmSequence = useRef(
     Array.from({ length: MAX_INSTRUMENTS }, () =>
       Array(NUM_CELLS_PER_BEAT * timeSignature * measures).fill(0)
     )
   );
+
+  const save = async (title) => {
+    // check if there are instruments set and the user is logged in
+    if (
+      user !== undefined &&
+      instruments.filter((i) => i[0] !== undefined).length > 0
+    ) {
+      const token = await user.getIdToken();
+      const settings = {
+        bpm,
+        timeSignature,
+        instruments,
+        rhythmSequence,
+        rhythmGrid,
+        title,
+      };
+      // save settings to db
+    }
+  };
 
   // Stops the metronome on load if it was playing
   useEffect(() => {

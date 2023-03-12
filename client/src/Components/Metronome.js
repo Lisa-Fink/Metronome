@@ -8,7 +8,7 @@ import Practice from "./Practice";
 import BottomControls from "./BottomControls";
 import { AppContext } from "../contexts/AppContext";
 
-function Metronome({ savedState, isChanging }) {
+function Metronome({ savedState, isChanging, user }) {
   const {
     bpm,
     setBpm,
@@ -33,7 +33,31 @@ function Metronome({ savedState, isChanging }) {
     sectionPractice,
     startClick,
     stopClick,
+    metronomeLoad,
   } = useContext(AppContext);
+
+  const save = async (title) => {
+    if (user !== undefined) {
+      const token = await user.getIdToken();
+      const settings = {
+        bpm,
+        timeSignature,
+        downBeat,
+        subdivide,
+        mainBeat,
+        key,
+        tone,
+        countIn,
+        numMeasures,
+        repeat,
+        tempoInc,
+        sectionPractice,
+        tempoPractice,
+        title,
+      };
+      // save settings to db
+    }
+  };
 
   const restart = () => {
     if (isPlaying) {

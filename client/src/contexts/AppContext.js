@@ -62,7 +62,39 @@ export const AppProvider = ({ children }) => {
     isStopping
   );
 
+  const metronomeLoad = (data) => {
+    const {
+      bpm,
+      timeSignature,
+      downBeat,
+      subdivide,
+      mainBeat,
+      key,
+      tone,
+      countIn,
+      numMeasures,
+      repeat,
+      tempoInc,
+      sectionPractice,
+      tempoPractice,
+    } = data;
+    setBpm(bpm);
+    setTimeSignature(timeSignature);
+    setDownBeat(downBeat);
+    setSubdivide(subdivide);
+    setMainBeat(mainBeat);
+    setKey(key);
+    setTone(tone);
+    setCountIn(countIn);
+    setNumMeasures(numMeasures);
+    setRepeat(repeat);
+    setTempoInc(tempoInc);
+    setSectionPractice(sectionPractice);
+    setTempoPractice(tempoPractice);
+  };
+
   const contextValue = {
+    metronomeLoad,
     bpm,
     setBpm,
     bpmRef,
