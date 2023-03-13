@@ -18,20 +18,22 @@ Authorization: Bearer 69
     "tempoInc": 0,
     "sectionPractice": true,
     "tempoPractice": true,
-    "title": "Test Metronome 2"
+    "title": "Test Metronome 3"
   }
 }
 
 
 ### Retrieve Metronomes for User ###
 GET http://localhost:3000/users/640cf8676046e86bae85a52c/metronomes
+Authorization: Bearer 69
 
 ### Retrieve Nonexistent User's Metronomes ###
 GET  http://localhost:3000/users/notreal/metronomes
 
 ### Update Metronome ###
-PUT http://localhost:3000/users/640cf8676046e86bae85a52c/metronomes/
+PUT  http://localhost:3000/users/640cf8676046e86bae85a52c/metronomes
 Content-Type: application/json
+Authorization: Bearer 69
 
 {
   "settings": {
@@ -51,6 +53,8 @@ Content-Type: application/json
     "title": "Updated Metronome"
   }
 }
+Authorization: Bearer 69
 
 ### Delete Metronome ###
-DELETE http://localhost:3000/users/640cf8676046e86bae85a52c/metronomes/640d1ae22030c40fccb9e4f0
+DELETE http://localhost:3000/users/640cf8676046e86bae85a52c/metronomes/640d510e04d961add91f3442
+Authorization: Bearer 69

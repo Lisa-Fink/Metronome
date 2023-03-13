@@ -1,8 +1,6 @@
 import mongoose from "mongoose";
 import express from "express";
-import dotenv from "dotenv";
 import validateUid from "./middleware/validateUid.mjs";
-import authenticate from "./middleware/authenticate.mjs";
 import metronomeRouter from "./controllers/metronomeController.mjs";
 import drumMachineRouter from "./controllers/drumMachineController.mjs";
 import userRouter from "./controllers/userController.mjs";
@@ -14,7 +12,7 @@ app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}...`);
 });
 
-app.use(express.json()); // REST needs JSON MIME type.
+app.use(express.json());
 
 app.use("/users", userRouter);
 app.use(validateUid);
@@ -34,3 +32,6 @@ db.once("open", (err) => {
 });
 
 export { app };
+
+// TODO: validate all retrieved data is correct form
+// TODO: Sanitize data retrieved

@@ -1,5 +1,6 @@
 ### POST /users/:_id/drum-machines
 POST http://localhost:3000/users/640cf8676046e86bae85a52c/drum-machines
+Authorization: Bearer 69
 Content-Type: application/json
 
 {
@@ -15,12 +16,15 @@ Content-Type: application/json
 
 ### GET /users/:_id/drum-machines
 GET http://localhost:3000/users/640cf8676046e86bae85a52c/drum-machines
+Authorization: Bearer 69
 
 ### GET /users/:_id/drum-machines/:dm_id
-GET http://localhost:3000/users/640cf8676046e86bae85a52c/drum-machines/640d42c6ba70c8a2d0731c67
+GET http://localhost:3000/users/640cf8676046e86bae85a52c/drum-machines/640d42d74db02eb486e32354
+Authorization: Bearer 69
 
 ### PUT /users/:_id/drum-machines/:dm_id
-PUT http://localhost:3000/users/640cf8676046e86bae85a52c/drum-machines/640d42c6ba70c8a2d0731c67
+PUT http://localhost:3000/users/640cf8676046e86bae85a52c/drum-machines/640ea359b22b68ccc36964d8
+Authorization: Bearer 69
 Content-Type: application/json
 
 {
@@ -30,9 +34,10 @@ Content-Type: application/json
   "instruments": [],
   "rhythmSequence": [],
   "rhythmGrid": [],
-  "title": "edited test2"
+  "title": "edited test"
   }
 }
 
 ### DELETE /users/:_id/drum-machines/:dm_id
-DELETE http://localhost:3000/users/640cf8676046e86bae85a52c/drum-machines/640d431f4db02eb486e3236f
+DELETE http://localhost:3000/users/640cf8676046e86bae85a52c/drum-machines/640e81650a6170f6823a6e81
+Authorization: Bearer 69

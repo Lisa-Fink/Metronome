@@ -1,18 +1,14 @@
 import mongoose from "mongoose";
-import userSchema, { drumMachineSchema } from "../userSchema.mjs";
+import { drumMachineSchema } from "../userSchema.mjs";
 
 const DrumMachine = mongoose.model("DrumMachine", drumMachineSchema);
-const User = mongoose.model("User", userSchema, "users");
 
 // CREATE************************************************************
-const createDrumMachine = async (settings, _id) => {
+const createDrumMachine = async (user, settings) => {
   try {
     const newDrumMachine = new DrumMachine(settings);
-    const user = await User.findOneAndUpdate(
-      { _id },
-      { $push: { drumMachines: newDrumMachine } },
-      { new: true }
-    );
+    user.drumMachines.push(newDrumMachine);
+    await user.save();
     return user.drumMachines[user.drumMachines.length - 1];
   } catch (err) {
     console.error(`Error creating drum machine: ${err.message}`);
@@ -23,73 +19,41 @@ const createDrumMachine = async (settings, _id) => {
 // RETRIEVE**********************************************************
 
 // Retrieve All
-const retrieveDrumMachines = async (_id) => {
-  try {
-    const user = await User.findById(_id);
-    if (!user) {
-      throw new Error(`User was not found.`);
-    }
-    return user.drumMachines;
-  } catch (err) {
-    console.error(`Error retrieving the drum machines: ${err.message}`);
-    throw new Error(`There was an error retrieving the drum machines.`);
-  }
+const retrieveDrumMachines = async (user) => {
+  return user.drumMachines;
 };
 
 // Retrieve One
-const retrieveDrumMachineByID = async (user_id, dm_id) => {
-  try {
-    const user = await User.findById(user_id);
-    if (!user) {
-      throw new Error(`User was not found.`);
-    }
-    const drumMachine = user.drumMachines.id(dm_id);
-    if (!drumMachine) {
-      throw new Error(`DrumMachine with ID ${dm_id} not found.`);
-    }
-    return drumMachine;
-  } catch (err) {
-    console.error(`Error retrieving the drum machine: ${err.message}`);
-    throw new Error(`There was an error retrieving the drum machine.`);
+const retrieveDrumMachineByID = async (user, dm_id) => {
+  const drumMachine = user.drumMachines.id(dm_id);
+  if (!drumMachine) {
+    throw new Error(`DrumMachine with ID ${dm_id} not found.`);
   }
+  return drumMachine;
 };
 
 // UPDATE************************************************************
-const updateDrumMachine = async (user_id, dm_id, settings) => {
-  try {
-    const user = await User.findById(user_id);
-    if (!user) {
-      throw new Error(`User was not found.`);
-    }
-    const drumMachine = user.drumMachines.id(dm_id);
-    if (!drumMachine) {
-      throw new Error(`DrumMachine with ID ${dm_id} not found.`);
-    }
-    drumMachine.set(settings);
-    await user.save();
-    return drumMachine;
-  } catch (err) {
-    console.error(`Error updating the drum machine: ${err.message}`);
-    throw new Error(`There was an error updating the drum machine.`);
+const updateDrumMachine = async (user, dm_id, settings) => {
+  const drumMachine = user.drumMachines.id(dm_id);
+  if (!drumMachine) {
+    throw new Error(`DrumMachine with ID ${dm_id} not found.`);
   }
+  drumMachine.set(settings);
+  await user.save();
+  return drumMachine;
 };
 
 // DELETE************************************************************
-const deleteDrumMachineById = async (user_id, dm_id) => {
-  try {
-    const updatedUser = await User.findByIdAndUpdate(
-      user_id,
-      { $pull: { drumMachines: { _id: dm_id } } },
-      { new: true }
-    );
-    if (!updatedUser) {
-      throw new Error(`User was not found.`);
-    }
-    return updatedUser;
-  } catch (err) {
-    console.error(`Error deleting the drum machine: ${err.message}`);
-    throw new Error(`There was an error deleting the drum machine.`);
+const deleteDrumMachineById = async (user, dm_id) => {
+  const drumMachineIndex = user.drumMachines.findIndex((dm) =>
+    dm._id.equals(dm_id)
+  );
+  if (drumMachineIndex === -1) {
+    throw new Error("Drum machine not found");
   }
+  user.drumMachines.splice(drumMachineIndex, 1);
+  await user.save();
+  return user;
 };
 
 export {

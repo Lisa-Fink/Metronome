@@ -1,8 +1,7 @@
 import mongoose from "mongoose";
-import userSchema, { metronomeSchema } from "../userSchema.mjs";
+import { metronomeSchema } from "../userSchema.mjs";
 
 const Metronome = mongoose.model("Metronome", metronomeSchema);
-const User = mongoose.model("User", userSchema, "users");
 
 // CREATE************************************************************
 const createMetronome = async (user, settings) => {
@@ -12,7 +11,7 @@ const createMetronome = async (user, settings) => {
     await user.save();
     return user.metronomes[user.metronomes.length - 1];
   } catch (err) {
-    console.error(`1Error creating metronome: ${err.message}`);
+    console.error(`Error creating metronome: ${err.message}`);
     throw new Error("There was an error creating the metronome.");
   }
 };
@@ -22,7 +21,6 @@ const createMetronome = async (user, settings) => {
 // Retrieve All
 const retrieveMetronomes = async (user) => {
   return user.metronomes;
-  // TODO validate all metronomes
 };
 
 // Retrieve One
@@ -57,14 +55,13 @@ const updateMetronome = async (user, metronome_id, settings) => {
 
 // DELETE************************************************************
 const deleteMetronomeById = async (user, metronome_id) => {
-  try {
-    user.metronomes.id(metronome_id).remove();
-    await user.save();
-    return user;
-  } catch (err) {
-    console.error(`Error deleting the metronome: ${err.message}`);
-    throw new Error(`There was an error deleting the metronome.`);
+  const toDelIdx = user.metronomes.findIndex((m) => m._id.equals(metronome_id));
+  if (toDelIdx === -1) {
+    throw new Error("The metronome was not found");
   }
+  user.metronomes.splice(toDelIdx, 1);
+  await user.save();
+  return user;
 };
 
 export {

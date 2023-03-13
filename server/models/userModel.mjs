@@ -38,33 +38,25 @@ const retrieveUserByUID = async (uid) => {
 
 // UPDATE************************************************************
 const updateUser = async (
-  _id,
+  user,
   userId,
   drumMachines,
   metronomes,
   lightSetting
 ) => {
   try {
-    const currentUser = await User.findById(_id);
-    if (!currentUser) {
-      throw new Error(`User was not found.`);
-    }
-    currentUser.set({ userId, drumMachines, metronomes, lightSetting });
-    await currentUser.save();
-    return currentUser;
+    user.set({ userId, drumMachines, metronomes, lightSetting });
+    await user.save();
+    return user;
   } catch (err) {
     console.error(`Error updating user: ${err.message}`);
     throw new Error(`There was an error updating the user.`);
   }
 };
 
-const updateUserLightSetting = async (_id, lightSetting) => {
+const updateUserLightSetting = async (user, lightSetting) => {
   try {
-    const currentUser = await User.findById(_id);
-    if (!currentUser) {
-      throw new Error(`User was not found.`);
-    }
-    currentUser.set({ lightSetting });
+    user.set({ lightSetting });
     await currentUser.save();
     return currentUser;
   } catch (err) {
@@ -78,16 +70,10 @@ const updateUserLightSetting = async (_id, lightSetting) => {
 };
 
 // DELETE************************************************************
-const deleteUserById = async (_id, uid) => {
+const deleteUserById = async (user) => {
   try {
-    const currentUser = await User.findById(_id);
-    if (!currentUser) {
-      throw new Error(`User with ID ${_id} not found.`);
-    }
-    if (currentUser.uid !== uid) {
-      throw new Error("Unauthorized");
-    }
-    await currentUser.remove();
+    await user.remove();
+    return true;
   } catch (err) {
     console.error(`Error deleting the user: ${err.message}`);
     throw new Error(`There was an error deleting the user.`);

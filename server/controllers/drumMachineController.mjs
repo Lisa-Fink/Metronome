@@ -1,14 +1,16 @@
 import { Router } from "express";
 import * as drumMachineModel from "../models/drumMachineModel.mjs";
+import authenticate from "../middleware/authenticate.mjs";
 
 const drumMachineRouter = Router({ mergeParams: true });
+drumMachineRouter.use(authenticate);
 
 // CREATE controller ************************************************
 drumMachineRouter.post("/", async (req, res) => {
   try {
     const drumMachine = await drumMachineModel.createDrumMachine(
-      req.body.settings,
-      req.params._id
+      req.user,
+      req.body.settings
     );
     res.status(201).json(drumMachine);
   } catch (error) {
@@ -19,9 +21,8 @@ drumMachineRouter.post("/", async (req, res) => {
 
 // RETRIEVE controller **********************************************
 drumMachineRouter.get("/", async (req, res) => {
-  const user_id = req.params._id;
   try {
-    const drumMachines = await drumMachineModel.retrieveDrumMachines(user_id);
+    const drumMachines = await drumMachineModel.retrieveDrumMachines(req.user);
     res.json(drumMachines);
   } catch (error) {
     console.error(`Error retrieving the drum machines: ${error.message}`);
@@ -33,7 +34,7 @@ drumMachineRouter.get("/", async (req, res) => {
 drumMachineRouter.get("/:dm_id", async (req, res) => {
   try {
     const drumMachine = await drumMachineModel.retrieveDrumMachineByID(
-      req.params._id,
+      req.user,
       req.params.dm_id
     );
     if (drumMachine !== null) {
@@ -53,7 +54,7 @@ drumMachineRouter.get("/:dm_id", async (req, res) => {
 drumMachineRouter.put("/:dm_id", async (req, res) => {
   try {
     const drumMachine = await drumMachineModel.updateDrumMachine(
-      req.params._id,
+      req.user,
       req.params.dm_id,
       req.body.settings
     );
@@ -70,7 +71,7 @@ drumMachineRouter.put("/:dm_id", async (req, res) => {
 drumMachineRouter.delete("/:dm_id", async (req, res) => {
   try {
     const deletedDrumMachine = await drumMachineModel.deleteDrumMachineById(
-      req.params._id,
+      req.user,
       req.params.dm_id
     );
     if (deletedDrumMachine) {
