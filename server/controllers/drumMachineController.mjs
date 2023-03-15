@@ -1,12 +1,16 @@
 import { Router } from "express";
 import * as drumMachineModel from "../models/drumMachineModel.mjs";
 import authenticate from "../middleware/authenticate.mjs";
+import {
+  validate,
+  validateSettings,
+} from "../middleware/validateDrumMachine.mjs";
 
 const drumMachineRouter = Router({ mergeParams: true });
 drumMachineRouter.use(authenticate);
 
 // CREATE controller ************************************************
-drumMachineRouter.post("/", async (req, res) => {
+drumMachineRouter.post("/", validateSettings, validate, async (req, res) => {
   try {
     const drumMachine = await drumMachineModel.createDrumMachine(
       req.user,
@@ -51,21 +55,26 @@ drumMachineRouter.get("/:dm_id", async (req, res) => {
 });
 
 // UPDATE controller ************************************************
-drumMachineRouter.put("/:dm_id", async (req, res) => {
-  try {
-    const drumMachine = await drumMachineModel.updateDrumMachine(
-      req.user,
-      req.params.dm_id,
-      req.body.settings
-    );
-    res.json(drumMachine);
-  } catch (error) {
-    console.error(`Error updating the drum machine: ${error.message}`);
-    res
-      .status(400)
-      .json({ error: "There was an error updating the drum machine." });
+drumMachineRouter.put(
+  "/:dm_id",
+  validateSettings,
+  validate,
+  async (req, res) => {
+    try {
+      const drumMachine = await drumMachineModel.updateDrumMachine(
+        req.user,
+        req.params.dm_id,
+        req.body.settings
+      );
+      res.json(drumMachine);
+    } catch (error) {
+      console.error(`Error updating the drum machine: ${error.message}`);
+      res
+        .status(400)
+        .json({ error: "There was an error updating the drum machine." });
+    }
   }
-});
+);
 
 // DELETE Controller ************************************************
 drumMachineRouter.delete("/:dm_id", async (req, res) => {

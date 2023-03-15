@@ -1,12 +1,16 @@
 import { Router } from "express";
 import * as metronomeModel from "../models/metronomeModel.mjs";
 import authenticate from "../middleware/authenticate.mjs";
+import {
+  validate,
+  validateSettings,
+} from "../middleware/validateMetronome.mjs";
 
 const metronomeRouter = Router({ mergeParams: true });
 metronomeRouter.use(authenticate);
 
 // CREATE controller
-metronomeRouter.post("/", async (req, res) => {
+metronomeRouter.post("/", validateSettings, validate, async (req, res) => {
   try {
     const metronome = await metronomeModel.createMetronome(
       req.user,
@@ -14,7 +18,7 @@ metronomeRouter.post("/", async (req, res) => {
     );
     res.status(201).json(metronome);
   } catch (error) {
-    console.error(`2Error creating the metronome: ${error.message}`);
+    console.error(`Error creating the metronome: ${error.message}`);
     res.status(400).json({ error: error.message });
   }
 });
@@ -51,21 +55,26 @@ metronomeRouter.get("/:metronome_id", async (req, res) => {
 });
 
 // UPDATE controller
-metronomeRouter.put("/:metronome_id", async (req, res) => {
-  try {
-    const metronome = await metronomeModel.updateMetronome(
-      req.user,
-      req.params.metronome_id,
-      req.body.settings
-    );
-    res.json(metronome);
-  } catch (error) {
-    console.error(`Error updating the metronome: ${error.message}`);
-    res
-      .status(400)
-      .json({ error: "There was an error updating the metronome." });
+metronomeRouter.put(
+  "/:metronome_id",
+  validateSettings,
+  validate,
+  async (req, res) => {
+    try {
+      const metronome = await metronomeModel.updateMetronome(
+        req.user,
+        req.params.metronome_id,
+        req.body.settings
+      );
+      res.json(metronome);
+    } catch (error) {
+      console.error(`Error updating the metronome: ${error.message}`);
+      res
+        .status(400)
+        .json({ error: "There was an error updating the metronome." });
+    }
   }
-});
+);
 
 // DELETE Controller
 metronomeRouter.delete("/:metronome_id", async (req, res) => {
