@@ -3,34 +3,27 @@ import mongoose from "mongoose";
 /**********************************/
 // Drum Machine Schema
 /**********************************/
-const instrumentSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  description: { type: String, required: true },
-  value: { type: Number, required: true },
-});
-
-const rhythmSequenceSchema = new mongoose.Schema({
-  row: {
-    type: [Number],
-    required: true,
-  },
-});
-
-const rhythmGridSchema = new mongoose.Schema({
-  row: {
-    type: [String],
-    enum: ["first", "middle", "last"],
-    required: true,
-  },
-});
-
 const drumMachineSchema = mongoose.Schema({
-  bpm: { type: Number, required: true },
-  timeSignature: { type: Number, required: true },
-  instruments: { type: [[instrumentSchema]], required: true },
-  rhythmSequence: { type: [rhythmSequenceSchema], required: true },
-  rhythmGrid: { type: [rhythmGridSchema], required: true },
+  bpm: { type: Number, required: true, min: 40, max: 260 },
+  timeSignature: {
+    type: Number,
+    required: true,
+    enum: [1, 2, 3, 4, 5, 6, 7, 9],
+  },
+  instruments: {
+    type: Array,
+    required: true,
+  },
+  rhythmSequence: {
+    type: Array,
+    required: true,
+  },
+  rhythmGrid: {
+    type: Array,
+    required: true,
+  },
   title: { type: String, required: true },
+  measures: { type: Number, min: 1, max: 2 },
 });
 
 /**********************************/
@@ -40,10 +33,13 @@ const metronomeSchema = mongoose.Schema({
   bpm: {
     type: Number,
     required: true,
+    min: 40,
+    max: 260,
   },
   timeSignature: {
     type: Number,
     required: true,
+    enum: [1, 2, 3, 4, 5, 6, 7, 9],
   },
   downBeat: {
     type: Boolean,
@@ -80,6 +76,8 @@ const metronomeSchema = mongoose.Schema({
   tempoInc: {
     type: Number,
     required: true,
+    min: 0,
+    max: 99,
   },
   sectionPractice: {
     type: Boolean,

@@ -31,7 +31,7 @@ Authorization: Bearer 69
 GET  http://localhost:3000/users/notreal/metronomes
 
 ### Update Metronome ###
-PUT  http://localhost:3000/users/640cf8676046e86bae85a52c/metronomes
+PUT  http://localhost:3000/users/640cf8676046e86bae85a52c/metronomes/64121e7c3bb2b97ad00a08d1
 Content-Type: application/json
 Authorization: Bearer 69
 
@@ -47,13 +47,13 @@ Authorization: Bearer 69
     "countIn": 2,
     "numMeasures": 8,
     "repeat": 2,
-    "tempoInc": 1,
+    "tempoInc": 99,
     "sectionPractice": false,
     "tempoPractice": false,
-    "title": "Updated Metronome"
+    "title": "Updated Metronome 44"
   }
 }
-Authorization: Bearer 69
+
 
 ### Delete Metronome ###
 DELETE http://localhost:3000/users/640cf8676046e86bae85a52c/metronomes/640d510e04d961add91f3442

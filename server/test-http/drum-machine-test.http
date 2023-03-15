@@ -5,12 +5,28 @@ Content-Type: application/json
 
 {
   "settings": {
-  "bpm": 60,
-  "timeSignature": 4,
-  "instruments": [],
-  "rhythmSequence": [],
-  "rhythmGrid": [],
-  "title": "test3"
+    "bpm": 60,
+    "timeSignature": 4,
+    "measures": 1,
+    "instruments": [
+      [null, null, null],
+      [null, null, null],
+      [null, null, null],
+      [null, null, null]
+    ],
+    "rhythmSequence": [
+      [0, 1, 0, 1],
+      [0, 1, 0, 1],
+      [0, 1, 0, 1],
+      [0, 1, 0, 1]
+    ],
+    "rhythmGrid": [
+      [null, "first", null, "first"],
+      ["middle", null, "middle", null],
+      [null, "last", null, "last"],
+      ["middle", null, "middle", null]
+    ],
+    "title": "test3"
   }
 }
 
@@ -39,5 +55,5 @@ Content-Type: application/json
 }
 
 ### DELETE /users/:_id/drum-machines/:dm_id
-DELETE http://localhost:3000/users/640cf8676046e86bae85a52c/drum-machines/640e81650a6170f6823a6e81
+DELETE http://localhost:3000/users/640cf8676046e86bae85a52c/drum-machines/641225b1cd48dc3ce27a50a7
 Authorization: Bearer 69
