@@ -1,12 +1,11 @@
-import { useState, useEffect } from "react";
-import app from "../firebase";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import "firebase/auth";
+import { useState, useEffect, useContext } from "react";
+import { UserContext } from "../contexts/UserContext";
+
 import "../styles/PopUp.css";
 
 import { AiOutlineClose, AiOutlineCheckCircle } from "react-icons/ai";
 
-function SignUpPopup({ setIsSignUpOpen, handleSwitchLogin, setUser, user }) {
+function SignUpPopup({ setIsSignUpOpen, handleSwitchLogin }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -14,6 +13,8 @@ function SignUpPopup({ setIsSignUpOpen, handleSwitchLogin, setUser, user }) {
   const [invalidPassword, setInvalidPassword] = useState(true);
   const [invalidConfirmPassword, setInvalidConfirmPassword] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
+
+  const { signUpUser, createUser, user } = useContext(UserContext);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -31,6 +32,7 @@ function SignUpPopup({ setIsSignUpOpen, handleSwitchLogin, setUser, user }) {
   }, [setIsSignUpOpen]);
 
   useEffect(() => {
+    // Automatically close if there is a signed in user
     if (user) {
       handleClose();
     }
@@ -81,12 +83,12 @@ function SignUpPopup({ setIsSignUpOpen, handleSwitchLogin, setUser, user }) {
     if (e) {
       e.preventDefault();
     }
-
     setIsSignUpOpen(false);
   };
 
   const handleSignUp = async (e) => {
     e.preventDefault();
+    // validate
     if (invalidEmail) {
       setErrorMessage("Please enter a valid email.");
       return;
@@ -100,19 +102,16 @@ function SignUpPopup({ setIsSignUpOpen, handleSwitchLogin, setUser, user }) {
       return;
     }
 
-    const auth = getAuth(app);
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        // Signed in
-        setUser(userCredential.user);
-        handleClose();
-      })
-      .catch((error) => {
-        //TODO add custom error message
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        setErrorMessage(errorMessage);
-      });
+    try {
+      // Creates user in firebase, sets user
+      const newUser = await signUpUser(email, password, setErrorMessage);
+      // Adds/Creates user in db
+      createUser(newUser);
+      handleClose();
+    } catch (error) {
+      setErrorMessage("Unable to create account");
+      console.error(error);
+    }
   };
 
   return (

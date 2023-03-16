@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import express from "express";
+import cors from "cors";
 import validateUid from "./middleware/validateUid.mjs";
 import metronomeRouter from "./controllers/metronomeController.mjs";
 import drumMachineRouter from "./controllers/drumMachineController.mjs";
@@ -7,10 +8,12 @@ import userRouter from "./controllers/userController.mjs";
 
 const PORT = process.env.PORT;
 const app = express();
-
-app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}...`);
-});
+app.use(
+  cors({
+    origin: ["http://localhost:8000"],
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 
@@ -31,7 +34,8 @@ db.once("open", (err) => {
   }
 });
 
-export { app };
+app.listen(PORT, () => {
+  console.log(`Server listening on port ${PORT}...`);
+});
 
-// TODO: validate all retrieved data is correct form
-// TODO: Sanitize data retrieved
+export { app };

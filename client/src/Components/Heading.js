@@ -1,16 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { MdOutlineLightMode, MdOutlineDarkMode } from "react-icons/md";
 import { IoSettingsOutline } from "react-icons/io5";
 import { IoMusicalNotesOutline } from "react-icons/io5";
 import "../styles/Header.css";
 import LoginPopUp from "./LoginPopUp";
 import SignUpPopup from "./SignUpPopUp";
-import { getAuth, signOut } from "firebase/auth";
+import { UserContext } from "../contexts/UserContext";
 
-function Heading({ user, setUser, view, setView, isChanging }) {
+function Heading({ view, setView, isChanging }) {
   const [lightMode, setLightMode] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isSignUpOpen, setIsSignUpOpen] = useState(false);
+
+  const { signOutUser, user } = useContext(UserContext);
 
   useEffect(() => {
     if (lightMode === true) {
@@ -45,19 +47,6 @@ function Heading({ user, setUser, view, setView, isChanging }) {
   const handleSwitchLogin = () => {
     setIsSignUpOpen(false);
     setIsLoginOpen(true);
-  };
-
-  const handleSignOut = () => {
-    const auth = getAuth();
-    signOut(auth)
-      .then(() => {
-        // Sign-out successful.
-        setUser(undefined);
-      })
-      .catch((error) => {
-        // An error happened.
-        console.error(error);
-      });
   };
 
   const handleRhythmClick = () => {
@@ -96,7 +85,7 @@ function Heading({ user, setUser, view, setView, isChanging }) {
                 <IoSettingsOutline />
               </div>
               <div id="sign-out">
-                <button onClick={handleSignOut}>Sign Out</button>
+                <button onClick={signOutUser}>Sign Out</button>
               </div>
             </div>
           ) : (
@@ -122,16 +111,12 @@ function Heading({ user, setUser, view, setView, isChanging }) {
         <LoginPopUp
           setIsLoginOpen={setIsLoginOpen}
           handleSwitchSignUp={handleSwitchSignUp}
-          user={user}
-          setUser={setUser}
         />
       )}
       {isSignUpOpen && (
         <SignUpPopup
           setIsSignUpOpen={setIsSignUpOpen}
           handleSwitchLogin={handleSwitchLogin}
-          user={user}
-          setUser={setUser}
         />
       )}
     </div>

@@ -1,17 +1,20 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import app from "../firebase";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import "firebase/auth";
 import "../styles/PopUp.css";
 
 import { AiOutlineClose, AiOutlineCheckCircle } from "react-icons/ai";
+import { UserContext } from "../contexts/UserContext";
 
-function LoginPopup({ setIsLoginOpen, handleSwitchSignUp, user, setUser }) {
+function LoginPopup({ setIsLoginOpen, handleSwitchSignUp }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [invalidEmail, setInvalidEmail] = useState(true);
   const [invalidPassword, setInvalidPassword] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
+
+  const { user, setUser } = useContext(UserContext);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -64,6 +67,7 @@ function LoginPopup({ setIsLoginOpen, handleSwitchSignUp, user, setUser }) {
   };
 
   const handleLogin = async (e) => {
+    // Firebase login
     e.preventDefault();
     if (invalidEmail) {
       setErrorMessage("Please enter a valid email");
@@ -85,6 +89,19 @@ function LoginPopup({ setIsLoginOpen, handleSwitchSignUp, user, setUser }) {
         // TODO change
         setErrorMessage(error.message);
       });
+
+    // // Get user from db
+    // const headers = new Headers();
+    // const token = await user.getIdToken();
+    // headers.append("Authorization", `Bearer ${token}`);
+
+    // const userDB = await fetch(`/users/${user.uid}`, {
+    //   method: "GET",
+    //   headers: {
+    //     headers,
+    //   },
+    // });
+    // console.log(userDB);
   };
 
   return (
