@@ -6,9 +6,10 @@ import "../styles/Header.css";
 import LoginPopUp from "./LoginPopUp";
 import SignUpPopup from "./SignUpPopUp";
 import { UserContext } from "../contexts/UserContext";
+import { AppContext } from "../contexts/AppContext";
 
 function Heading({ view, setView, isChanging }) {
-  const [lightMode, setLightMode] = useState(false);
+  const { lightMode, setLightMode } = useContext(AppContext);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isSignUpOpen, setIsSignUpOpen] = useState(false);
 
