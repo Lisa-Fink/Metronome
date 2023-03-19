@@ -31,6 +31,13 @@ export const AppProvider = ({ children }) => {
   const [sectionPractice, setSectionPractice] = useState(false);
   const [tempoPractice, setTempoPractice] = useState(false);
 
+  const [lightMode, setLightMode] = useState(false);
+
+  const [title, setTitle] = useState("");
+
+  const metronome_id = useRef("");
+  const dm_id = useRef("");
+
   const {
     startClick,
     stopClick,
@@ -77,6 +84,8 @@ export const AppProvider = ({ children }) => {
       tempoInc,
       sectionPractice,
       tempoPractice,
+      title,
+      _id,
     } = data;
     setBpm(bpm);
     setTimeSignature(timeSignature);
@@ -91,6 +100,8 @@ export const AppProvider = ({ children }) => {
     setTempoInc(tempoInc);
     setSectionPractice(sectionPractice);
     setTempoPractice(tempoPractice);
+    setTitle(title);
+    metronome_id.current = _id;
   };
 
   const contextValue = {
@@ -139,6 +150,12 @@ export const AppProvider = ({ children }) => {
     playSample,
     startDrumMachine,
     stopDrumMachine,
+    lightMode,
+    setLightMode,
+    title,
+    setTitle,
+    metronome_id,
+    dm_id,
   };
 
   return (
