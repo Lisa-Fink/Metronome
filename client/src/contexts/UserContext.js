@@ -30,6 +30,10 @@ export const UserProvider = ({ children }) => {
     tempoPractice,
     title,
     loadMetronomeData,
+    instruments,
+    rhythmSequence,
+    rhythmGrid,
+    measures,
   } = useContext(AppContext);
   const [user, setUser] = useState(undefined);
   const [_id, set_id] = useState(undefined);
@@ -181,6 +185,7 @@ export const UserProvider = ({ children }) => {
         }
 
         const data = await response.json();
+        setUserMetronomes([...userMetronomes, data]);
         metronome_id.current = data._id;
       }
     } catch (error) {
@@ -240,7 +245,49 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  const saveDM = () => {};
+  const saveNewDM = async (title) => {
+    try {
+      // Ignore attempt to save when logged out or no instruments added
+      if (
+        user === undefined ||
+        instruments.filter((i) => i[0] !== undefined).length == 0
+      ) {
+        throw new Error("No rhythms were added.");
+      }
+
+      const token = await user.getIdToken();
+      const headers = new Headers();
+      headers.append("Authorization", `Bearer ${token}`);
+      headers.append("Content-Type", "application/json");
+
+      if (!title) title = "Untitled";
+
+      const settings = {
+        bpm,
+        timeSignature,
+        measures,
+        instruments,
+        rhythmSequence: rhythmSequence.current,
+        rhythmGrid,
+        title,
+      };
+      // save settings to db
+      const response = await fetch(`/users/${_id}/drum-machines`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ settings: settings }),
+      });
+      if (response.status !== 201) {
+        throw new Error("Error saving the metronome");
+      }
+
+      const data = await response.json();
+      setUserDrumsMachines([...userDrumMachines, data]);
+      dm_id.current = data._id;
+    } catch (error) {
+      throw new Error(error);
+    }
+  };
 
   const contextValue = {
     user,
@@ -251,8 +298,9 @@ export const UserProvider = ({ children }) => {
     signOutUser,
     saveNewMetronome,
     saveUpdateMetronome,
-    saveDM,
+    saveNewDM,
     userMetronomes,
+    userDrumMachines,
     loadMetronome,
   };
   return (

@@ -35,6 +35,16 @@ export const AppProvider = ({ children }) => {
 
   const [title, setTitle] = useState("");
 
+  // Drum Machine Settings
+  const [measures, setMeasures] = useState(1);
+  const [dMTitle, setDMTitle] = useState("");
+  // ui data about note lengths "first" "middle" "last"
+  const [rhythmGrid, setRhythmGrid] = useState([[]]);
+  // Instrument [name, descriptive name, index]
+  const [instruments, setInstruments] = useState([[]]);
+  // audio data about when to start notes 1=start 0=not start
+  const rhythmSequence = useRef([[]]);
+
   const {
     startClick,
     stopClick,
@@ -151,6 +161,15 @@ export const AppProvider = ({ children }) => {
     title,
     setTitle,
     loadMetronomeData,
+    measures,
+    setMeasures,
+    dMTitle,
+    setDMTitle,
+    rhythmGrid,
+    setRhythmGrid,
+    instruments,
+    setInstruments,
+    rhythmSequence,
   };
 
   return (

@@ -12,6 +12,8 @@ import { IoAddCircleOutline } from "react-icons/io5";
 import { CiEraser, CiEdit } from "react-icons/ci";
 import "../styles/DrumMachine.css";
 import ChooseInstPopUp from "./ChooseInstPopUp";
+import UserBar from "./UserBar";
+import { UserContext } from "../contexts/UserContext";
 // TODO snap to - the aligns the rhythms to a certain beat like eighth notes or quarter notes etc.
 // TODO save rhythms
 function DrumMachine({ savedState, isChanging, user }) {
@@ -25,12 +27,23 @@ function DrumMachine({ savedState, isChanging, user }) {
     stopDrumMachine,
     bpm,
     setBpm,
+    measures,
+    setMeasures,
+    dMTitle,
+    setDMTitle,
+    rhythmGrid,
+    setRhythmGrid,
+    instruments,
+    setInstruments,
+    rhythmSequence,
   } = useContext(AppContext);
+
+  const isTyping = useRef(false);
+
+  const { saveNewDM, userDrumMachines } = useContext(UserContext);
 
   const NUM_CELLS_PER_BEAT = 12;
   const MAX_INSTRUMENTS = 4;
-
-  const [measures, setMeasures] = useState(1);
 
   const createRhythmGrid = (num_measures = measures) =>
     Array.from({ length: MAX_INSTRUMENTS }, () =>
@@ -42,47 +55,22 @@ function DrumMachine({ savedState, isChanging, user }) {
   const [rhythm, setRhythm] = useState(1);
   const [isEditDelete, setIsEditDelete] = useState(true);
 
-  // ui data about note lengths "first" "middle" "last"
-  const [rhythmGrid, setRhythmGrid] = useState(createRhythmGrid());
   const [hoverGrid, setHoverGrid] = useState(createRhythmGrid());
   const hoverGridRef = useRef(createRhythmGrid());
-
-  // Instrument [name, descriptive name, index]
-  const [instruments, setInstruments] = useState(
-    Array.from({ length: MAX_INSTRUMENTS }, () => Array(3).fill(undefined))
-  );
-
-  // audio data about when to start notes 1=start 0=not start
-  const rhythmSequence = useRef(
-    Array.from({ length: MAX_INSTRUMENTS }, () =>
-      Array(NUM_CELLS_PER_BEAT * timeSignature * measures).fill(0)
-    )
-  );
-
-  const save = async (title) => {
-    // check if there are instruments set and the user is logged in
-    if (
-      user !== undefined &&
-      instruments.filter((i) => i[0] !== undefined).length > 0
-    ) {
-      const token = await user.getIdToken();
-      const settings = {
-        bpm,
-        timeSignature,
-        instruments,
-        rhythmSequence,
-        rhythmGrid,
-        title,
-      };
-      // save settings to db
-    }
-  };
 
   // Stops the metronome on load if it was playing
   useEffect(() => {
     if (isPlaying) {
       stopClick();
     }
+    // initialize arrays
+    setInstruments(
+      Array.from({ length: MAX_INSTRUMENTS }, () => Array(3).fill(undefined))
+    );
+    rhythmSequence.current = Array.from({ length: MAX_INSTRUMENTS }, () =>
+      Array(NUM_CELLS_PER_BEAT * timeSignature * measures).fill(0)
+    );
+    setRhythmGrid(createRhythmGrid());
   }, []);
   // Resets the drum machine if settings are changed and playing
   useEffect(() => {
@@ -139,7 +127,7 @@ function DrumMachine({ savedState, isChanging, user }) {
   // Adds start/stop with space bar press
   useEffect(() => {
     const handleKeyDown = (event) => {
-      if (event.keyCode === 32) {
+      if (!isTyping && event.keyCode === 32) {
         // Space key
         startStop();
       }
@@ -631,7 +619,16 @@ function DrumMachine({ savedState, isChanging, user }) {
 
   return (
     <div className="metronome-body">
+      <UserBar
+        view={"Drum Machine"}
+        saveNew={saveNewDM}
+        data={userDrumMachines}
+        isTyping={isTyping}
+        title={dMTitle}
+        setTitle={setDMTitle}
+      />
       <h2>Drum Machine</h2>
+
       <div className="top">
         <div className="left">
           <TempoControls startStop={startStop} />
