@@ -41,10 +41,16 @@ function Metronome({ savedState, isChanging, user }) {
     sectionPractice,
     startClick,
     stopClick,
-    metronomeLoad,
   } = useContext(AppContext);
 
-  const { saveNewMetronome, saveUpdateMetronome } = useContext(UserContext);
+  const {
+    saveNewMetronome,
+    saveUpdateMetronome,
+    userMetronomes,
+    loadMetronome,
+  } = useContext(UserContext);
+
+  const isTyping = useRef(false);
 
   const restart = () => {
     if (isPlaying) {
@@ -94,7 +100,7 @@ function Metronome({ savedState, isChanging, user }) {
   // Adds start/stop with space bar press
   useEffect(() => {
     const handleKeyDown = (event) => {
-      if (event.keyCode === 32) {
+      if (event.keyCode === 32 && !isTyping.current) {
         // Space key
         startStop();
       }
@@ -148,9 +154,12 @@ function Metronome({ savedState, isChanging, user }) {
   return (
     <div className="metronome-body">
       <UserBar
-        view={"metronome"}
+        view={"Metronome"}
         saveNew={saveNewMetronome}
         saveUpdate={saveUpdateMetronome}
+        data={userMetronomes}
+        loadFunc={loadMetronome}
+        isTyping={isTyping}
       />
       <h2>Metronome</h2>
       <div id="sections">

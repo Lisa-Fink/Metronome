@@ -1,8 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 
-function SavePopUp({ title, setTitle, setUserPopUp, saveFunc, setError }) {
+function SavePopUp({
+  title,
+  setTitle,
+  setUserPopUp,
+  saveFunc,
+  setError,
+  isTyping,
+}) {
   const [newTitle, setNewTitle] = useState("");
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.keyCode === 27) {
+        // Escape key
+        handleClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [setUserPopUp]);
 
   const handleClose = (e) => {
     if (e) {
@@ -47,6 +69,8 @@ function SavePopUp({ title, setTitle, setUserPopUp, saveFunc, setError }) {
                 value={newTitle}
                 onChange={handleTitleChange}
                 placeholder="Title"
+                onFocus={() => (isTyping.current = true)}
+                onBlur={() => (isTyping.current = false)}
               />
             </div>
           </label>

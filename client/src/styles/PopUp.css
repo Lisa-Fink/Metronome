@@ -85,3 +85,16 @@
     overflow-y:auto;
     height: 400px;
 }
+
+.load-items {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px var(--pop-up-border) dotted;
+    font-size: 110%;
+    padding: 10px;
+}
+
+.center {
+    text-align: center;
+}

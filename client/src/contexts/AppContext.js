@@ -66,7 +66,7 @@ export const AppProvider = ({ children }) => {
     isStopping
   );
 
-  const metronomeLoad = (data) => {
+  const loadMetronomeData = (data) => {
     const {
       bpm,
       timeSignature,
@@ -101,7 +101,7 @@ export const AppProvider = ({ children }) => {
   };
 
   const contextValue = {
-    metronomeLoad,
+    metronomeLoad: loadMetronomeData,
     bpm,
     setBpm,
     bpmRef,
@@ -150,6 +150,7 @@ export const AppProvider = ({ children }) => {
     setLightMode,
     title,
     setTitle,
+    loadMetronomeData,
   };
 
   return (

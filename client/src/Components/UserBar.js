@@ -2,9 +2,10 @@ import React, { useContext, useRef, useState, useEffect } from "react";
 import { AppContext } from "../contexts/AppContext";
 import { UserContext } from "../contexts/UserContext";
 import "../styles/UserBar.css";
+import LoadPopUp from "./LoadPopUp";
 import SavePopUp from "./SavePopUp";
 
-function UserBar({ view, saveNew, saveUpdate }) {
+function UserBar({ view, saveNew, saveUpdate, loadFunc, data, isTyping }) {
   const [errorMessage, setErrorMessage] = useState("");
   const { user } = useContext(UserContext);
   const { title, setTitle } = useContext(AppContext);
@@ -75,6 +76,15 @@ function UserBar({ view, saveNew, saveUpdate }) {
           setUserPopUp={setUserPopUp}
           setError={setErrorMessage}
           saveFunc={saveNew}
+          isTyping={isTyping}
+        />
+      )}
+      {userPopUp === "load" && (
+        <LoadPopUp
+          type={view}
+          loadFunc={loadFunc}
+          data={data}
+          setUserPopUp={setUserPopUp}
         />
       )}
     </nav>

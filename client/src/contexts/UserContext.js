@@ -29,6 +29,7 @@ export const UserProvider = ({ children }) => {
     sectionPractice,
     tempoPractice,
     title,
+    loadMetronomeData,
   } = useContext(AppContext);
   const [user, setUser] = useState(undefined);
   const [_id, set_id] = useState(undefined);
@@ -36,6 +37,16 @@ export const UserProvider = ({ children }) => {
   const [userDrumMachines, setUserDrumsMachines] = useState([]);
   const metronome_id = useRef("");
   const dm_id = useRef("");
+
+  const loadMetronome = (index) => {
+    if (index < 0 || index >= userMetronomes.length) {
+      // TODO: Error handler?
+      return;
+    }
+    const chosen = userMetronomes[index];
+    metronome_id.current = chosen._id;
+    loadMetronomeData(chosen);
+  };
 
   const signUpUser = async (email, password, setErrorMessage) => {
     const auth = getAuth(app);
@@ -214,6 +225,15 @@ export const UserProvider = ({ children }) => {
         if (response.status !== 200) {
           throw new Error("Error saving the updated the metronome.");
         }
+        // update the metronome stored in userMetronomes state
+        for (let i = 0; i < userMetronomes.length; i++) {
+          if (userMetronomes[i]._id === metronome_id.current) {
+            for (const setting in settings) {
+              userMetronomes[i][setting] = settings[setting];
+            }
+            break;
+          }
+        }
       }
     } catch (error) {
       setErrorMessage("Error Updating the Metronome");
@@ -232,6 +252,8 @@ export const UserProvider = ({ children }) => {
     saveNewMetronome,
     saveUpdateMetronome,
     saveDM,
+    userMetronomes,
+    loadMetronome,
   };
   return (
     <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>
