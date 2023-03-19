@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext } from "react";
+import React, { createContext, useState, useContext, useRef } from "react";
 import app from "../firebase";
 import {
   getAuth,
@@ -14,6 +14,7 @@ export const UserContext = createContext();
 export const UserProvider = ({ children }) => {
   const {
     lightMode,
+    setLightMode,
     bpm,
     timeSignature,
     downBeat,
@@ -28,10 +29,13 @@ export const UserProvider = ({ children }) => {
     sectionPractice,
     tempoPractice,
     title,
-    metronome_id,
   } = useContext(AppContext);
   const [user, setUser] = useState(undefined);
   const [_id, set_id] = useState(undefined);
+  const [userMetronomes, setUserMetronomes] = useState([]);
+  const [userDrumMachines, setUserDrumsMachines] = useState([]);
+  const metronome_id = useRef("");
+  const dm_id = useRef("");
 
   const signUpUser = async (email, password, setErrorMessage) => {
     const auth = getAuth(app);
@@ -49,7 +53,7 @@ export const UserProvider = ({ children }) => {
       //TODO add custom error message
       const errorCode = error.code;
       const errorMessage = error.message;
-      setErrorMessage(errorMessage);
+      setErrorMessage("Error Creating a New Account.");
       throw new Error("Error signing up user");
     }
   };
@@ -68,7 +72,6 @@ export const UserProvider = ({ children }) => {
   };
 
   const loginUser = async (email, password, setErrorMessage) => {
-    console.log("logging in");
     try {
       const auth = getAuth(app);
       const userCredential = await signInWithEmailAndPassword(
@@ -79,11 +82,9 @@ export const UserProvider = ({ children }) => {
 
       // Signed in
       setUser(userCredential.user);
-      console.log("got user ", userCredential.user.uid);
       // // Get user from db
       const headers = new Headers();
       const token = await userCredential.user.getIdToken();
-      console.log("token ", token);
       headers.append("Authorization", `Bearer ${token}`);
       headers.append("Content-Type", "application/json");
 
@@ -92,19 +93,15 @@ export const UserProvider = ({ children }) => {
         headers,
       });
       const userDB = await response.json();
-      console.log("db ", userDB);
       set_id(userDB._id);
-      // TODO save metronomes and dms
-      console.log("got id ", userDB);
+      setUserDrumsMachines(userDB.drumMachines);
+      setUserMetronomes(userDB.metronomes);
+      setLightMode(userDB.lightMode);
     } catch (error) {
       // TODO change
-      console.log(error);
-      setErrorMessage(error.message);
+      setErrorMessage("Error Logging Into Account.");
     }
   };
-
-  /***************************************/
-  // CRUD Operations
 
   // Create new user in db
   const createUser = async (user) => {
@@ -125,10 +122,11 @@ export const UserProvider = ({ children }) => {
         headers,
         body: JSON.stringify(body),
       });
-      if (response.status !== 200) {
+      if (response.status !== 201) {
         throw new Error("Error creating user");
       }
-      set_id(response._id);
+      const data = await response.json();
+      set_id(data._id);
     } catch (error) {
       console.error(error);
       throw new Error("Error creating user");
@@ -143,7 +141,7 @@ export const UserProvider = ({ children }) => {
         headers.append("Authorization", `Bearer ${token}`);
         headers.append("Content-Type", "application/json");
 
-        console.log("title ", title);
+        if (!title) title = "Untitled";
 
         const settings = {
           bpm,
@@ -170,15 +168,16 @@ export const UserProvider = ({ children }) => {
         if (response.status !== 201) {
           throw new Error("Error saving the metronome: ");
         }
-        metronome_id.current = response.metronome_id;
-        // TODO load new metronome into metronomes state
+
+        const data = await response.json();
+        metronome_id.current = data._id;
       }
     } catch (error) {
       throw new Error(error);
     }
   };
 
-  const saveUpdateMetronome = async (setErrorMessage, metronome_id) => {
+  const saveUpdateMetronome = async (setErrorMessage) => {
     //TODO rewrite
     try {
       if (user !== undefined) {
@@ -205,19 +204,19 @@ export const UserProvider = ({ children }) => {
         };
         // save settings to db
         const response = await fetch(
-          `/users/${user.uid}/metronomes/${metronome_id}`,
+          `/users/${_id}/metronomes/${metronome_id.current}`,
           {
             method: "PUT",
             headers,
             body: JSON.stringify({ settings: settings }),
           }
         );
-        if (response.status !== 201) {
-          throw new Error("Error saving the metronome.");
+        if (response.status !== 200) {
+          throw new Error("Error saving the updated the metronome.");
         }
       }
     } catch (error) {
-      setErrorMessage(error.error);
+      setErrorMessage("Error Updating the Metronome");
     }
   };
 
