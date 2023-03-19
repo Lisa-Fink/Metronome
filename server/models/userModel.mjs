@@ -5,6 +5,7 @@ const User = mongoose.model("User", userSchema, "users");
 
 // CREATE************************************************************
 const createUser = async (uid, lightSetting) => {
+  if (!lightSetting) lightSetting = false; // default to false
   try {
     const newUser = new User({
       userId: uid,
