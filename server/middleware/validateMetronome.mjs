@@ -32,8 +32,8 @@ const validateSettings = [
   body("settings.key")
     .exists()
     .withMessage("Key is required")
-    .isInt()
-    .withMessage("Key must be an integer"),
+    .isFloat()
+    .withMessage("Key must be a float"),
   body("settings.tone")
     .exists()
     .withMessage("Tone is required")
@@ -77,9 +77,10 @@ const validateSettings = [
 ];
 
 const validate = (req, res, next) => {
-  console.log(req.body);
+  console.log("validating");
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    console.error(errors.array());
     return res.status(400).json({ errors: errors.array() });
   }
 
