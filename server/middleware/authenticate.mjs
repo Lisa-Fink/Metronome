@@ -4,6 +4,7 @@ const User = mongoose.model("User", userSchema, "users");
 
 const authenticate = async (req, res, next) => {
   try {
+    console.log("id param ", req.params._id);
     const user = await User.findById(req.params._id);
     if (user && user.userId === req.uid) {
       req.user = user;
@@ -12,6 +13,7 @@ const authenticate = async (req, res, next) => {
       throw new Error("Unauthorized access.");
     }
   } catch (error) {
+    console.error("Invalid userId with token ", error);
     return res.status(401).json({ message: "Unauthorized user id" });
   }
 };

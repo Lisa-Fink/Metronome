@@ -32,6 +32,7 @@ const validateUid = (req, res, next) => {
       next();
     })
     .catch(() => {
+      console.error("Unauthorized access");
       return res.status(401).json({ message: "Unauthorized access" });
     });
 };
