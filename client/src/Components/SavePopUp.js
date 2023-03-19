@@ -19,8 +19,7 @@ function SavePopUp({ title, setTitle, setUserPopUp, saveFunc, setError }) {
   const handleSave = async (e) => {
     e.preventDefault();
     const old = title;
-    const savedTitle =
-      newTitle == "" ? `Untitled ${Date.now().slice(0, 10)}` : newTitle;
+    const savedTitle = newTitle == "" ? `Untitled ${new Date()}` : newTitle;
     setTitle(savedTitle);
     try {
       await saveFunc(savedTitle);
