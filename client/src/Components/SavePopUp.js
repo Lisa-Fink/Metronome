@@ -48,7 +48,7 @@ function SavePopUp({
     } catch (error) {
       console.log(error);
 
-      setError("Error Saving Metronome");
+      setError("Error Saving");
       setTitle(old);
     }
     setUserPopUp(false);

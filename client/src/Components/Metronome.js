@@ -41,6 +41,8 @@ function Metronome({ savedState, isChanging, user }) {
     sectionPractice,
     startClick,
     stopClick,
+    title,
+    setTitle,
   } = useContext(AppContext);
 
   const {
@@ -160,6 +162,8 @@ function Metronome({ savedState, isChanging, user }) {
         data={userMetronomes}
         loadFunc={loadMetronome}
         isTyping={isTyping}
+        title={title}
+        setTitle={setTitle}
       />
       <h2>Metronome</h2>
       <div id="sections">

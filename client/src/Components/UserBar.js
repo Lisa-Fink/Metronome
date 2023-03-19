@@ -5,14 +5,20 @@ import "../styles/UserBar.css";
 import LoadPopUp from "./LoadPopUp";
 import SavePopUp from "./SavePopUp";
 
-function UserBar({ view, saveNew, saveUpdate, loadFunc, data, isTyping }) {
+function UserBar({
+  view,
+  saveNew,
+  saveUpdate,
+  loadFunc,
+  data,
+  isTyping,
+  title,
+  setTitle,
+}) {
   const [errorMessage, setErrorMessage] = useState("");
   const { user } = useContext(UserContext);
-  const { title, setTitle } = useContext(AppContext);
 
   const [userPopUp, setUserPopUp] = useState(false);
-
-  const loggedOutBar = <nav></nav>;
 
   useEffect(() => {
     // Error message disappears after 5 seconds
