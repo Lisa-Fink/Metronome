@@ -1,4 +1,10 @@
-import React, { useEffect, useContext, useCallback, useRef } from "react";
+import React, {
+  useEffect,
+  useContext,
+  useCallback,
+  useRef,
+  useState,
+} from "react";
 import "../styles/Metronome.css";
 import ChangeMeter from "./ChangeMeter";
 import TempoControls from "./TempoControls";
@@ -7,6 +13,8 @@ import ToneSelector from "./ToneSelector";
 import Practice from "./Practice";
 import BottomControls from "./BottomControls";
 import { AppContext } from "../contexts/AppContext";
+import UserBar from "./UserBar";
+import { UserContext } from "../contexts/UserContext";
 
 function Metronome({ savedState, isChanging, user }) {
   const {
@@ -36,28 +44,7 @@ function Metronome({ savedState, isChanging, user }) {
     metronomeLoad,
   } = useContext(AppContext);
 
-  const save = async (title) => {
-    if (user !== undefined) {
-      const token = await user.getIdToken();
-      const settings = {
-        bpm,
-        timeSignature,
-        downBeat,
-        subdivide,
-        mainBeat,
-        key,
-        tone,
-        countIn,
-        numMeasures,
-        repeat,
-        tempoInc,
-        sectionPractice,
-        tempoPractice,
-        title,
-      };
-      // save settings to db
-    }
-  };
+  const { saveNewMetronome, saveUpdateMetronome } = useContext(UserContext);
 
   const restart = () => {
     if (isPlaying) {
@@ -160,6 +147,11 @@ function Metronome({ savedState, isChanging, user }) {
 
   return (
     <div className="metronome-body">
+      <UserBar
+        view={"metronome"}
+        saveNew={saveNewMetronome}
+        saveUpdate={saveUpdateMetronome}
+      />
       <h2>Metronome</h2>
       <div id="sections">
         <div id="left-col">
