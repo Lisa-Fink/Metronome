@@ -4,7 +4,6 @@ const User = mongoose.model("User", userSchema, "users");
 
 const authenticate = async (req, res, next) => {
   try {
-    console.log("id param ", req.params._id);
     const user = await User.findById(req.params._id);
     if (user && user.userId === req.uid) {
       req.user = user;
