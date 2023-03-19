@@ -35,9 +35,6 @@ export const AppProvider = ({ children }) => {
 
   const [title, setTitle] = useState("");
 
-  const metronome_id = useRef("");
-  const dm_id = useRef("");
-
   const {
     startClick,
     stopClick,
@@ -101,7 +98,6 @@ export const AppProvider = ({ children }) => {
     setSectionPractice(sectionPractice);
     setTempoPractice(tempoPractice);
     setTitle(title);
-    metronome_id.current = _id;
   };
 
   const contextValue = {
@@ -154,8 +150,6 @@ export const AppProvider = ({ children }) => {
     setLightMode,
     title,
     setTitle,
-    metronome_id,
-    dm_id,
   };
 
   return (
