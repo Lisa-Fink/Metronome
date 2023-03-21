@@ -1,5 +1,4 @@
 import React, { useContext, useRef, useState, useEffect } from "react";
-import { AppContext } from "../contexts/AppContext";
 import { UserContext } from "../contexts/UserContext";
 import "../styles/UserBar.css";
 import LoadPopUp from "./LoadPopUp";
@@ -57,7 +56,7 @@ function UserBar({
   };
 
   const handleNonUser = () => {
-    setErrorMessage("Login/SignUp to Save");
+    setErrorMessage("Login/SignUp Required");
   };
 
   const bar = (

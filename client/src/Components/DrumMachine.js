@@ -40,7 +40,8 @@ function DrumMachine({ savedState, isChanging, user }) {
 
   const isTyping = useRef(false);
 
-  const { saveNewDM, userDrumMachines } = useContext(UserContext);
+  const { saveNewDM, saveUpdateDM, userDrumMachines, loadDM } =
+    useContext(UserContext);
 
   const NUM_CELLS_PER_BEAT = 12;
   const MAX_INSTRUMENTS = 4;
@@ -49,7 +50,6 @@ function DrumMachine({ savedState, isChanging, user }) {
     Array.from({ length: MAX_INSTRUMENTS }, () =>
       Array(NUM_CELLS_PER_BEAT * timeSignature * num_measures).fill(false)
     );
-
   const [isChooseInstOpen, setIsChooseInstOpen] = useState(false);
   const instrumentIdx = useRef(0);
   const [rhythm, setRhythm] = useState(1);
@@ -63,14 +63,6 @@ function DrumMachine({ savedState, isChanging, user }) {
     if (isPlaying) {
       stopClick();
     }
-    // initialize arrays
-    setInstruments(
-      Array.from({ length: MAX_INSTRUMENTS }, () => Array(3).fill(undefined))
-    );
-    rhythmSequence.current = Array.from({ length: MAX_INSTRUMENTS }, () =>
-      Array(NUM_CELLS_PER_BEAT * timeSignature * measures).fill(0)
-    );
-    setRhythmGrid(createRhythmGrid());
   }, []);
   // Resets the drum machine if settings are changed and playing
   useEffect(() => {
@@ -622,6 +614,8 @@ function DrumMachine({ savedState, isChanging, user }) {
       <UserBar
         view={"Drum Machine"}
         saveNew={saveNewDM}
+        saveUpdate={saveUpdateDM}
+        loadFunc={loadDM}
         data={userDrumMachines}
         isTyping={isTyping}
         title={dMTitle}

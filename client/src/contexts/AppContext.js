@@ -36,14 +36,27 @@ export const AppProvider = ({ children }) => {
   const [title, setTitle] = useState("");
 
   // Drum Machine Settings
+  const NUM_CELLS_PER_BEAT = 12;
+  const MAX_INSTRUMENTS = 4;
+
   const [measures, setMeasures] = useState(1);
   const [dMTitle, setDMTitle] = useState("");
   // ui data about note lengths "first" "middle" "last"
-  const [rhythmGrid, setRhythmGrid] = useState([[]]);
+  const [rhythmGrid, setRhythmGrid] = useState(
+    Array.from({ length: MAX_INSTRUMENTS }, () =>
+      Array(NUM_CELLS_PER_BEAT * timeSignature * measures).fill(false)
+    )
+  );
   // Instrument [name, descriptive name, index]
-  const [instruments, setInstruments] = useState([[]]);
+  const [instruments, setInstruments] = useState(
+    Array.from({ length: MAX_INSTRUMENTS }, () => Array(3).fill(undefined))
+  );
   // audio data about when to start notes 1=start 0=not start
-  const rhythmSequence = useRef([[]]);
+  const rhythmSequence = useRef(
+    Array.from({ length: MAX_INSTRUMENTS }, () =>
+      Array(NUM_CELLS_PER_BEAT * timeSignature * measures).fill(0)
+    )
+  );
 
   const {
     startClick,
@@ -110,6 +123,29 @@ export const AppProvider = ({ children }) => {
     setTitle(title);
   };
 
+  const loadDMData = (data) => {
+    const {
+      bpm,
+      timeSignature,
+      measures,
+      instruments,
+      rhythmSequence,
+      rhythmGrid,
+      title,
+    } = data;
+    setBpm(bpm);
+    setTimeSignature(timeSignature);
+    setMeasures(measures);
+    setInstruments(instruments);
+    updateRS(rhythmSequence);
+    setRhythmGrid(rhythmGrid);
+    setDMTitle(title);
+  };
+
+  const updateRS = (newRS) => {
+    rhythmSequence.current = newRS;
+  };
+
   const contextValue = {
     metronomeLoad: loadMetronomeData,
     bpm,
@@ -161,6 +197,7 @@ export const AppProvider = ({ children }) => {
     title,
     setTitle,
     loadMetronomeData,
+    loadDMData,
     measures,
     setMeasures,
     dMTitle,

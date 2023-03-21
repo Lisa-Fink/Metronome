@@ -30,10 +30,12 @@ export const UserProvider = ({ children }) => {
     tempoPractice,
     title,
     loadMetronomeData,
+    loadDMData,
     instruments,
     rhythmSequence,
     rhythmGrid,
     measures,
+    dMTitle,
   } = useContext(AppContext);
   const [user, setUser] = useState(undefined);
   const [_id, set_id] = useState(undefined);
@@ -50,6 +52,16 @@ export const UserProvider = ({ children }) => {
     const chosen = userMetronomes[index];
     metronome_id.current = chosen._id;
     loadMetronomeData(chosen);
+  };
+
+  const loadDM = (index) => {
+    if (index < 0 || index >= userDrumMachines.length) {
+      // TODO: Error handler?
+      return;
+    }
+    const chosen = userDrumMachines[index];
+    dm_id.current = chosen._id;
+    loadDMData(chosen);
   };
 
   const signUpUser = async (email, password, setErrorMessage) => {
@@ -72,6 +84,15 @@ export const UserProvider = ({ children }) => {
       throw new Error("Error signing up user");
     }
   };
+
+  // logs in user on refresh
+  const auth = getAuth(app);
+  auth.onAuthStateChanged((fbUser) => {
+    if (fbUser && !user) {
+      setUser(fbUser);
+      getUser(fbUser);
+    }
+  });
 
   const signOutUser = () => {
     const auth = getAuth();
@@ -97,9 +118,18 @@ export const UserProvider = ({ children }) => {
 
       // Signed in
       setUser(userCredential.user);
-      // // Get user from db
+      await getUser(userCredential);
+    } catch (error) {
+      // TODO change
+      setErrorMessage("Error Logging Into Account.");
+    }
+  };
+
+  const getUser = async (user) => {
+    try {
+      // Get user from db
       const headers = new Headers();
-      const token = await userCredential.user.getIdToken();
+      const token = await user.getIdToken();
       headers.append("Authorization", `Bearer ${token}`);
       headers.append("Content-Type", "application/json");
 
@@ -114,7 +144,7 @@ export const UserProvider = ({ children }) => {
       setLightMode(userDB.lightMode);
     } catch (error) {
       // TODO change
-      setErrorMessage("Error Logging Into Account.");
+      throw new Error(error);
     }
   };
 
@@ -228,7 +258,7 @@ export const UserProvider = ({ children }) => {
           }
         );
         if (response.status !== 200) {
-          throw new Error("Error saving the updated the metronome.");
+          throw new Error("Error saving the updated metronome.");
         }
         // update the metronome stored in userMetronomes state
         for (let i = 0; i < userMetronomes.length; i++) {
@@ -289,6 +319,56 @@ export const UserProvider = ({ children }) => {
     }
   };
 
+  const saveUpdateDM = async (setErrorMessage) => {
+    //TODO rewrite
+    try {
+      // Ignore attempt to save when logged out or no instruments added
+      if (
+        user === undefined ||
+        instruments.filter((i) => i[0] !== undefined).length == 0
+      ) {
+        throw new Error("No rhythms were added.");
+      }
+      const token = await user.getIdToken();
+      const headers = new Headers();
+      headers.append("Authorization", `Bearer ${token}`);
+      headers.append("Content-Type", "application/json");
+
+      const settings = {
+        bpm,
+        timeSignature,
+        measures,
+        instruments,
+        rhythmSequence: rhythmSequence.current,
+        rhythmGrid,
+        title: dMTitle,
+      };
+      // save settings to db
+      const response = await fetch(
+        `/users/${_id}/drum-machines/${dm_id.current}`,
+        {
+          method: "PUT",
+          headers,
+          body: JSON.stringify({ settings: settings }),
+        }
+      );
+      if (response.status !== 200) {
+        throw new Error("Error saving the updated drum machine .");
+      }
+      // update the metronome stored in userMetronomes state
+      for (let i = 0; i < userDrumMachines.length; i++) {
+        if (userDrumMachines[i]._id === dm_id.current) {
+          for (const setting in settings) {
+            userDrumMachines[i][setting] = settings[setting];
+          }
+          break;
+        }
+      }
+    } catch (error) {
+      setErrorMessage("Error Updating the Metronome: " + error.error);
+    }
+  };
+
   const contextValue = {
     user,
     setUser,
@@ -299,9 +379,12 @@ export const UserProvider = ({ children }) => {
     saveNewMetronome,
     saveUpdateMetronome,
     saveNewDM,
+    saveUpdateDM,
     userMetronomes,
     userDrumMachines,
     loadMetronome,
+    loadDM,
+    getUser,
   };
   return (
     <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>
