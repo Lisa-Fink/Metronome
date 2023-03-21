@@ -16,8 +16,9 @@ function ChangeMeter() {
   } = useContext(AppContext);
 
   const [viewRhythm, setViewRhythm] = useState(false);
-  const [showSubdivideMenu, setShowSubdivideMenu] = useState(false);
+  const [showSubdivideMenu, setShowSubdivideMenu] = useState(subdivide > 1);
 
+  // TODO: remove showSubDivide variable
   const toggleMenu = () => {
     if (showSubdivideMenu) {
       setSubdivide(1);
@@ -86,7 +87,7 @@ function ChangeMeter() {
             />
           </label>
         </div>
-        <div className={showSubdivideMenu ? "" : "hidden"}>
+        <div className={subdivide > 1 ? "" : "hidden"}>
           <label htmlFor="subdivision">
             Subdivide Rhythm:
             <select
