@@ -827,10 +827,9 @@ const createAudioUtils = (
     if (timerId) {
       clearInterval(timerId);
     }
-
     const instData = [];
     instruments.forEach((instrument, i) => {
-      if (instrument[0] !== undefined) {
+      if (instrument[0]) {
         instData.push(
           new Audio(audioSamples[instrument[0]][idxToBeat[instrument[2]]])
         );
