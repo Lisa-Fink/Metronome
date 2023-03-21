@@ -3,6 +3,7 @@ import { UserContext } from "../contexts/UserContext";
 import "../styles/UserBar.css";
 import LoadPopUp from "./LoadPopUp";
 import SavePopUp from "./SavePopUp";
+import { AiOutlineShareAlt } from "react-icons/ai";
 
 function UserBar({
   view,
@@ -13,6 +14,7 @@ function UserBar({
   isTyping,
   title,
   setTitle,
+  createUrlFunc,
 }) {
   const [errorMessage, setErrorMessage] = useState("");
   const { user } = useContext(UserContext);
@@ -73,6 +75,11 @@ function UserBar({
         <button className="type" onClick={handleSaveAsClick}>
           Save As
         </button>
+        <AiOutlineShareAlt
+          onClick={() => {
+            console.log(createUrlFunc());
+          }}
+        />
       </div>
       {userPopUp === "save" && (
         <SavePopUp

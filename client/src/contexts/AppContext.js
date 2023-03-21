@@ -146,6 +146,186 @@ export const AppProvider = ({ children }) => {
     rhythmSequence.current = newRS;
   };
 
+  const createQueryUrl = (type) => {
+    if (type === "m") {
+      return createMetQueryUrl();
+    }
+    return createDMQueryUrl();
+  };
+
+  const createDMQueryUrl = () => {
+    const query = new URLSearchParams();
+    query.append("view", "dm");
+    if (bpm !== 120) {
+      query.append("bpm", bpm);
+    }
+
+    if (timeSignature !== 4) {
+      query.append("timeSignature", timeSignature);
+    }
+
+    if (measures !== 1) {
+      query.append("numMeasures", measures);
+    }
+
+    for (let i = 0; i < instruments.length; i++) {
+      if (instruments[i][0]) {
+        if (instruments[i][2] != null) {
+          query.append(`instrument${i}`, instruments[i][2]);
+          if (rhythmSequence[i] && rhythmSequence[i].length > 0) {
+            query.append(`rhythmSequence${i}`, rhythmSequence[i].join(""));
+          }
+        }
+      }
+      return query;
+    }
+  };
+
+  const createMetQueryUrl = () => {
+    const query = new URLSearchParams();
+    query.append("view", "met");
+
+    if (bpm !== 120) {
+      query.append("bpm", bpm);
+    }
+
+    if (timeSignature !== 4) {
+      query.append("timeSignature", timeSignature);
+    }
+
+    if (downBeat !== false) {
+      query.append("downBeat", downBeat);
+    }
+
+    if (subdivide > 1) {
+      query.append("subdivide", subdivide);
+      if (mainBeat !== false) {
+        query.append("mainBeat", mainBeat);
+      }
+    }
+
+    if (tone !== "Wood Block") {
+      query.append("tone", tone);
+    }
+
+    if (tone === "Generic Beep" || tone === "Synth Flute") {
+      if (key !== 261.63) {
+        query.append("key", key);
+      }
+    }
+
+    if (countIn !== 0) {
+      query.append("countIn", countIn);
+    }
+
+    if (sectionPractice) {
+      query.append("sectionPractice", sectionPractice);
+      if (numMeasures !== 4) {
+        query.append("numMeasures", numMeasures);
+      }
+
+      if (repeat !== 5) {
+        query.append("repeat", repeat);
+      }
+      if (tempoPractice) {
+        query.append("tempoPractice", tempoPractice);
+
+        if (tempoInc !== 5) {
+          query.append("tempoInc", tempoInc);
+        }
+      }
+    }
+    return "/?" + query.toString();
+  };
+
+  const loadFromQueryUrl = (queryParams) => {
+    if (queryParams.get("view") === "met") {
+      loadMetFromQueryUrl(queryParams);
+    } else if (queryParams.get("view" === "dm")) {
+      loadDMFromQueryUrl(queryParams);
+    }
+  };
+
+  const loadDMFromQueryUrl = (searchParams) => {
+    for (const [param, value] of searchParams.entries()) {
+      if (param === "bpm") {
+        setBpm(parseInt(value));
+      } else if (param === "timeSignature") {
+        setTimeSignature(parseInt(value));
+      } else if (param === "downBeat") {
+        setDownBeat(value);
+      } else if (param === "subdivide") {
+        setSubdivide(value);
+      } else if (param === "mainBeat") {
+        setMainBeat(value);
+      }
+    }
+
+    const newInstruments = [...instruments];
+    // check for instruments
+    const instParams = [
+      searchParams.instrument0,
+      searchParams.instrument1,
+      searchParams.instrument2,
+      searchParams.instrument3,
+    ];
+
+    if (instParams[0]) {
+    }
+  };
+
+  const loadMetFromQueryUrl = (searchParams) => {
+    for (const [param, value] of searchParams.entries()) {
+      if (param === "bpm") {
+        const converted = parseInt(value);
+        if (converted >= 40 && converted < 240) {
+          setBpm(parseInt(converted));
+        }
+      } else if (param === "timeSignature") {
+        const converted = parseInt(value);
+        if (converted >= 2 && converted !== 8 && converted < 9) {
+          setTimeSignature(parseInt(converted));
+        }
+      } else if (param === "subdivide") {
+        const converted = parseInt(value);
+        if (converted >= 2 && converted <= 8) {
+          setSubdivide(converted);
+        }
+      } else if (param === "mainBeat") {
+        if (typeof value === Boolean) {
+          setMainBeat(value);
+        }
+      } else if (param === "key") {
+        // TODO: check if exact match
+        setKey(parseFloat(value));
+      } else if (param === "tone") {
+        setTone(value);
+        // TODO: refactor map function
+        // map to toneCategory
+        if (value === "femaleNumbers") {
+          setToneCategory("Spoken Counts");
+        } else if (value === "Drum Set") {
+          setToneCategory("Drum Sets");
+        } else if (value === "Generic Beep" || value === "Synth Flute") {
+          setToneCategory("Basic Tones");
+        }
+        // TODO finish validation
+      } else if (param === "countIn") {
+        setCountIn(parseInt(value));
+      } else if (param === "numMeasures") {
+        setNumMeasures(parseInt(value));
+      } else if (param === "repeat") {
+        setRepeat(parseInt(value));
+      } else if (param === "tempoInc") {
+        setTempoInc(parseInt(value));
+      } else if (param === "sectionPractice") {
+        setSectionPractice(value);
+      } else if (param === "tempoPractice") {
+        setTempoPractice(value);
+      }
+    }
+  };
+
   const contextValue = {
     metronomeLoad: loadMetronomeData,
     bpm,
@@ -207,6 +387,8 @@ export const AppProvider = ({ children }) => {
     instruments,
     setInstruments,
     rhythmSequence,
+    loadFromQueryUrl,
+    createMetQueryUrl,
   };
 
   return (

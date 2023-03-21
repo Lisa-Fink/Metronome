@@ -16,6 +16,8 @@ import { AppContext } from "../contexts/AppContext";
 import UserBar from "./UserBar";
 import { UserContext } from "../contexts/UserContext";
 
+import { useLocation } from "react-router-dom";
+
 function Metronome({ savedState, isChanging, user }) {
   const {
     bpm,
@@ -43,6 +45,8 @@ function Metronome({ savedState, isChanging, user }) {
     stopClick,
     title,
     setTitle,
+    loadFromQueryUrl,
+    createMetQueryUrl,
   } = useContext(AppContext);
 
   const {
@@ -51,6 +55,13 @@ function Metronome({ savedState, isChanging, user }) {
     userMetronomes,
     loadMetronome,
   } = useContext(UserContext);
+
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+
+  useEffect(() => {
+    loadFromQueryUrl(queryParams);
+  }, []);
 
   const isTyping = useRef(false);
 
@@ -164,6 +175,7 @@ function Metronome({ savedState, isChanging, user }) {
         isTyping={isTyping}
         title={title}
         setTitle={setTitle}
+        createUrlFunc={createMetQueryUrl}
       />
       <h2>Metronome</h2>
       <div id="sections">
