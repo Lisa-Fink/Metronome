@@ -29,6 +29,9 @@ function ChangeMeter() {
 
   // TODO: remove showSubDivide variable
   const toggleMenu = () => {
+    if (showSubdivideMenu) {
+      setSubdivide(1);
+    }
     setShowSubdivideMenu(!showSubdivideMenu);
   };
 
