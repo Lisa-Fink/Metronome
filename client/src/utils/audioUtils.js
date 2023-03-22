@@ -32,10 +32,17 @@ const createAudioUtils = (
     mainBeatGain,
     mainBeatOsc;
 
-  const playCountIn = () => {
+  const loadCountIn = () => {
+    return new Promise((resolve) => {
+      const click = new Audio(audioSamples.Triangle.downBeats);
+      click.addEventListener("canplaythrough", () => resolve(click));
+    });
+  };
+
+  const playCountIn = async () => {
     setIsPlaying(true);
     // use triangle down beat
-    const click = new Audio(audioSamples.Triangle.downBeats);
+    const click = await loadCountIn();
 
     const interval = (60 / (bpm * subdivide)) * 1000;
     let beat = 0;
@@ -290,94 +297,132 @@ const createAudioUtils = (
     setIsPlaying(true);
   };
 
-  const playNumberCounter = () => {
-    // old doesn't subdivide
-    // const numberAudioFiles2 = {
-    //   1: "./audio/numbers/female-vox-number-one.wav",
-    //   2: "./audio/numbers/female-vox-number-two.wav",
-    //   3: "./audio/numbers/female-vox-number-three.wav",
-    //   4: "./audio/numbers/female-vox-number-four.wav",
-    //   5: "./audio/numbers/female-vox-number-five.wav",
-    //   6: "./audio/numbers/female-vox-number-six.wav",
-    //   7: "./audio/numbers/female-vox-number-seven.wav",
-    //   8: "./audio/numbers/female-vox-number-eight.wav",
-    //   9: "./audio/numbers/female-vox-number-nine.wav",
-    // };
-
-    const numberAudioFiles = {
-      1: "./audio/numbers/spoken/1.mp3",
-      2: "./audio/numbers/spoken/2.mp3",
-      3: "./audio/numbers/spoken/3.mp3",
-      4: "./audio/numbers/spoken/4.mp3",
-      5: "./audio/numbers/spoken/5.mp3",
-      6: "./audio/numbers/spoken/6.mp3",
-      7: "./audio/numbers/spoken/7.mp3",
-      8: "./audio/numbers/spoken/8.mp3",
-      9: "./audio/numbers/spoken/9.mp3",
-    };
-
-    // creates subdivide audio objects if needed
-    if (
-      subdivide === 2 ||
-      subdivide === 3 ||
-      subdivide === 4 ||
-      subdivide === 6 ||
-      subdivide === 8
-    ) {
-      numberAudioFiles.and = new Audio("./audio/numbers/spoken/and.mp3");
-    }
-    if (subdivide === 3 || subdivide === 4 || subdivide === 8) {
-      numberAudioFiles.a = new Audio("./audio/numbers/spoken/a.mp3");
-    }
-    if (subdivide === 4 || subdivide === 8) {
-      numberAudioFiles.e = new Audio("./audio/numbers/spoken/e.mp3");
-    }
-    if (
-      subdivide === 5 ||
-      subdivide === 6 ||
-      subdivide === 7 ||
-      subdivide === 8
-    ) {
-      numberAudioFiles.ta = new Audio("./audio/numbers/spoken/ta.mp3");
-    }
-
-    // adds the main beat counts followed by subdivide if needed
-    const sounds = [];
-    for (let i = 1; i <= timeSignature; i++) {
-      sounds.push(new Audio(numberAudioFiles[i]));
-      if (subdivide === 2) {
-        sounds.push(numberAudioFiles.and);
-      } else if (subdivide === 3) {
-        sounds.push(numberAudioFiles.and);
-        sounds.push(numberAudioFiles.a);
-      } else if (subdivide === 4) {
-        sounds.push(numberAudioFiles.e);
-        sounds.push(numberAudioFiles.and);
-        sounds.push(numberAudioFiles.a);
-      } else if (subdivide === 5) {
-        for (let i = 0; i < 4; i++) {
-          sounds.push(numberAudioFiles.ta);
+  const loadNumberCounterAudio = () => {
+    return new Promise((resolve) => {
+      // old doesn't subdivide
+      // const numberAudioFiles2 = {
+      //   1: "./audio/numbers/female-vox-number-one.wav",
+      //   2: "./audio/numbers/female-vox-number-two.wav",
+      //   3: "./audio/numbers/female-vox-number-three.wav",
+      //   4: "./audio/numbers/female-vox-number-four.wav",
+      //   5: "./audio/numbers/female-vox-number-five.wav",
+      //   6: "./audio/numbers/female-vox-number-six.wav",
+      //   7: "./audio/numbers/female-vox-number-seven.wav",
+      //   8: "./audio/numbers/female-vox-number-eight.wav",
+      //   9: "./audio/numbers/female-vox-number-nine.wav",
+      // };
+      const sounds = [];
+      let loaded = 0;
+      let totalToLoad = timeSignature;
+      if (subdivide > 1) {
+        if (subdivide === 2) {
+          totalToLoad += 1;
+        } else if (subdivide === 3) {
+          totalToLoad += 2;
+        } else if (subdivide === 4) {
+          totalToLoad += 3;
+        } else if (subdivide === 5) {
+          totalToLoad += 1;
+        } else if (subdivide === 6) {
+          totalToLoad += 2;
+        } else if (subdivide === 7) {
+          totalToLoad += 1;
+        } else if (subdivide === 8) {
+          totalToLoad += 4;
         }
-      } else if (subdivide === 6) {
-        sounds.push(numberAudioFiles.ta);
-        sounds.push(numberAudioFiles.ta);
-        sounds.push(numberAudioFiles.and);
-        sounds.push(numberAudioFiles.ta);
-        sounds.push(numberAudioFiles.ta);
-      } else if (subdivide === 7) {
-        for (let i = 0; i < 6; i++) {
-          sounds.push(numberAudioFiles.ta);
-        }
-      } else if (subdivide === 8) {
-        sounds.push(numberAudioFiles.ta);
-        sounds.push(numberAudioFiles.e);
-        sounds.push(numberAudioFiles.ta);
-        sounds.push(numberAudioFiles.and);
-        sounds.push(numberAudioFiles.ta);
-        sounds.push(numberAudioFiles.a);
-        sounds.push(numberAudioFiles.ta);
       }
-    }
+      const audioLoad = () => {
+        loaded++;
+        if (loaded == totalToLoad) resolve(sounds);
+      };
+
+      const numberAudioFiles = {
+        1: "./audio/numbers/spoken/1.mp3",
+        2: "./audio/numbers/spoken/2.mp3",
+        3: "./audio/numbers/spoken/3.mp3",
+        4: "./audio/numbers/spoken/4.mp3",
+        5: "./audio/numbers/spoken/5.mp3",
+        6: "./audio/numbers/spoken/6.mp3",
+        7: "./audio/numbers/spoken/7.mp3",
+        8: "./audio/numbers/spoken/8.mp3",
+        9: "./audio/numbers/spoken/9.mp3",
+      };
+
+      // creates subdivide audio objects if needed
+      if (
+        subdivide === 2 ||
+        subdivide === 3 ||
+        subdivide === 4 ||
+        subdivide === 6 ||
+        subdivide === 8
+      ) {
+        const audio = new Audio("./audio/numbers/spoken/and.mp3");
+        audio.addEventListener("canplaythrough", audioLoad);
+        console.log("and");
+        numberAudioFiles.and = audio;
+      }
+      if (subdivide === 3 || subdivide === 4 || subdivide === 8) {
+        numberAudioFiles.a = new Audio("./audio/numbers/spoken/a.mp3");
+        numberAudioFiles.a.addEventListener("canplaythrough", audioLoad);
+      }
+      if (subdivide === 4 || subdivide === 8) {
+        numberAudioFiles.e = new Audio("./audio/numbers/spoken/e.mp3");
+        numberAudioFiles.e.addEventListener("canplaythrough", audioLoad);
+      }
+      if (
+        subdivide === 5 ||
+        subdivide === 6 ||
+        subdivide === 7 ||
+        subdivide === 8
+      ) {
+        numberAudioFiles.ta = new Audio("./audio/numbers/spoken/ta.mp3");
+        numberAudioFiles.ta.addEventListener("canplaythrough", audioLoad);
+      }
+
+      // adds the main beat counts followed by subdivide if needed
+
+      for (let i = 1; i <= timeSignature; i++) {
+        const audio = new Audio(numberAudioFiles[i]);
+        sounds.push(audio);
+        audio.addEventListener("canplaythrough", audioLoad);
+        if (subdivide === 2) {
+          sounds.push(numberAudioFiles.and);
+        } else if (subdivide === 3) {
+          sounds.push(numberAudioFiles.and);
+          sounds.push(numberAudioFiles.a);
+        } else if (subdivide === 4) {
+          sounds.push(numberAudioFiles.e);
+          sounds.push(numberAudioFiles.and);
+          sounds.push(numberAudioFiles.a);
+        } else if (subdivide === 5) {
+          for (let i = 0; i < 4; i++) {
+            sounds.push(numberAudioFiles.ta);
+          }
+        } else if (subdivide === 6) {
+          sounds.push(numberAudioFiles.ta);
+          sounds.push(numberAudioFiles.ta);
+          sounds.push(numberAudioFiles.and);
+          sounds.push(numberAudioFiles.ta);
+          sounds.push(numberAudioFiles.ta);
+        } else if (subdivide === 7) {
+          for (let i = 0; i < 6; i++) {
+            sounds.push(numberAudioFiles.ta);
+          }
+        } else if (subdivide === 8) {
+          sounds.push(numberAudioFiles.ta);
+          sounds.push(numberAudioFiles.e);
+          sounds.push(numberAudioFiles.ta);
+          sounds.push(numberAudioFiles.and);
+          sounds.push(numberAudioFiles.ta);
+          sounds.push(numberAudioFiles.a);
+          sounds.push(numberAudioFiles.ta);
+        }
+      }
+    });
+  };
+
+  const playNumberCounter = async () => {
+    const sounds = await loadNumberCounterAudio();
 
     const interval = (60 / (bpm * subdivide)) * 1000;
     let beatCount = 0;
@@ -518,7 +563,24 @@ const createAudioUtils = (
     return audioSamples[tone];
   };
 
-  const playAudio = ({ beats, mainBeats, downBeats }) => {
+  const loadAudioFiles = (beats, mainBeats, downBeats) => {
+    return new Promise((resolve) => {
+      let loaded = 0;
+      const onAudioLoad = () => {
+        loaded++;
+        if (loaded === 3)
+          resolve({ downBeatSound, regularSound, mainBeatSound });
+      };
+      const downBeatSound = new Audio(downBeats);
+      downBeatSound.addEventListener("canplaythrough", onAudioLoad);
+      const regularSound = new Audio(beats);
+      regularSound.addEventListener("canplaythrough", onAudioLoad);
+      const mainBeatSound = new Audio(mainBeats);
+      mainBeatSound.addEventListener("canplaythrough", onAudioLoad);
+    });
+  };
+
+  const playAudio = async ({ beats, mainBeats, downBeats }) => {
     const interval = (60 / (bpm * subdivide)) * 1000;
     let beatCount = 1;
     let beat = 0;
@@ -526,9 +588,11 @@ const createAudioUtils = (
 
     let curBpm = bpm;
 
-    const downBeatSound = new Audio(downBeats);
-    const regularSound = new Audio(beats);
-    const mainBeatSound = new Audio(mainBeats);
+    const { downBeatSound, regularSound, mainBeatSound } = await loadAudioFiles(
+      beats,
+      mainBeats,
+      downBeats
+    );
 
     const intervalFn = () => {
       const sound =
@@ -828,16 +892,22 @@ const createAudioUtils = (
       clearInterval(timerId);
     }
     const instData = [];
-    instruments.forEach((instrument, i) => {
-      if (instrument[0]) {
-        instData.push(
-          new Audio(audioSamples[instrument[0]][idxToBeat[instrument[2]]])
-        );
-      }
+    let loaded = 0;
+    const instrumentsToPlay = instruments.filter((instrument) => instrument[0]);
+    let numToLoad = instrumentsToPlay.length;
+
+    instrumentsToPlay.forEach((instrument, i) => {
+      const audio = new Audio(
+        audioSamples[instrument[0]][idxToBeat[instrument[2]]]
+      );
+      audio.addEventListener("canplaythrough", () => {
+        loaded++;
+        if (numToLoad == loaded) {
+          playCustomRhythm(instData, rhythms);
+        }
+      });
+      instData.push(audio);
     });
-    if (instData.length > 0) {
-      playCustomRhythm(instData, rhythms);
-    }
   };
 
   const stopDrumMachine = () => {
