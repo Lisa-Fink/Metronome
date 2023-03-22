@@ -14,9 +14,10 @@ import "../styles/DrumMachine.css";
 import ChooseInstPopUp from "./ChooseInstPopUp";
 import UserBar from "./UserBar";
 import { UserContext } from "../contexts/UserContext";
+
 // TODO snap to - the aligns the rhythms to a certain beat like eighth notes or quarter notes etc.
-// TODO save rhythms
-function DrumMachine({ savedState, isChanging, user }) {
+
+function DrumMachine({ savedState, isChanging }) {
   const {
     bpmRef,
     isPlaying,
@@ -36,6 +37,7 @@ function DrumMachine({ savedState, isChanging, user }) {
     instruments,
     setInstruments,
     rhythmSequence,
+    createDMQueryUrl,
   } = useContext(AppContext);
 
   const isTyping = useRef(false);
@@ -50,6 +52,7 @@ function DrumMachine({ savedState, isChanging, user }) {
     Array.from({ length: MAX_INSTRUMENTS }, () =>
       Array(NUM_CELLS_PER_BEAT * timeSignature * num_measures).fill(false)
     );
+
   const [isChooseInstOpen, setIsChooseInstOpen] = useState(false);
   const instrumentIdx = useRef(0);
   const [rhythm, setRhythm] = useState(1);
@@ -63,7 +66,26 @@ function DrumMachine({ savedState, isChanging, user }) {
     if (isPlaying) {
       stopClick();
     }
+    // initialize instruments, rhythm grid, rhythm sequence if not set
+    if (!instruments) {
+      setInstruments(
+        Array.from({ length: MAX_INSTRUMENTS }, () => Array(3).fill(undefined))
+      );
+    }
+    if (!rhythmGrid) {
+      setRhythmGrid(
+        Array.from({ length: MAX_INSTRUMENTS }, () =>
+          Array(NUM_CELLS_PER_BEAT * timeSignature * measures).fill(false)
+        )
+      );
+    }
+    if (!rhythmSequence.current) {
+      rhythmSequence.current = Array.from({ length: MAX_INSTRUMENTS }, () =>
+        Array(NUM_CELLS_PER_BEAT * timeSignature * measures).fill(0)
+      );
+    }
   }, []);
+
   // Resets the drum machine if settings are changed and playing
   useEffect(() => {
     if (isPlaying) {
@@ -620,6 +642,7 @@ function DrumMachine({ savedState, isChanging, user }) {
         isTyping={isTyping}
         title={dMTitle}
         setTitle={setDMTitle}
+        createUrlFunc={createDMQueryUrl}
       />
       <h2>Drum Machine</h2>
 
