@@ -371,8 +371,10 @@ function DrumMachine({ savedState, isChanging }) {
     setInstruments(newInstruments);
   };
 
-  const toggleEditDelete = () => {
-    setIsEditDelete(!isEditDelete);
+  const handleEditDelete = (e) => {
+    const val = e.currentTarget.value;
+    if (val === "edit" && !isEditDelete) setIsEditDelete(true);
+    if (val === "delete" && isEditDelete) setIsEditDelete(false);
   };
 
   const handleCellDeleteHover = (instIdx, rhythmIdx) => {
@@ -720,13 +722,15 @@ function DrumMachine({ savedState, isChanging }) {
           {/* edit - delete selection */}
           <button
             className={isEditDelete ? "selected" : ""}
-            onClick={toggleEditDelete}
+            onClick={handleEditDelete}
+            value={"edit"}
           >
             Add <CiEdit />
           </button>
           <button
             className={!isEditDelete ? "selected" : ""}
-            onClick={toggleEditDelete}
+            onClick={handleEditDelete}
+            value={"delete"}
           >
             Delete <CiEraser />
           </button>
