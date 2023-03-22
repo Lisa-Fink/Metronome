@@ -108,13 +108,35 @@ const createAudioUtils = (
     setIsPlaying(true);
   };
 
-  const playDrumSet = () => {
-    const bass = new Audio(audioSamples["Bass Drum"].beats);
-    const hiHat = new Audio(audioSamples.Cymbal.mainBeats);
-    const hiHatSubdivide = new Audio(audioSamples.Cymbal.beats);
-    const snare = new Audio(audioSamples["Snare Drum"].mainBeats);
-    const crash = new Audio(audioSamples.Cymbal.downBeats);
-    const clap = new Audio(audioSamples.Clap.mainBeats);
+  const loadDrumSet = () => {
+    return new Promise((resolve) => {
+      let loaded = 0;
+      const loadFn = () => {
+        loaded++;
+        if (loaded === 6) {
+          resolve({ bass, hiHat, hiHatSubdivide, snare, crash, clap });
+        }
+      };
+
+      const bass = new Audio(audioSamples["Bass Drum"].beats);
+      bass.addEventListener("canplaythrough", loadFn);
+      const hiHat = new Audio(audioSamples.Cymbal.mainBeats);
+      hiHat.addEventListener("canplaythrough", loadFn);
+      const hiHatSubdivide = new Audio(audioSamples.Cymbal.beats);
+      hiHatSubdivide.addEventListener("canplaythrough", loadFn);
+      const snare = new Audio(audioSamples["Snare Drum"].mainBeats);
+      snare.addEventListener("canplaythrough", loadFn);
+      const crash = new Audio(audioSamples.Cymbal.downBeats);
+      crash.addEventListener("canplaythrough", loadFn);
+      const clap = new Audio(audioSamples.Clap.mainBeats);
+      clap.addEventListener("canplaythrough", loadFn);
+    });
+  };
+
+  const playDrumSet = async () => {
+    const { bass, hiHat, hiHatSubdivide, snare, crash, clap } =
+      await loadDrumSet();
+
     let interval = (60 / (bpm * subdivide)) * 1000;
 
     const main = [crash, clap];
@@ -358,7 +380,6 @@ const createAudioUtils = (
       ) {
         const audio = new Audio("./audio/numbers/spoken/and.mp3");
         audio.addEventListener("canplaythrough", audioLoad);
-        console.log("and");
         numberAudioFiles.and = audio;
       }
       if (subdivide === 3 || subdivide === 4 || subdivide === 8) {
