@@ -18,11 +18,17 @@ function ChangeMeter() {
   const [viewRhythm, setViewRhythm] = useState(false);
   const [showSubdivideMenu, setShowSubdivideMenu] = useState(subdivide > 1);
 
+  useEffect(() => {
+    if ((!subdivide || subdivide < 2) && showSubdivideMenu) {
+      setShowSubdivideMenu(false);
+    }
+    if (subdivide > 1 && !showSubdivideMenu) {
+      setShowSubdivideMenu(true);
+    }
+  }, [subdivide]);
+
   // TODO: remove showSubDivide variable
   const toggleMenu = () => {
-    if (showSubdivideMenu) {
-      setSubdivide(1);
-    }
     setShowSubdivideMenu(!showSubdivideMenu);
   };
 
@@ -82,12 +88,12 @@ function ChangeMeter() {
             <input
               type="checkbox"
               name="subdivide"
-              checked={subdivide > 1 || showSubdivideMenu}
+              checked={showSubdivideMenu}
               onChange={toggleMenu}
             />
           </label>
         </div>
-        <div className={subdivide > 1 ? "" : "hidden"}>
+        <div className={showSubdivideMenu ? "" : "hidden"}>
           <label htmlFor="subdivision">
             Subdivide Rhythm:
             <select
