@@ -111,6 +111,16 @@ export const AppProvider = ({ children }) => {
     setSectionPractice(sectionPractice);
     setTempoPractice(tempoPractice);
     setTitle(title);
+
+    if (tone === "femaleNumbers") {
+      setToneCategory("Spoken Counts");
+    } else if (tone === "Drum Set") {
+      setToneCategory("Drum Sets");
+    } else if (tone === "Generic Beep" || tone === "Synth Flute") {
+      setToneCategory("Basic Tones");
+    } else {
+      setToneCategory("Percussion");
+    }
   };
 
   const loadDMData = (data) => {
