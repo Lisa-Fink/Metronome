@@ -42,21 +42,11 @@ export const AppProvider = ({ children }) => {
   const [measures, setMeasures] = useState(1);
   const [dMTitle, setDMTitle] = useState("");
   // ui data about note lengths "first" "middle" "last"
-  const [rhythmGrid, setRhythmGrid] = useState(
-    Array.from({ length: MAX_INSTRUMENTS }, () =>
-      Array(NUM_CELLS_PER_BEAT * timeSignature * measures).fill(false)
-    )
-  );
+  const [rhythmGrid, setRhythmGrid] = useState();
   // Instrument [name, descriptive name, index]
-  const [instruments, setInstruments] = useState(
-    Array.from({ length: MAX_INSTRUMENTS }, () => Array(3).fill(undefined))
-  );
+  const [instruments, setInstruments] = useState();
   // audio data about when to start notes 1=start 0=not start
-  const rhythmSequence = useRef(
-    Array.from({ length: MAX_INSTRUMENTS }, () =>
-      Array(NUM_CELLS_PER_BEAT * timeSignature * measures).fill(0)
-    )
-  );
+  const rhythmSequence = useRef();
 
   const {
     startClick,
@@ -165,20 +155,35 @@ export const AppProvider = ({ children }) => {
     }
 
     if (measures !== 1) {
-      query.append("numMeasures", measures);
+      query.append("measures", measures);
     }
-
     for (let i = 0; i < instruments.length; i++) {
-      if (instruments[i][0]) {
-        if (instruments[i][2] != null) {
-          query.append(`instrument${i}`, instruments[i][2]);
-          if (rhythmSequence[i] && rhythmSequence[i].length > 0) {
-            query.append(`rhythmSequence${i}`, rhythmSequence[i].join(""));
+      if (
+        instruments[i][0] &&
+        instruments[i][1] &&
+        (instruments[i][2] || instruments[i][2] === 0)
+      ) {
+        console.log("is an inst ,", i, instruments[i]);
+        query.append(`inst${i}`, instruments[i][0]);
+        query.append(`desc${i}`, instruments[i][1]);
+        query.append(`idx${i}`, instruments[i][2]);
+        if (rhythmSequence.current[i] && rhythmGrid[i].length > 0) {
+          const rStart = [];
+          const rEnd = [];
+          for (let j = 0; j < rhythmGrid[i].length; j++) {
+            const c = rhythmGrid[i][j];
+            if (c == "first") {
+              rStart.push(j);
+            } else if (c == "last") {
+              rEnd.push(j);
+            }
           }
+          query.append(`rStart${i}`, rStart.join(" "));
+          query.append(`rEnd${i}`, rEnd.join(" "));
         }
       }
-      return query;
     }
+    return "/?" + query.toString();
   };
 
   const createMetQueryUrl = () => {
@@ -240,38 +245,87 @@ export const AppProvider = ({ children }) => {
 
   const loadFromQueryUrl = (queryParams) => {
     if (queryParams.get("view") === "met") {
+      // changeView("metronome");
       loadMetFromQueryUrl(queryParams);
-    } else if (queryParams.get("view" === "dm")) {
+    } else if (queryParams.get("view") === "dm") {
+      // changeView("rhythm");
       loadDMFromQueryUrl(queryParams);
     }
   };
-
+  let newTimeSignature = timeSignature;
+  let newMeasures = measures;
   const loadDMFromQueryUrl = (searchParams) => {
     for (const [param, value] of searchParams.entries()) {
       if (param === "bpm") {
         setBpm(parseInt(value));
       } else if (param === "timeSignature") {
-        setTimeSignature(parseInt(value));
-      } else if (param === "downBeat") {
-        setDownBeat(value);
-      } else if (param === "subdivide") {
-        setSubdivide(value);
-      } else if (param === "mainBeat") {
-        setMainBeat(value);
+        newTimeSignature = parseInt(value);
+        setTimeSignature(newTimeSignature);
+      } else if (param === "measures") {
+        if (value == "2") {
+          newMeasures = parseInt(value);
+          setMeasures(newMeasures);
+        }
       }
     }
+    // create default arrays
+    // query params will update the arrays if they are present
+    const newInstruments = Array.from({ length: MAX_INSTRUMENTS }, () =>
+      Array(3).fill(undefined)
+    );
+    const newRS = Array.from({ length: MAX_INSTRUMENTS }, () =>
+      Array(NUM_CELLS_PER_BEAT * newTimeSignature * newMeasures).fill(0)
+    );
+    const newRG = Array.from({ length: MAX_INSTRUMENTS }, () =>
+      Array(NUM_CELLS_PER_BEAT * newTimeSignature * newMeasures).fill(false)
+    );
 
-    const newInstruments = [...instruments];
-    // check for instruments
-    const instParams = [
-      searchParams.instrument0,
-      searchParams.instrument1,
-      searchParams.instrument2,
-      searchParams.instrument3,
-    ];
+    // check for instruments and rhythm sequences
+    for (let i = 0; i < MAX_INSTRUMENTS; i++) {
+      // TODO: validate instrument
+      const inst = searchParams.get(`inst${i}`);
 
-    if (instParams[0]) {
+      if (!inst) continue;
+      const desc = searchParams.get(`desc${i}`);
+      const idx = searchParams.get(`idx${i}`);
+      if ((!desc || !idx) && (idx !== "0" || idx !== "1" || idx !== "2"))
+        continue;
+      // all instrument params exists and are valid, add to newInstruments at i
+      newInstruments[i] = [inst, desc, parseInt(idx)];
+
+      // create rhythm sequence and rhythm grid from rStart and rEnd
+      let rStart = searchParams.get(`rStart${i}`);
+      let rEnd = searchParams.get(`rEnd${i}`);
+      if (!rStart || !rEnd) continue;
+      rStart = rStart.split(" ");
+      rEnd = rEnd.split(" ");
+
+      const rs = newRS[i];
+      const rg = newRG[i];
+      let rIdx = 0;
+      while (rIdx < rStart.length && rIdx < rEnd.length) {
+        const start = parseInt(rStart[rIdx]);
+        const end = parseInt(rEnd[rIdx]);
+
+        // validation
+        // ignore idx out of bounds
+        if (start < 0 || end < 0 || start >= rs.length - 2 || end >= rs.length)
+          continue;
+        // verify all start > prev end, all end > start
+        if ((rIdx > 0 && start <= rEnd[rIdx - 1]) || end <= start) continue;
+
+        rs[start] = 1;
+        rg[start] = "first";
+        rg[end] = "last";
+        for (let midIdx = start + 1; midIdx < end; midIdx++) {
+          rg[midIdx] = "middle";
+        }
+        rIdx++;
+      }
     }
+    setInstruments(newInstruments);
+    setRhythmGrid(newRG);
+    rhythmSequence.current = newRS;
   };
 
   const loadMetFromQueryUrl = (searchParams) => {
@@ -389,6 +443,7 @@ export const AppProvider = ({ children }) => {
     rhythmSequence,
     loadFromQueryUrl,
     createMetQueryUrl,
+    createDMQueryUrl,
   };
 
   return (
