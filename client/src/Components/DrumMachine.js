@@ -67,19 +67,19 @@ function DrumMachine({ savedState, isChanging }) {
       stopClick();
     }
     // initialize instruments, rhythm grid, rhythm sequence if not set
-    if (!instruments) {
+    if (!instruments.length) {
       setInstruments(
         Array.from({ length: MAX_INSTRUMENTS }, () => Array(3).fill(undefined))
       );
     }
-    if (!rhythmGrid) {
+    if (!rhythmGrid.length) {
       setRhythmGrid(
         Array.from({ length: MAX_INSTRUMENTS }, () =>
           Array(NUM_CELLS_PER_BEAT * timeSignature * measures).fill(false)
         )
       );
     }
-    if (!rhythmSequence.current) {
+    if (!rhythmSequence.current.length) {
       rhythmSequence.current = Array.from({ length: MAX_INSTRUMENTS }, () =>
         Array(NUM_CELLS_PER_BEAT * timeSignature * measures).fill(0)
       );

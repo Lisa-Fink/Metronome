@@ -42,11 +42,11 @@ export const AppProvider = ({ children }) => {
   const [measures, setMeasures] = useState(1);
   const [dMTitle, setDMTitle] = useState("");
   // ui data about note lengths "first" "middle" "last"
-  const [rhythmGrid, setRhythmGrid] = useState();
+  const [rhythmGrid, setRhythmGrid] = useState([]);
   // Instrument [name, descriptive name, index]
-  const [instruments, setInstruments] = useState();
+  const [instruments, setInstruments] = useState([]);
   // audio data about when to start notes 1=start 0=not start
-  const rhythmSequence = useRef();
+  const rhythmSequence = useRef([]);
 
   const {
     startClick,
@@ -163,7 +163,6 @@ export const AppProvider = ({ children }) => {
         instruments[i][1] &&
         (instruments[i][2] || instruments[i][2] === 0)
       ) {
-        console.log("is an inst ,", i, instruments[i]);
         query.append(`inst${i}`, instruments[i][0]);
         query.append(`desc${i}`, instruments[i][1]);
         query.append(`idx${i}`, instruments[i][2]);
