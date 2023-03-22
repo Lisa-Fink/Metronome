@@ -65,7 +65,7 @@ function UserBar({
     <nav className="user-nav">
       <div>{title ? title : ""}</div>
       <div className="error">{errorMessage}</div>
-      <div>
+      <div className="user-buttons">
         <button className="type" onClick={handleLoadClick}>
           Load
         </button>

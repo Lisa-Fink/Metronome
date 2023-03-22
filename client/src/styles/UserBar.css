@@ -2,3 +2,18 @@
     display: flex;
     justify-content: space-between;
 }
+
+.user-nav svg {
+    font-size: 150%;
+    border-radius: 50px;
+    padding: 5px;
+}
+
+.user-nav svg:hover {
+    color: var(--body-color-hover);
+}
+
+.user-buttons {
+    display: flex;
+    align-items: center;
+}
