@@ -43,7 +43,10 @@ function SavePopUp({
     const old = title;
     // Note: toLocaleString() can vary in formatting, but works for the purpose of a default title.
     const dateString = new Date().toLocaleString();
-    const savedTitle = newTitle == "" ? `Untitled ${dateString}` : newTitle;
+    let savedTitle = newTitle == "" ? `Untitled ${dateString}` : newTitle;
+    if (savedTitle.length > 50) {
+      savedTitle = savedTitle.slice(0, 50);
+    }
     setTitle(savedTitle);
     try {
       await saveFunc(savedTitle);
