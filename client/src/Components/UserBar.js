@@ -16,6 +16,7 @@ function UserBar({
   title,
   setTitle,
   createUrlFunc,
+  deleteFunc,
 }) {
   const [errorMessage, setErrorMessage] = useState("");
   const { user } = useContext(UserContext);
@@ -101,6 +102,7 @@ function UserBar({
           loadFunc={loadFunc}
           data={data}
           setUserPopUp={setUserPopUp}
+          deleteFunc={deleteFunc}
         />
       )}
       {sharePopUp && <SharePopUp setSharePopUp={setSharePopUp} url={url} />}

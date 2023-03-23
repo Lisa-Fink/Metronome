@@ -29,6 +29,7 @@ export const UserProvider = ({ children }) => {
     sectionPractice,
     tempoPractice,
     title,
+    setTitle,
     loadMetronomeData,
     loadDMData,
     instruments,
@@ -365,7 +366,39 @@ export const UserProvider = ({ children }) => {
         }
       }
     } catch (error) {
-      setErrorMessage("Error Updating the Metronome: " + error.error);
+      setErrorMessage("Error Updating the Metronome: ");
+    }
+  };
+
+  const deleteMetronome = async (metronomeIdx, setErrorMessage) => {
+    if (metronomeIdx < 0 || metronomeIdx >= userMetronomes.length)
+      throw new Error("Invalid Metronome");
+    const delete_id = userMetronomes[metronomeIdx]._id;
+    try {
+      if (user == undefined) throw new Error("User not logged in.");
+      const token = await user.getIdToken();
+      const headers = new Headers();
+      headers.append("Authorization", `Bearer ${token}`);
+      // delete metronome from db
+      const response = await fetch(`/users/${_id}/metronomes/${delete_id}`, {
+        method: "DELETE",
+        headers,
+      });
+      if (response.status !== 204) {
+        throw new Error("Error deleting the metronome.");
+      }
+
+      // remove from userMetronomes
+      setUserMetronomes((prevMetronomes) =>
+        prevMetronomes.filter((x, i) => i !== metronomeIdx)
+      );
+      // check if the deleted metronome is currently loaded
+      if (metronome_id.current == delete_id) {
+        metronome_id.current = "";
+        setTitle("");
+      }
+    } catch (error) {
+      setErrorMessage(error.message);
     }
   };
 
@@ -385,6 +418,7 @@ export const UserProvider = ({ children }) => {
     loadMetronome,
     loadDM,
     getUser,
+    deleteMetronome,
   };
   return (
     <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>

@@ -51,6 +51,7 @@ function Metronome({ savedState, isChanging }) {
     saveUpdateMetronome,
     userMetronomes,
     loadMetronome,
+    deleteMetronome,
   } = useContext(UserContext);
 
   const isTyping = useRef(false);
@@ -168,6 +169,7 @@ function Metronome({ savedState, isChanging }) {
         title={title}
         setTitle={setTitle}
         createUrlFunc={createMetQueryUrl}
+        deleteFunc={deleteMetronome}
       />
       <h2>Metronome</h2>
       <div id="sections">
