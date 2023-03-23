@@ -1,9 +1,9 @@
 import React, { useContext, useState, useEffect } from "react";
-import "../styles/PopUp.css";
+import "../../styles/PopUp.css";
 
 import { AiOutlineClose } from "react-icons/ai";
 import { GoChevronRight, GoChevronDown } from "react-icons/go";
-import { AppContext } from "../contexts/AppContext";
+import { AppContext } from "../../contexts/AppContext";
 
 function ChooseInstPopUp({
   instArr,

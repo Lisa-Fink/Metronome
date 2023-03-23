@@ -3,8 +3,8 @@ import { MdOutlineLightMode, MdOutlineDarkMode } from "react-icons/md";
 import { IoSettingsOutline } from "react-icons/io5";
 import { IoMusicalNotesOutline } from "react-icons/io5";
 import "../styles/Header.css";
-import LoginPopUp from "./LoginPopUp";
-import SignUpPopup from "./SignUpPopUp";
+import LoginPopUp from "./PopUps/LoginPopUp";
+import SignUpPopup from "./PopUps/SignUpPopUp";
 import { UserContext } from "../contexts/UserContext";
 import { AppContext } from "../contexts/AppContext";
 

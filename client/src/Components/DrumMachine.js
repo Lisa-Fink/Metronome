@@ -11,7 +11,7 @@ import { AppContext } from "../contexts/AppContext";
 import { IoAddCircleOutline } from "react-icons/io5";
 import { CiEraser, CiEdit } from "react-icons/ci";
 import "../styles/DrumMachine.css";
-import ChooseInstPopUp from "./ChooseInstPopUp";
+import ChooseInstPopUp from "./PopUps/ChooseInstPopUp";
 import UserBar from "./UserBar";
 import { UserContext } from "../contexts/UserContext";
 

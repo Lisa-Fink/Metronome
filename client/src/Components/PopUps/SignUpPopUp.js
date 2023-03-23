@@ -1,23 +1,26 @@
 import { useState, useEffect, useContext } from "react";
-import "../styles/PopUp.css";
+import { UserContext } from "../../contexts/UserContext";
+
+import "../../styles/PopUp.css";
 
 import { AiOutlineClose, AiOutlineCheckCircle } from "react-icons/ai";
-import { UserContext } from "../contexts/UserContext";
 
-function LoginPopup({ setIsLoginOpen, handleSwitchSignUp }) {
+function SignUpPopup({ setIsSignUpOpen, handleSwitchLogin }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [invalidEmail, setInvalidEmail] = useState(true);
   const [invalidPassword, setInvalidPassword] = useState(true);
+  const [invalidConfirmPassword, setInvalidConfirmPassword] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const { user, loginUser } = useContext(UserContext);
+  const { signUpUser, createUser, user } = useContext(UserContext);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.keyCode === 27) {
         // Escape key
-        setIsLoginOpen(false);
+        setIsSignUpOpen(false);
       }
     };
 
@@ -26,9 +29,10 @@ function LoginPopup({ setIsLoginOpen, handleSwitchSignUp }) {
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [setIsLoginOpen]);
+  }, [setIsSignUpOpen]);
 
   useEffect(() => {
+    // Automatically close if there is a signed in user
     if (user) {
       handleClose();
     }
@@ -45,36 +49,69 @@ function LoginPopup({ setIsLoginOpen, handleSwitchSignUp }) {
     setEmail(newEmail);
   };
 
+  const handleConfirmPasswordChange = (e) => {
+    const newConfirm = e.target.value;
+    if (newConfirm === password && !invalidPassword) {
+      setInvalidConfirmPassword(false);
+    } else {
+      setInvalidConfirmPassword(true);
+    }
+    setConfirmPassword(newConfirm);
+  };
+
   const handlePasswordChange = (e) => {
     const passwordRegex = /^\w{6,}$/;
     const newPassword = e.target.value;
-    if (!newPassword.length || !passwordRegex.test(newPassword)) {
+    if (!passwordRegex.test(newPassword)) {
       setInvalidPassword(true);
+      if (!invalidConfirmPassword) {
+        setInvalidConfirmPassword(true);
+      }
     } else {
       setInvalidPassword(false);
+      // valid password, and confirm password is the same
+      if (newPassword === confirmPassword) {
+        setInvalidConfirmPassword(false);
+      } else if (!invalidConfirmPassword) {
+        setInvalidConfirmPassword(true);
+      }
     }
     setPassword(newPassword);
   };
+
   const handleClose = (e) => {
     if (e) {
       e.preventDefault();
     }
-
-    setIsLoginOpen(false);
+    setIsSignUpOpen(false);
   };
 
-  const handleLogin = async (e) => {
-    // Firebase login
+  const handleSignUp = async (e) => {
     e.preventDefault();
+    // validate
     if (invalidEmail) {
-      setErrorMessage("Please enter a valid email");
+      setErrorMessage("Please enter a valid email.");
       return;
     }
     if (invalidPassword) {
-      setErrorMessage("Please enter a valid password");
+      setErrorMessage("Please enter a valid password.");
       return;
     }
-    loginUser(email, password, setErrorMessage);
+    if (invalidConfirmPassword) {
+      setErrorMessage("Passwords do not match.");
+      return;
+    }
+
+    try {
+      // Creates user in firebase, sets user
+      const newUser = await signUpUser(email, password, setErrorMessage);
+      // Adds/Creates user in db
+      createUser(newUser);
+      handleClose();
+    } catch (error) {
+      setErrorMessage("Unable to create account");
+      console.error(error);
+    }
   };
 
   return (
@@ -83,8 +120,8 @@ function LoginPopup({ setIsLoginOpen, handleSwitchSignUp }) {
         <div id="x-container">
           <AiOutlineClose id="x-icon" onClick={handleClose} />
         </div>
-        <h2>Log In</h2>
-        <form onSubmit={handleLogin}>
+        <h2>Sign Up</h2>
+        <form onSubmit={handleSignUp}>
           <div className="invalid-error">
             {errorMessage && <p>{errorMessage}</p>}
           </div>
@@ -113,14 +150,28 @@ function LoginPopup({ setIsLoginOpen, handleSwitchSignUp }) {
               )}
             </div>
           </label>
+          <label>
+            Confirm Password:
+            <div className="input-div">
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={handleConfirmPasswordChange}
+              />
+              {!invalidConfirmPassword && (
+                <AiOutlineCheckCircle className="validate" />
+              )}
+            </div>
+          </label>
+
           <div className="button-div">
-            <button type="submit">Login</button>
+            <button type="submit">Sign Up</button>
             <button onClick={handleClose}>Cancel</button>
           </div>
           <div className="change-pop-up">
-            <p>Need an account?</p>
-            <span className="link-text" onClick={handleSwitchSignUp}>
-              Sign-Up
+            <p>Already have an account?</p>
+            <span className="link-text" onClick={handleSwitchLogin}>
+              Log In
             </span>
           </div>
         </form>
@@ -129,4 +180,4 @@ function LoginPopup({ setIsLoginOpen, handleSwitchSignUp }) {
   );
 }
 
-export default LoginPopup;
+export default SignUpPopup;

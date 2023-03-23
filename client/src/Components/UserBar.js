@@ -1,8 +1,8 @@
 import React, { useContext, useRef, useState, useEffect } from "react";
 import { UserContext } from "../contexts/UserContext";
 import "../styles/UserBar.css";
-import LoadPopUp from "./LoadPopUp";
-import SavePopUp from "./SavePopUp";
+import LoadPopUp from "./PopUps/LoadPopUp";
+import SavePopUp from "./PopUps/SavePopUp";
 import { AiOutlineShareAlt } from "react-icons/ai";
 
 function UserBar({
