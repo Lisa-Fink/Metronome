@@ -46,9 +46,7 @@ function SavePopUp({
     try {
       await saveFunc(savedTitle);
     } catch (error) {
-      console.log(error);
-
-      setError("Error Saving");
+      setError(error.message);
       setTitle(old);
     }
     setUserPopUp(false);
