@@ -192,7 +192,7 @@ export const AppProvider = ({ children }) => {
         }
       }
     }
-    return "/?" + query.toString();
+    return window.location.origin + "/?" + query.toString();
   };
 
   const createMetQueryUrl = () => {
@@ -249,7 +249,7 @@ export const AppProvider = ({ children }) => {
         }
       }
     }
-    return "/?" + query.toString();
+    return window.location.origin + "/?" + query.toString();
   };
 
   const loadFromQueryUrl = (queryParams) => {
