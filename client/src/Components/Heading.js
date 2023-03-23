@@ -72,7 +72,7 @@ function Heading({ view, setView, isChanging }) {
           <div id="change-view">
             {view === "metronome" ? (
               <button className="type" onClick={handleRhythmClick}>
-                Rhythm Machine
+                Drum Machine
               </button>
             ) : (
               <button className="type" onClick={handleMetronomeClick}>
