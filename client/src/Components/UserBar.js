@@ -4,6 +4,7 @@ import "../styles/UserBar.css";
 import LoadPopUp from "./PopUps/LoadPopUp";
 import SavePopUp from "./PopUps/SavePopUp";
 import { AiOutlineShareAlt } from "react-icons/ai";
+import SharePopUp from "./PopUps/SharePopUp";
 
 function UserBar({
   view,
@@ -20,6 +21,8 @@ function UserBar({
   const { user } = useContext(UserContext);
 
   const [userPopUp, setUserPopUp] = useState(false);
+  const [sharePopUp, setSharePopUp] = useState(false);
+  const [url, setUrl] = useState("");
 
   useEffect(() => {
     // Error message disappears after 5 seconds
@@ -61,6 +64,11 @@ function UserBar({
     setErrorMessage("Login/SignUp Required");
   };
 
+  const handleShareClick = () => {
+    setUrl(createUrlFunc());
+    setSharePopUp(true);
+  };
+
   const bar = (
     <nav className="user-nav">
       <div>{title ? title : ""}</div>
@@ -75,11 +83,7 @@ function UserBar({
         <button className="type" onClick={handleSaveAsClick}>
           Save As
         </button>
-        <AiOutlineShareAlt
-          onClick={() => {
-            console.log(createUrlFunc());
-          }}
-        />
+        <AiOutlineShareAlt onClick={handleShareClick} />
       </div>
       {userPopUp === "save" && (
         <SavePopUp
@@ -99,6 +103,7 @@ function UserBar({
           setUserPopUp={setUserPopUp}
         />
       )}
+      {sharePopUp && <SharePopUp setSharePopUp={setSharePopUp} url={url} />}
     </nav>
   );
 

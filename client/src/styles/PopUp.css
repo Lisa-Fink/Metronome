@@ -50,6 +50,7 @@
 
 .button-div {
     margin-top: 26px;
+    text-align: center;
 }
 
 .link-text {
@@ -97,4 +98,26 @@
 
 .center {
     text-align: center;
+}
+
+.share-div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px var(--pop-up-border) solid;
+    border-radius: 15px;
+    padding: 45px 30px;
+    gap: 15px;
+}
+
+.share-div > div {
+    border: 2px var(--input-border-color) solid;
+    padding: 16px;
+}
+
+.success {
+    position: absolute;
+    top: 35%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
