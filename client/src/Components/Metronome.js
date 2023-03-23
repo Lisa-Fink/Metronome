@@ -98,6 +98,7 @@ function Metronome({ savedState, isChanging }) {
     repeat,
     tempoInc,
     tempoPractice,
+    bpm,
   ]);
 
   // Adds start/stop with space bar press
@@ -134,6 +135,7 @@ function Metronome({ savedState, isChanging }) {
     repeat,
     tempoInc,
     tempoPractice,
+    bpm,
   ]);
 
   useEffect(() => {
