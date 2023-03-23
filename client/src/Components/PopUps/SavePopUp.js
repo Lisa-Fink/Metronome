@@ -41,7 +41,9 @@ function SavePopUp({
   const handleSave = async (e) => {
     e.preventDefault();
     const old = title;
-    const savedTitle = newTitle == "" ? `Untitled ${new Date()}` : newTitle;
+    // Note: toLocaleString() can vary in formatting, but works for the purpose of a default title.
+    const dateString = new Date().toLocaleString();
+    const savedTitle = newTitle == "" ? `Untitled ${dateString}` : newTitle;
     setTitle(savedTitle);
     try {
       await saveFunc(savedTitle);
