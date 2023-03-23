@@ -37,6 +37,7 @@ export const UserProvider = ({ children }) => {
     rhythmGrid,
     measures,
     dMTitle,
+    setDMTitle,
   } = useContext(AppContext);
   const [user, setUser] = useState(undefined);
   const [_id, set_id] = useState(undefined);
@@ -279,11 +280,8 @@ export const UserProvider = ({ children }) => {
   const saveNewDM = async (title) => {
     try {
       // Ignore attempt to save when logged out or no instruments added
-      if (
-        user === undefined ||
-        instruments.filter((i) => i[0] !== undefined).length == 0
-      ) {
-        throw new Error("No rhythms were added.");
+      if (user === undefined) {
+        throw new Error("You must be logged in to save.");
       }
 
       const token = await user.getIdToken();
@@ -402,6 +400,38 @@ export const UserProvider = ({ children }) => {
     }
   };
 
+  const deleteDM = async (dmIdx, setErrorMessage) => {
+    if (dmIdx < 0 || dmIdx >= userDrumMachines.length)
+      throw new Error("Invalid Drum Machine");
+    const delete_id = userDrumMachines[dmIdx]._id;
+    try {
+      if (user == undefined) throw new Error("User not logged in.");
+      const token = await user.getIdToken();
+      const headers = new Headers();
+      headers.append("Authorization", `Bearer ${token}`);
+      // delete metronome from db
+      const response = await fetch(`/users/${_id}/drum-machines/${delete_id}`, {
+        method: "DELETE",
+        headers,
+      });
+      if (response.status !== 204) {
+        throw new Error("Error deleting the drum machine.");
+      }
+
+      // remove from userMetronomes
+      setUserDrumsMachines((prevDrumMachines) =>
+        prevDrumMachines.filter((x, i) => i !== dmIdx)
+      );
+      // check if the deleted metronome is currently loaded
+      if (dm_id.current == delete_id) {
+        dm_id.current = "";
+        setDMTitle("");
+      }
+    } catch (error) {
+      setErrorMessage(error.message);
+    }
+  };
+
   const contextValue = {
     user,
     setUser,
@@ -419,6 +449,7 @@ export const UserProvider = ({ children }) => {
     loadDM,
     getUser,
     deleteMetronome,
+    deleteDM,
   };
   return (
     <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>

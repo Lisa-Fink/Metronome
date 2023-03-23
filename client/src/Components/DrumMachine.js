@@ -42,7 +42,7 @@ function DrumMachine({ savedState, isChanging }) {
 
   const isTyping = useRef(false);
 
-  const { saveNewDM, saveUpdateDM, userDrumMachines, loadDM } =
+  const { saveNewDM, saveUpdateDM, userDrumMachines, loadDM, deleteDM } =
     useContext(UserContext);
 
   const NUM_CELLS_PER_BEAT = 12;
@@ -645,6 +645,7 @@ function DrumMachine({ savedState, isChanging }) {
         title={dMTitle}
         setTitle={setDMTitle}
         createUrlFunc={createDMQueryUrl}
+        deleteFunc={deleteDM}
       />
       <h2>Drum Machine</h2>
 
