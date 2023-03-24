@@ -55,11 +55,9 @@ const updateUser = async (
   }
 };
 
-const updateUserLightSetting = async (user, lightSetting) => {
+const updateUserLightSetting = async (userId, lightSetting) => {
   try {
-    user.set({ lightSetting });
-    await currentUser.save();
-    return currentUser;
+    await User.findOneAndUpdate({ userId }, { $set: { lightSetting } });
   } catch (err) {
     console.error(
       `Error updating the user's light mode setting: ${err.message}`

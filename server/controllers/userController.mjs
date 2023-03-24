@@ -52,13 +52,13 @@ userRouter.put("/", validateUid, uidToUser, async (req, res) => {
 });
 
 // UPDATE light setting controller
-userRouter.patch("/light-setting", validateUid, uidToUser, async (req, res) => {
+userRouter.patch("/light-setting", validateUid, async (req, res) => {
   try {
     const user = await userModel.updateUserLightSetting(
-      req.user,
+      req.uid,
       req.body.lightSetting
     );
-    res.json(user);
+    res.status(200).send();
   } catch (error) {
     console.error(
       `Error updating the user's light mode setting: ${error.message}`

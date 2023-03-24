@@ -141,7 +141,7 @@ export const UserProvider = ({ children }) => {
       const userDB = await response.json();
       setUserDrumsMachines(userDB.drumMachines);
       setUserMetronomes(userDB.metronomes);
-      setLightMode(userDB.lightMode);
+      setLightMode(userDB.lightSetting);
     } catch (error) {
       // TODO change
       throw new Error(error);
@@ -426,6 +426,21 @@ export const UserProvider = ({ children }) => {
     }
   };
 
+  const saveLightModeSetting = async (lightMode) => {
+    try {
+      if (user == undefined) throw new Error("User not logged in.");
+      const token = await user.getIdToken();
+      const headers = new Headers();
+      headers.append("Authorization", `Bearer ${token}`);
+      headers.append("Content-Type", "application/json");
+      const response = await fetch("/users/light-setting", {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify({ lightSetting: lightMode }),
+      });
+    } catch (error) {}
+  };
+
   const contextValue = {
     user,
     setUser,
@@ -444,6 +459,7 @@ export const UserProvider = ({ children }) => {
     getUser,
     deleteMetronome,
     deleteDM,
+    saveLightModeSetting,
   };
   return (
     <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>

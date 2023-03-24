@@ -13,7 +13,7 @@ function Heading({ view, setView, isChanging }) {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isSignUpOpen, setIsSignUpOpen] = useState(false);
 
-  const { signOutUser, user } = useContext(UserContext);
+  const { signOutUser, user, saveLightModeSetting } = useContext(UserContext);
 
   useEffect(() => {
     if (lightMode === true) {
@@ -24,6 +24,9 @@ function Heading({ view, setView, isChanging }) {
   }, [lightMode]);
 
   const toggleLightMode = () => {
+    if (user) {
+      saveLightModeSetting(!lightMode);
+    }
     setLightMode(!lightMode);
   };
 
