@@ -41,7 +41,7 @@ export const UserProvider = ({ children }) => {
   } = useContext(AppContext);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userMetronomes, setUserMetronomes] = useState([]);
-  const [userDrumMachines, setUserDrumsMachines] = useState([]);
+  const [userDrumMachines, setUserDrumMachines] = useState([]);
   const metronome_id = useRef("");
   const dm_id = useRef("");
 
@@ -92,6 +92,8 @@ export const UserProvider = ({ children }) => {
       getUser(fbUser);
     } else if (!fbUser && isLoggedIn) {
       setIsLoggedIn(false);
+      setUserMetronomes([]);
+      setUserDrumMachines([]);
     }
   });
 
@@ -101,6 +103,8 @@ export const UserProvider = ({ children }) => {
       .then(() => {
         // Sign-out successful.
         setIsLoggedIn(false);
+        setUserMetronomes([]);
+        setUserDrumMachines([]);
       })
       .catch((error) => {
         // An error happened.
@@ -139,7 +143,7 @@ export const UserProvider = ({ children }) => {
         headers,
       });
       const userDB = await response.json();
-      setUserDrumsMachines(userDB.drumMachines);
+      setUserDrumMachines(userDB.drumMachines);
       setUserMetronomes(userDB.metronomes);
       setLightMode(userDB.lightSetting);
     } catch (error) {
@@ -312,7 +316,7 @@ export const UserProvider = ({ children }) => {
       }
 
       const data = await response.json();
-      setUserDrumsMachines([...userDrumMachines, data]);
+      setUserDrumMachines([...userDrumMachines, data]);
       dm_id.current = data._id;
     } catch (error) {
       throw new Error(error);
@@ -423,7 +427,7 @@ export const UserProvider = ({ children }) => {
       }
 
       // remove from userMetronomes
-      setUserDrumsMachines((prevDrumMachines) =>
+      setUserDrumMachines((prevDrumMachines) =>
         prevDrumMachines.filter((x, i) => i !== dmIdx)
       );
       // check if the deleted metronome is currently loaded
