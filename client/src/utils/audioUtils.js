@@ -63,7 +63,7 @@ const createAudioUtils = (
     });
   };
 
-  const playCustomRhythm = async (instrumentArr, rhythms) => {
+  const playCustomRhythm = async (instrumentArr, rhythms, curBpm) => {
     isStopping.current = false;
     let cur;
 
@@ -94,7 +94,7 @@ const createAudioUtils = (
             setTimeout(() => {
               resolve();
               // (12 parts per beat)
-            }, (60 / (bpm * 12)) * 1000);
+            }, (60 / (curBpm * 12)) * 1000);
           });
         }
         resolve();
@@ -906,7 +906,7 @@ const createAudioUtils = (
     }
   };
 
-  const startDrumMachine = (instruments, rhythms) => {
+  const startDrumMachine = (instruments, rhythms, curBpm) => {
     if (timerId) {
       clearInterval(timerId);
     }
@@ -922,7 +922,7 @@ const createAudioUtils = (
       audio.addEventListener("canplaythrough", () => {
         loaded++;
         if (numToLoad == loaded) {
-          playCustomRhythm(instData, rhythms);
+          playCustomRhythm(instData, rhythms, curBpm);
         }
       });
       instData.push(audio);
@@ -942,6 +942,12 @@ const createAudioUtils = (
       };
       checkIsStopping();
     });
+  };
+
+  const stopEverything = () => {
+    stopClick();
+    stopDrumMachine();
+    setIsPlaying(false);
   };
 
   const stopClick = () => {
@@ -985,6 +991,7 @@ const createAudioUtils = (
     getInstrumentList,
     startDrumMachine,
     stopDrumMachine,
+    stopEverything,
   };
 };
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { MdOutlineLightMode, MdOutlineDarkMode } from "react-icons/md";
 import { IoSettingsOutline } from "react-icons/io5";
 import { IoMusicalNotesOutline } from "react-icons/io5";
@@ -10,10 +10,12 @@ import { UserContext } from "../contexts/UserContext";
 import { AppContext } from "../contexts/AppContext";
 
 function Heading({ view, setView, isChanging }) {
-  const { lightMode, setLightMode } = useContext(AppContext);
+  const { lightMode, setLightMode, stopEverything, isPlaying } =
+    useContext(AppContext);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isSignUpOpen, setIsSignUpOpen] = useState(false);
   const [isAccountOpen, setIsAccountOpen] = useState(false);
+  const changeToWhenRdy = useRef("");
 
   const { signOutUser, isLoggedIn, saveLightModeSetting } =
     useContext(UserContext);
@@ -56,15 +58,33 @@ function Heading({ view, setView, isChanging }) {
     setIsLoginOpen(true);
   };
 
-  const handleRhythmClick = () => {
+  const handleRhythmClick = async () => {
     isChanging.current = true;
-    setView("rhythm");
+    stopEverything();
+    if (!isPlaying) {
+      setView("rhythm");
+    } else {
+      changeToWhenRdy.current = "rhythm";
+    }
   };
 
-  const handleMetronomeClick = () => {
+  const handleMetronomeClick = async () => {
     isChanging.current = true;
-    setView("metronome");
+    stopEverything();
+    if (!isPlaying) {
+      setView("metronome");
+    } else {
+      changeToWhenRdy.current = "metronome";
+    }
   };
+
+  useEffect(() => {
+    if (isChanging.current && !isPlaying && changeToWhenRdy.current) {
+      const toChange = changeToWhenRdy.current;
+      changeToWhenRdy.current = "";
+      setView(toChange);
+    }
+  }, [isPlaying]);
 
   const handleSettingsClick = () => {
     setIsLoginOpen(false);

@@ -67,12 +67,12 @@ function Metronome({ savedState, isChanging }) {
         setBpm(bpmRef.current);
       }
     }
-
     startClick();
   };
 
   // Memoize the startStop function with useCallback
   const startStop = useCallback(() => {
+    if (isChanging.current) return;
     if (isPlaying) {
       // stopping
       stopClick();
@@ -100,6 +100,7 @@ function Metronome({ savedState, isChanging }) {
     tempoInc,
     tempoPractice,
     bpm,
+    isChanging,
   ]);
 
   // Adds start/stop with space bar press
@@ -120,7 +121,7 @@ function Metronome({ savedState, isChanging }) {
 
   // updates to new selected time signature
   useEffect(() => {
-    if (isPlaying) {
+    if (!isChanging.current && isPlaying) {
       restart();
     }
   }, [

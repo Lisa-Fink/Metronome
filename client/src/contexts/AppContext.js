@@ -55,6 +55,7 @@ export const AppProvider = ({ children }) => {
     playSample,
     startDrumMachine,
     stopDrumMachine,
+    stopEverything,
   } = createAudioUtils(
     bpm,
     downBeat,
@@ -95,7 +96,6 @@ export const AppProvider = ({ children }) => {
       sectionPractice,
       tempoPractice,
       title,
-      _id,
     } = data;
     setBpm(bpm);
     setTimeSignature(timeSignature);
@@ -431,6 +431,7 @@ export const AppProvider = ({ children }) => {
     setTempoPractice,
     startClick,
     stopClick,
+    stopEverything,
     getInstrumentList,
     playSample,
     startDrumMachine,
