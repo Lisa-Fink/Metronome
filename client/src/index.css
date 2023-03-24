@@ -14,6 +14,8 @@ body, button, input, option, select {
 }
 
 :root {
+--delete-bg: rgb(22, 0, 0);
+--delete-color: red;
 --transparent-black: rgba(0, 0, 0, 0.4);
 --transparent-white: rgba(255, 255, 255, 0.1);
 
