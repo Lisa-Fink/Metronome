@@ -1,10 +1,17 @@
-import React, { createContext, useState, useContext, useRef } from "react";
+import React, {
+  createContext,
+  useState,
+  useContext,
+  useRef,
+  useEffect,
+} from "react";
 import app from "../firebase";
 import {
   getAuth,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
+  deleteUser,
 } from "firebase/auth";
 import "firebase/auth";
 import { AppContext } from "./AppContext";
@@ -42,8 +49,34 @@ export const UserProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userMetronomes, setUserMetronomes] = useState([]);
   const [userDrumMachines, setUserDrumMachines] = useState([]);
+  const loggingIn = useRef(false);
   const metronome_id = useRef("");
   const dm_id = useRef("");
+
+  useEffect(() => {
+    // logs in user on refresh
+    const auth = getAuth(app);
+    const stateChanged = auth.onAuthStateChanged(async (fbUser) => {
+      if (!loggingIn.current && fbUser && !isLoggedIn) {
+        try {
+          loggingIn.current = true;
+          await getUser(fbUser);
+          loggingIn.current = false;
+          setIsLoggedIn(true);
+        } catch (error) {
+          loggingIn.current = false;
+        }
+        setIsLoggedIn(true);
+      } else if (!fbUser && isLoggedIn && !loggingIn.current) {
+        setIsLoggedIn(false);
+        setUserMetronomes([]);
+        setUserDrumMachines([]);
+      }
+    });
+    return () => {
+      stateChanged();
+    };
+  }, [loggingIn.current, isLoggedIn]);
 
   const loadMetronome = (index) => {
     if (index < 0 || index >= userMetronomes.length) {
@@ -65,7 +98,23 @@ export const UserProvider = ({ children }) => {
     loadDMData(chosen);
   };
 
-  const signUpUser = async (email, password, setErrorMessage) => {
+  const signUpUser = async (email, password) => {
+    try {
+      loggingIn.current = true;
+      setIsLoggedIn(true);
+      const user = await createUserFB(email, password);
+      const userDB = await createUserDB(user);
+      loggingIn.current = false;
+      // set again onAuthChange triggers a false
+      setIsLoggedIn(true);
+    } catch (error) {
+      setIsLoggedIn(false);
+      loggingIn.current = false;
+      throw error;
+    }
+  };
+
+  const createUserFB = async (email, password) => {
     const auth = getAuth(app);
     try {
       const userCredential = await createUserWithEmailAndPassword(
@@ -77,25 +126,36 @@ export const UserProvider = ({ children }) => {
       return userCredential.user;
     } catch (error) {
       //TODO add custom error message
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      setErrorMessage("Error Creating a New Account.");
       throw new Error("Error signing up user");
     }
   };
 
-  // logs in user on refresh
-  const auth = getAuth(app);
-  auth.onAuthStateChanged(async (fbUser) => {
-    if (fbUser && !isLoggedIn) {
-      setIsLoggedIn(true);
-      getUser(fbUser);
-    } else if (!fbUser && isLoggedIn) {
-      setIsLoggedIn(false);
-      setUserMetronomes([]);
-      setUserDrumMachines([]);
+  const createUserDB = async (user) => {
+    // Create db for new user
+    try {
+      const token = await user.getIdToken();
+      const headers = new Headers();
+      headers.append("Content-Type", "application/json");
+      headers.append("Authorization", `Bearer ${token}`);
+
+      const body = {
+        lightSetting: lightMode,
+      };
+
+      const response = await fetch("/users/", {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body),
+      });
+      if (response.status !== 201) {
+        throw new Error("Error creating user");
+      }
+      const data = await response.json();
+    } catch (error) {
+      console.error(error);
+      throw new Error("Error creating user");
     }
-  });
+  };
 
   const signOutUser = () => {
     const auth = getAuth();
@@ -113,8 +173,10 @@ export const UserProvider = ({ children }) => {
   };
 
   const loginUser = async (email, password, setErrorMessage) => {
+    const auth = getAuth(app);
     try {
-      const auth = getAuth(app);
+      setIsLoggedIn(true);
+      loggingIn.current = true;
       const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
@@ -123,14 +185,21 @@ export const UserProvider = ({ children }) => {
 
       // Signed in
       await getUser(userCredential.user);
+      loggingIn.current = false;
     } catch (error) {
-      // TODO change
-      console.log(error);
+      setIsLoggedIn(false);
+      loggingIn.current = false;
+      // if firebase successfully logged in but mongo didn't retrieve user
+      // do not stay signed in (could be changed)
+      if (auth.currentUser) {
+        signOutUser();
+      }
       setErrorMessage("Error Logging Into Account.");
     }
   };
 
   const getUser = async (user) => {
+    if (isLoggedIn) return;
     try {
       // Get user from db
       const token = await user.getIdToken();
@@ -149,33 +218,6 @@ export const UserProvider = ({ children }) => {
     } catch (error) {
       // TODO change
       throw new Error(error);
-    }
-  };
-
-  // Create new user in db
-  const createUser = async (user) => {
-    // Create db for new user
-    try {
-      const headers = new Headers();
-      headers.append("Content-Type", "application/json");
-
-      const body = {
-        uid: getAuth(app).currentUser(),
-        lightSetting: lightMode,
-      };
-
-      const response = await fetch("/users/", {
-        method: "POST",
-        headers,
-        body: JSON.stringify(body),
-      });
-      if (response.status !== 201) {
-        throw new Error("Error creating user");
-      }
-      const data = await response.json();
-    } catch (error) {
-      console.error(error);
-      throw new Error("Error creating user");
     }
   };
 
@@ -454,10 +496,36 @@ export const UserProvider = ({ children }) => {
     } catch (error) {}
   };
 
+  const delUser = async () => {
+    try {
+      const auth = getAuth(app);
+      const user = auth.currentUser;
+      if (user == undefined) throw new Error("User not logged in.");
+      const token = await user.getIdToken();
+      const headers = new Headers();
+      // Delete from mongo
+      headers.append("Authorization", `Bearer ${token}`);
+      const response = await fetch("/users", {
+        method: "DELETE",
+        headers,
+      });
+      if (response.status !== 204) {
+        throw new Error("Error deleting user.");
+      }
+      // Delete from FB
+      await deleteUser(user);
+      if (auth.currentUser) {
+        signOutUser();
+      }
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  };
+
   const contextValue = {
     signUpUser,
     loginUser,
-    createUser,
     signOutUser,
     saveNewMetronome,
     saveUpdateMetronome,
@@ -472,6 +540,7 @@ export const UserProvider = ({ children }) => {
     deleteDM,
     saveLightModeSetting,
     isLoggedIn,
+    delUser,
   };
   return (
     <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>
