@@ -329,10 +329,7 @@ export const UserProvider = ({ children }) => {
       const auth = getAuth(app);
       const user = auth.currentUser;
       // Ignore attempt to save when logged out or no instruments added
-      if (
-        user === undefined ||
-        instruments.filter((i) => i[0] !== undefined).length == 0
-      ) {
+      if (user === undefined) {
         throw new Error("No rhythms were added.");
       }
       const token = await user.getIdToken();
@@ -368,7 +365,7 @@ export const UserProvider = ({ children }) => {
         }
       }
     } catch (error) {
-      setErrorMessage("Error Updating the Metronome: ");
+      setErrorMessage("Error Updating the Drum Machine ");
     }
   };
 
