@@ -54,7 +54,7 @@ function SharePopUp({ url, setSharePopUp }) {
         </div>
         <div className={copied ? "success" : "hidden"}>Copied to clipboard</div>
         <div className="button-div">
-          <button class="type" onClick={handleClose}>
+          <button className="type" onClick={handleClose}>
             Close
           </button>
         </div>
