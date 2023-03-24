@@ -69,9 +69,9 @@ const updateUserLightSetting = async (userId, lightSetting) => {
 };
 
 // DELETE************************************************************
-const deleteUserById = async (user) => {
+const deleteUser = async (userId) => {
   try {
-    await user.remove();
+    await User.deleteOne({ userId });
     return true;
   } catch (err) {
     console.error(`Error deleting the user: ${err.message}`);
@@ -84,5 +84,5 @@ export {
   retrieveUserByUID,
   updateUser,
   updateUserLightSetting,
-  deleteUserById,
+  deleteUser,
 };

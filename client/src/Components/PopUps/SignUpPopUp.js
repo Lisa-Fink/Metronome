@@ -14,7 +14,7 @@ function SignUpPopup({ setIsSignUpOpen, handleSwitchLogin }) {
   const [invalidConfirmPassword, setInvalidConfirmPassword] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const { signUpUser, createUser, isLoggedIn } = useContext(UserContext);
+  const { signUpUser, isLoggedIn } = useContext(UserContext);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -103,14 +103,11 @@ function SignUpPopup({ setIsSignUpOpen, handleSwitchLogin }) {
     }
 
     try {
-      // Creates user in firebase, sets user
+      // Creates user in firebase, db, and logs in
       const newUser = await signUpUser(email, password, setErrorMessage);
-      // Adds/Creates user in db
-      createUser(newUser);
       handleClose();
     } catch (error) {
       setErrorMessage("Unable to create account");
-      console.error(error);
     }
   };
 

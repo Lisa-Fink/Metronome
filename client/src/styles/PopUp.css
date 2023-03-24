@@ -132,6 +132,13 @@
     transform: translate(-50%, -50%);
 }
 
+/* Account PopUp */
+legend {
+    margin: 15px;
+    text-align: center;
+    font-size: 110%;
+}
+
 .confirm-delete {
     display: flex;
     flex-direction: row;
@@ -139,4 +146,52 @@
     align-items: center;
     background-color: var(--pop-up-transparent);
     padding: 5px;
+}
+
+.delete {
+    background-color: var(--delete-bg);
+    color: var(--delete-color);
+}
+
+
+.delete:hover {
+    background-color: var(--delete-color);
+    color: var(--delete-bg);
+    font-weight: bold;
+}
+
+.account-div {
+    display: flex;
+    flex-direction: column;
+    gap:40px;
+    text-align: center;
+    width: 300px;
+}
+
+
+.delete-div {
+    border: 4px var(--delete-bg) solid;
+    color: var(--delete-bg);
+    padding: 10px;
+    text-align: center;
+    
+}
+    .delete-div h3 {
+        color: var(--delete-bg);
+        font-weight: bold;
+    }
+.delete-act-icon {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    font-size: 150%;
+}
+.delete-act-icon svg:hover{
+    color: var(--icon-hover)
+}
+
+.delete-act {
+    background-color: var(--pop-up-transparent);
+    padding: 6px;
+    margin: 2px;
 }

@@ -5,6 +5,7 @@ import { IoMusicalNotesOutline } from "react-icons/io5";
 import "../styles/Header.css";
 import LoginPopUp from "./PopUps/LoginPopUp";
 import SignUpPopup from "./PopUps/SignUpPopUp";
+import UserAccountPopup from "./PopUps/UserAccountPopUp";
 import { UserContext } from "../contexts/UserContext";
 import { AppContext } from "../contexts/AppContext";
 
@@ -12,6 +13,7 @@ function Heading({ view, setView, isChanging }) {
   const { lightMode, setLightMode } = useContext(AppContext);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isSignUpOpen, setIsSignUpOpen] = useState(false);
+  const [isAccountOpen, setIsAccountOpen] = useState(false);
 
   const { signOutUser, isLoggedIn, saveLightModeSetting } =
     useContext(UserContext);
@@ -64,6 +66,12 @@ function Heading({ view, setView, isChanging }) {
     setView("metronome");
   };
 
+  const handleSettingsClick = () => {
+    setIsLoginOpen(false);
+    setIsSignUpOpen(false);
+    setIsAccountOpen(true);
+  };
+
   return (
     <div id="heading-container">
       <header>
@@ -86,7 +94,7 @@ function Heading({ view, setView, isChanging }) {
           </div>
           {isLoggedIn ? (
             <div id="user-div">
-              <div id="settings">
+              <div id="settings" onClick={handleSettingsClick}>
                 <IoSettingsOutline />
               </div>
               <div id="sign-out">
@@ -123,6 +131,9 @@ function Heading({ view, setView, isChanging }) {
           setIsSignUpOpen={setIsSignUpOpen}
           handleSwitchLogin={handleSwitchLogin}
         />
+      )}
+      {isAccountOpen && (
+        <UserAccountPopup setIsAccountOpen={setIsAccountOpen} />
       )}
     </div>
   );
