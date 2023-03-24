@@ -53,23 +53,25 @@ function LoadPopUp({ data, loadFunc, deleteFunc, type, setUserPopUp }) {
         <div className={errorMessage ? "error-div" : "hidden"}>
           {errorMessage}
         </div>
-        {data.length === 0 && "0 items saved."}
-        {data.map((obj, i) => (
-          <div key={i} className="load-items-container">
-            <div className="load-items">
-              {obj.title}
-              <div className="input-div">
-                <button onClick={() => handleLoad(i)}>Load</button>
-                <MdOutlineDeleteForever onClick={() => setShowConfirm(i)} />
+        <div className="load-container">
+          {data.length === 0 && "0 items saved."}
+          {data.map((obj, i) => (
+            <div key={i} className="load-items-container">
+              <div className="load-items">
+                {obj.title}
+                <div className="input-div">
+                  <button onClick={() => handleLoad(i)}>Load</button>
+                  <MdOutlineDeleteForever onClick={() => setShowConfirm(i)} />
+                </div>
+              </div>
+              <div className={showConfirm === i ? "confirm-delete" : "hidden"}>
+                Confirm Delete{" "}
+                <AiOutlineCheckCircle onClick={() => handleConfirmDel(i)} />
+                <AiOutlineCloseCircle onClick={() => setShowConfirm(false)} />
               </div>
             </div>
-            <div className={showConfirm === i ? "confirm-delete" : "hidden"}>
-              Confirm Delete{" "}
-              <AiOutlineCheckCircle onClick={() => handleConfirmDel(i)} />
-              <AiOutlineCloseCircle onClick={() => setShowConfirm(false)} />
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
         <div className="button-div center">
           <button className="type" onClick={handleClose}>
             Close

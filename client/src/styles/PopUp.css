@@ -98,6 +98,12 @@
     border-bottom: 1px var(--pop-up-border) dotted;
     font-size: 110%;
     padding: 10px;
+
+}
+
+.load-container {
+    max-height: 400px;
+    overflow-y: auto;
 }
 
 .center {
