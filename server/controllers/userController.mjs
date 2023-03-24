@@ -1,5 +1,5 @@
 import { Router } from "express";
-import authenticate from "../middleware/authenticate.mjs";
+import uidToUser from "../middleware/uidToUser.mjs";
 import validateUid from "../middleware/validateUid.mjs";
 import * as userModel from "../models/userModel.mjs";
 
@@ -35,7 +35,7 @@ userRouter.get("/", validateUid, async (req, res) => {
 });
 
 // UPDATE controller
-userRouter.put("/:_id", validateUid, authenticate, async (req, res) => {
+userRouter.put("/", validateUid, uidToUser, async (req, res) => {
   try {
     const user = await userModel.updateUser(
       req.user,
@@ -52,30 +52,25 @@ userRouter.put("/:_id", validateUid, authenticate, async (req, res) => {
 });
 
 // UPDATE light setting controller
-userRouter.patch(
-  "/:_id/light-setting",
-  validateUid,
-  authenticate,
-  async (req, res) => {
-    try {
-      const user = await userModel.updateUserLightSetting(
-        req.user,
-        req.body.lightSetting
-      );
-      res.json(user);
-    } catch (error) {
-      console.error(
-        `Error updating the user's light mode setting: ${error.message}`
-      );
-      res.status(400).json({
-        error: "There was an error updating the user light mode setting.",
-      });
-    }
+userRouter.patch("/light-setting", validateUid, uidToUser, async (req, res) => {
+  try {
+    const user = await userModel.updateUserLightSetting(
+      req.user,
+      req.body.lightSetting
+    );
+    res.json(user);
+  } catch (error) {
+    console.error(
+      `Error updating the user's light mode setting: ${error.message}`
+    );
+    res.status(400).json({
+      error: "There was an error updating the user light mode setting.",
+    });
   }
-);
+});
 
 // DELETE Controller
-userRouter.delete("/:_id", validateUid, authenticate, async (req, res) => {
+userRouter.delete("/", validateUid, uidToUser, async (req, res) => {
   try {
     const deleted = await userModel.deleteUserById(req.user);
     if (deleted) {

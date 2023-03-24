@@ -40,7 +40,6 @@ export const UserProvider = ({ children }) => {
     setDMTitle,
   } = useContext(AppContext);
   const [user, setUser] = useState(undefined);
-  const [_id, set_id] = useState(undefined);
   const [userMetronomes, setUserMetronomes] = useState([]);
   const [userDrumMachines, setUserDrumsMachines] = useState([]);
   const metronome_id = useRef("");
@@ -140,7 +139,6 @@ export const UserProvider = ({ children }) => {
         headers,
       });
       const userDB = await response.json();
-      set_id(userDB._id);
       setUserDrumsMachines(userDB.drumMachines);
       setUserMetronomes(userDB.metronomes);
       setLightMode(userDB.lightMode);
@@ -173,7 +171,6 @@ export const UserProvider = ({ children }) => {
         throw new Error("Error creating user");
       }
       const data = await response.json();
-      set_id(data._id);
     } catch (error) {
       console.error(error);
       throw new Error("Error creating user");
@@ -207,7 +204,7 @@ export const UserProvider = ({ children }) => {
           title,
         };
         // save settings to db
-        const response = await fetch(`/users/${_id}/metronomes`, {
+        const response = await fetch(`/users/metronomes`, {
           method: "POST",
           headers,
           body: JSON.stringify({ settings: settings }),
@@ -252,7 +249,7 @@ export const UserProvider = ({ children }) => {
         };
         // save settings to db
         const response = await fetch(
-          `/users/${_id}/metronomes/${metronome_id.current}`,
+          `/users/metronomes/${metronome_id.current}`,
           {
             method: "PUT",
             headers,
@@ -301,7 +298,7 @@ export const UserProvider = ({ children }) => {
         title,
       };
       // save settings to db
-      const response = await fetch(`/users/${_id}/drum-machines`, {
+      const response = await fetch(`/users/drum-machines`, {
         method: "POST",
         headers,
         body: JSON.stringify({ settings: settings }),
@@ -343,14 +340,11 @@ export const UserProvider = ({ children }) => {
         title: dMTitle,
       };
       // save settings to db
-      const response = await fetch(
-        `/users/${_id}/drum-machines/${dm_id.current}`,
-        {
-          method: "PUT",
-          headers,
-          body: JSON.stringify({ settings: settings }),
-        }
-      );
+      const response = await fetch(`/users/drum-machines/${dm_id.current}`, {
+        method: "PUT",
+        headers,
+        body: JSON.stringify({ settings: settings }),
+      });
       if (response.status !== 200) {
         throw new Error("Error saving the updated drum machine .");
       }
@@ -378,7 +372,7 @@ export const UserProvider = ({ children }) => {
       const headers = new Headers();
       headers.append("Authorization", `Bearer ${token}`);
       // delete metronome from db
-      const response = await fetch(`/users/${_id}/metronomes/${delete_id}`, {
+      const response = await fetch(`/users/metronomes/${delete_id}`, {
         method: "DELETE",
         headers,
       });
@@ -410,7 +404,7 @@ export const UserProvider = ({ children }) => {
       const headers = new Headers();
       headers.append("Authorization", `Bearer ${token}`);
       // delete metronome from db
-      const response = await fetch(`/users/${_id}/drum-machines/${delete_id}`, {
+      const response = await fetch(`/users/drum-machines/${delete_id}`, {
         method: "DELETE",
         headers,
       });

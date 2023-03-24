@@ -19,8 +19,8 @@ app.use(express.json());
 
 app.use("/users", userRouter);
 app.use(validateUid);
-app.use("/users/:_id/metronomes", metronomeRouter);
-app.use("/users/:_id/drum-machines", drumMachineRouter);
+app.use("/users/metronomes", metronomeRouter);
+app.use("/users/drum-machines", drumMachineRouter);
 
 // Connect to mongodb
 mongoose.connect(process.env.MONGODB_CONNECT_STRING, { useNewUrlParser: true });

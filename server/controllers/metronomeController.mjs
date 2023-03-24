@@ -1,13 +1,13 @@
 import { Router } from "express";
 import * as metronomeModel from "../models/metronomeModel.mjs";
-import authenticate from "../middleware/authenticate.mjs";
+import uidToUser from "../middleware/uidToUser.mjs";
 import {
   validate,
   validateSettings,
 } from "../middleware/validateMetronome.mjs";
 
 const metronomeRouter = Router({ mergeParams: true });
-metronomeRouter.use(authenticate);
+metronomeRouter.use(uidToUser);
 
 // CREATE controller
 metronomeRouter.post("/", validateSettings, validate, async (req, res) => {

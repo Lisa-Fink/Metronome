@@ -1,13 +1,13 @@
 import { Router } from "express";
 import * as drumMachineModel from "../models/drumMachineModel.mjs";
-import authenticate from "../middleware/authenticate.mjs";
 import {
   validate,
   validateSettings,
 } from "../middleware/validateDrumMachine.mjs";
+import uidToUser from "../middleware/uidToUser.mjs";
 
 const drumMachineRouter = Router({ mergeParams: true });
-drumMachineRouter.use(authenticate);
+drumMachineRouter.use(uidToUser);
 
 // CREATE controller ************************************************
 drumMachineRouter.post("/", validateSettings, validate, async (req, res) => {
