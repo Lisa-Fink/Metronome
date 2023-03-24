@@ -39,7 +39,7 @@ export const UserProvider = ({ children }) => {
     dMTitle,
     setDMTitle,
   } = useContext(AppContext);
-  const [user, setUser] = useState(undefined);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userMetronomes, setUserMetronomes] = useState([]);
   const [userDrumMachines, setUserDrumsMachines] = useState([]);
   const metronome_id = useRef("");
@@ -74,8 +74,6 @@ export const UserProvider = ({ children }) => {
         password
       );
       // Sign in the new user
-      setUser(userCredential.user);
-
       return userCredential.user;
     } catch (error) {
       //TODO add custom error message
@@ -88,10 +86,12 @@ export const UserProvider = ({ children }) => {
 
   // logs in user on refresh
   const auth = getAuth(app);
-  auth.onAuthStateChanged((fbUser) => {
-    if (fbUser && !user) {
-      setUser(fbUser);
+  auth.onAuthStateChanged(async (fbUser) => {
+    if (fbUser && !isLoggedIn) {
+      setIsLoggedIn(true);
       getUser(fbUser);
+    } else if (!fbUser && isLoggedIn) {
+      setIsLoggedIn(false);
     }
   });
 
@@ -100,7 +100,7 @@ export const UserProvider = ({ children }) => {
     signOut(auth)
       .then(() => {
         // Sign-out successful.
-        setUser(undefined);
+        setIsLoggedIn(false);
       })
       .catch((error) => {
         // An error happened.
@@ -118,10 +118,10 @@ export const UserProvider = ({ children }) => {
       );
 
       // Signed in
-      setUser(userCredential.user);
-      await getUser(userCredential);
+      await getUser(userCredential.user);
     } catch (error) {
       // TODO change
+      console.log(error);
       setErrorMessage("Error Logging Into Account.");
     }
   };
@@ -129,8 +129,8 @@ export const UserProvider = ({ children }) => {
   const getUser = async (user) => {
     try {
       // Get user from db
-      const headers = new Headers();
       const token = await user.getIdToken();
+      const headers = new Headers();
       headers.append("Authorization", `Bearer ${token}`);
       headers.append("Content-Type", "application/json");
 
@@ -152,13 +152,11 @@ export const UserProvider = ({ children }) => {
   const createUser = async (user) => {
     // Create db for new user
     try {
-      // const token = await user.getIdToken();
       const headers = new Headers();
-      // headers.append("Authorization", `Bearer ${token}`);
       headers.append("Content-Type", "application/json");
 
       const body = {
-        uid: user.uid,
+        uid: getAuth(app).currentUser(),
         lightSetting: lightMode,
       };
 
@@ -179,6 +177,8 @@ export const UserProvider = ({ children }) => {
 
   const saveNewMetronome = async (title) => {
     try {
+      const auth = getAuth(app);
+      const user = auth.currentUser;
       if (user !== undefined) {
         const token = await user.getIdToken();
         const headers = new Headers();
@@ -225,6 +225,8 @@ export const UserProvider = ({ children }) => {
   const saveUpdateMetronome = async (setErrorMessage) => {
     //TODO rewrite
     try {
+      const auth = getAuth(app);
+      const user = auth.currentUser;
       if (user !== undefined) {
         const token = await user.getIdToken();
         const headers = new Headers();
@@ -276,6 +278,8 @@ export const UserProvider = ({ children }) => {
 
   const saveNewDM = async (title) => {
     try {
+      const auth = getAuth(app);
+      const user = auth.currentUser;
       // Ignore attempt to save when logged out or no instruments added
       if (user === undefined) {
         throw new Error("You must be logged in to save.");
@@ -318,6 +322,8 @@ export const UserProvider = ({ children }) => {
   const saveUpdateDM = async (setErrorMessage) => {
     //TODO rewrite
     try {
+      const auth = getAuth(app);
+      const user = auth.currentUser;
       // Ignore attempt to save when logged out or no instruments added
       if (
         user === undefined ||
@@ -367,6 +373,8 @@ export const UserProvider = ({ children }) => {
       throw new Error("Invalid Metronome");
     const delete_id = userMetronomes[metronomeIdx]._id;
     try {
+      const auth = getAuth(app);
+      const user = auth.currentUser;
       if (user == undefined) throw new Error("User not logged in.");
       const token = await user.getIdToken();
       const headers = new Headers();
@@ -399,6 +407,8 @@ export const UserProvider = ({ children }) => {
       throw new Error("Invalid Drum Machine");
     const delete_id = userDrumMachines[dmIdx]._id;
     try {
+      const auth = getAuth(app);
+      const user = auth.currentUser;
       if (user == undefined) throw new Error("User not logged in.");
       const token = await user.getIdToken();
       const headers = new Headers();
@@ -428,6 +438,8 @@ export const UserProvider = ({ children }) => {
 
   const saveLightModeSetting = async (lightMode) => {
     try {
+      const auth = getAuth(app);
+      const user = auth.currentUser;
       if (user == undefined) throw new Error("User not logged in.");
       const token = await user.getIdToken();
       const headers = new Headers();
@@ -442,8 +454,6 @@ export const UserProvider = ({ children }) => {
   };
 
   const contextValue = {
-    user,
-    setUser,
     signUpUser,
     loginUser,
     createUser,
@@ -460,6 +470,7 @@ export const UserProvider = ({ children }) => {
     deleteMetronome,
     deleteDM,
     saveLightModeSetting,
+    isLoggedIn,
   };
   return (
     <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>

@@ -13,7 +13,8 @@ function Heading({ view, setView, isChanging }) {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isSignUpOpen, setIsSignUpOpen] = useState(false);
 
-  const { signOutUser, user, saveLightModeSetting } = useContext(UserContext);
+  const { signOutUser, isLoggedIn, saveLightModeSetting } =
+    useContext(UserContext);
 
   useEffect(() => {
     if (lightMode === true) {
@@ -24,7 +25,7 @@ function Heading({ view, setView, isChanging }) {
   }, [lightMode]);
 
   const toggleLightMode = () => {
-    if (user) {
+    if (isLoggedIn) {
       saveLightModeSetting(!lightMode);
     }
     setLightMode(!lightMode);
@@ -83,7 +84,7 @@ function Heading({ view, setView, isChanging }) {
               </button>
             )}
           </div>
-          {user ? (
+          {isLoggedIn ? (
             <div id="user-div">
               <div id="settings">
                 <IoSettingsOutline />

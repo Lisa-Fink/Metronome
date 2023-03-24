@@ -19,7 +19,7 @@ function UserBar({
   deleteFunc,
 }) {
   const [errorMessage, setErrorMessage] = useState("");
-  const { user } = useContext(UserContext);
+  const { isLoggedIn } = useContext(UserContext);
 
   const [userPopUp, setUserPopUp] = useState(false);
   const [sharePopUp, setSharePopUp] = useState(false);
@@ -35,7 +35,7 @@ function UserBar({
   }, [errorMessage]);
 
   const handleLoadClick = () => {
-    if (user) {
+    if (isLoggedIn) {
       setUserPopUp("load");
     } else {
       handleNonUser();
@@ -44,9 +44,9 @@ function UserBar({
 
   const handleSaveClick = () => {
     // already saved
-    if (user && title) {
+    if (isLoggedIn && title) {
       saveUpdate(setErrorMessage);
-    } else if (user) {
+    } else if (isLoggedIn) {
       handleSaveAsClick();
     } else {
       handleNonUser();
@@ -54,7 +54,7 @@ function UserBar({
   };
 
   const handleSaveAsClick = () => {
-    if (user) {
+    if (isLoggedIn) {
       setUserPopUp("save");
     } else {
       handleNonUser();

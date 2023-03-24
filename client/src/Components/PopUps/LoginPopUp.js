@@ -11,7 +11,7 @@ function LoginPopup({ setIsLoginOpen, handleSwitchSignUp }) {
   const [invalidPassword, setInvalidPassword] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const { user, loginUser } = useContext(UserContext);
+  const { isLoggedIn, loginUser } = useContext(UserContext);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -29,10 +29,10 @@ function LoginPopup({ setIsLoginOpen, handleSwitchSignUp }) {
   }, [setIsLoginOpen]);
 
   useEffect(() => {
-    if (user) {
+    if (isLoggedIn) {
       handleClose();
     }
-  }, [user]);
+  }, [isLoggedIn]);
 
   const handleEmailChange = (e) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
