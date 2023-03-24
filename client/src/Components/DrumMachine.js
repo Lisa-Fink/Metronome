@@ -19,11 +19,9 @@ import { UserContext } from "../contexts/UserContext";
 
 function DrumMachine({ savedState, isChanging }) {
   const {
-    bpmRef,
     isPlaying,
     timeSignature,
     setTimeSignature,
-    stopClick,
     startDrumMachine,
     stopDrumMachine,
     bpm,
@@ -63,9 +61,6 @@ function DrumMachine({ savedState, isChanging }) {
 
   // Stops the metronome on load if it was playing
   useEffect(() => {
-    if (isPlaying) {
-      stopClick();
-    }
     // initialize instruments, rhythm grid, rhythm sequence if not set
     if (!instruments.length) {
       setInstruments(
@@ -127,7 +122,7 @@ function DrumMachine({ savedState, isChanging }) {
   const restart = async () => {
     if (isPlaying) {
       await stopDrumMachine();
-      startDrumMachine(instruments, rhythmSequence.current);
+      startDrumMachine(instruments, rhythmSequence.current, bpm);
     }
   };
 
@@ -135,9 +130,9 @@ function DrumMachine({ savedState, isChanging }) {
     if (isPlaying) {
       await stopDrumMachine();
     } else {
-      startDrumMachine(instruments, rhythmSequence.current);
+      startDrumMachine(instruments, rhythmSequence.current, bpm);
     }
-  }, [isPlaying, instruments, rhythmSequence]);
+  }, [isPlaying, instruments, rhythmSequence, bpm]);
   // Adds start/stop with space bar press
   useEffect(() => {
     const handleKeyDown = (event) => {
