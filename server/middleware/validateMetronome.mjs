@@ -77,7 +77,6 @@ const validateSettings = [
 ];
 
 const validate = (req, res, next) => {
-  console.log("validating");
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     console.error(errors.array());
