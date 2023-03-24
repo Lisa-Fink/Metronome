@@ -63,49 +63,47 @@ const createAudioUtils = (
     });
   };
 
-  const playCustomRhythm = (instrumentArr, rhythms) => {
-    const beats = rhythms[0].length;
+  const playCustomRhythm = async (instrumentArr, rhythms) => {
     isStopping.current = false;
-    let cur, id;
+    let cur;
 
     const intervalFunc = async () => {
-      const beats = rhythms[0].length;
-      for (let beat = 0; beat < beats; beat++) {
-        instrumentArr.forEach((sound, key) => {
+      return new Promise(async (resolve) => {
+        const beats = rhythms[0].length;
+        for (let beat = 0; beat < beats; beat++) {
+          instrumentArr.forEach((sound, key) => {
+            if (isStopping.current) {
+              return;
+            }
+            cur = rhythms[key][beat];
+            if (cur > 0) {
+              sound.currentTime = 0;
+              sound.volume = volumeRef.current;
+              sound.play();
+            } else if (cur < 0) {
+              if (!sound.currentTime === 0) {
+                sound.stop();
+              }
+            }
+          });
           if (isStopping.current) {
-            clearInterval(id);
-            id = null;
+            isStopping.current = false;
             return;
           }
-          cur = rhythms[key][beat];
-          if (cur > 0) {
-            sound.currentTime = 0;
-            sound.volume = volumeRef.current;
-            sound.play();
-          } else if (cur < 0) {
-            if (!sound.currentTime === 0) {
-              sound.stop();
-            }
-          }
-        });
-        if (isStopping.current) {
-          isStopping.current = false;
-          return;
+          await new Promise((resolve) => {
+            setTimeout(() => {
+              resolve();
+              // (12 parts per beat)
+            }, (60 / (bpm * 12)) * 1000);
+          });
         }
-        await new Promise((resolve) => {
-          setTimeout(() => {
-            resolve();
-            // (12 parts per beat)
-          }, (60 / (bpm * 12)) * 1000);
-        });
-      }
+        resolve();
+      });
     };
-    // interval includes the entire rhythm (1 or 2 measures)
-    intervalFunc();
-    // NUM_BEAT_PER_MEASURE is 12
-    id = setInterval(intervalFunc, (60 / (bpm * (1 / (beats / 12)))) * 1000);
-    setTimerId(id);
     setIsPlaying(true);
+    while (!isStopping.current) {
+      await intervalFunc();
+    }
   };
 
   const loadDrumSet = () => {
