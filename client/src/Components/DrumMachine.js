@@ -91,7 +91,7 @@ function DrumMachine({ savedState, isChanging }) {
     if (isPlaying) {
       restart();
     }
-  }, [bpmRef]);
+  }, [bpm]);
 
   useEffect(() => {
     if (isPlaying) {
