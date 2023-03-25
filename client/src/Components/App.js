@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import Heading from "./Heading";
 import "../styles/App.css";
-import Load from "./Load";
+import ViewHandler from "./ViewHandler";
 import { AppProvider } from "../contexts/AppContext";
 import { UserProvider } from "../contexts/UserContext";
 import { BrowserRouter } from "react-router-dom";
@@ -17,7 +17,11 @@ function App() {
           <Heading view={view} setView={setView} isChanging={isChanging} />
           <main>
             <BrowserRouter>
-              <Load view={view} setView={setView} isChanging={isChanging} />
+              <ViewHandler
+                view={view}
+                setView={setView}
+                isChanging={isChanging}
+              />
             </BrowserRouter>
           </main>
         </UserProvider>

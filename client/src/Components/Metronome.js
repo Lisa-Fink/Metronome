@@ -5,9 +5,9 @@ import "../styles/Metronome.css";
 import UserBar from "./UserBar";
 import TempoControls from "./TempoControls";
 
-import ChangeMeter from "./Metronome/ChangeMeter";
+import RhythmSettings from "./Metronome/RhythmSettings";
 import ToneSelector from "./Metronome/ToneSelector";
-import Practice from "./Metronome/Practice";
+import PracticeSettings from "./Metronome/PracticeSettings";
 import PlaybackBar from "./PlaybackBar";
 
 import { AppContext } from "../contexts/AppContext";
@@ -175,9 +175,9 @@ function Metronome({ savedState, isChanging }) {
           <TempoControls startStop={startStop} />
           <ToneSelector />
         </div>
-        <ChangeMeter />
+        <RhythmSettings />
       </div>
-      <Practice />
+      <PracticeSettings />
       <PlaybackBar startStop={startStop} />
     </div>
   );

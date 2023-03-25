@@ -4,7 +4,7 @@ import { AppContext } from "../../contexts/AppContext";
 
 import "../../styles/Practice.css";
 
-function Practice() {
+function PracticeSettings() {
   const {
     countIn,
     setCountIn,
@@ -196,4 +196,4 @@ function Practice() {
   );
 }
 
-export default Practice;
+export default PracticeSettings;

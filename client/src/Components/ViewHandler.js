@@ -4,7 +4,7 @@ import { AppContext } from "../contexts/AppContext";
 import DrumMachine from "./DrumMachine";
 import Metronome from "./Metronome";
 
-function Load({ view, setView, isChanging }) {
+function ViewHandler({ view, setView, isChanging }) {
   const curLocation = useLocation();
   const { loadFromQueryUrl } = useContext(AppContext);
 
@@ -39,4 +39,4 @@ function Load({ view, setView, isChanging }) {
   );
 }
 
-export default Load;
+export default ViewHandler;

@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { GoChevronRight, GoChevronDown } from "react-icons/go";
 import { AppContext } from "../../contexts/AppContext";
 
-function ChangeMeter() {
+function RhythmSettings() {
   const {
     timeSignature,
     setTimeSignature,
@@ -134,4 +134,4 @@ function ChangeMeter() {
   );
 }
 
-export default ChangeMeter;
+export default RhythmSettings;
