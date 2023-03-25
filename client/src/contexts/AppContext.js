@@ -80,6 +80,10 @@ export const AppProvider = ({ children }) => {
     isStopping
   );
 
+  /****************************************************************************/
+  // Load from DB data *********************************************************
+
+  // Load Metronome *******************
   const loadMetronomeData = (data) => {
     const {
       bpm,
@@ -123,6 +127,7 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  // Load Drum Machine ****************
   const loadDMData = (data) => {
     const {
       bpm,
@@ -146,6 +151,10 @@ export const AppProvider = ({ children }) => {
     rhythmSequence.current = newRS;
   };
 
+  /****************************************************************************/
+  // Query Params **************************************************************
+
+  // Create / Generate URL *****************************************************
   const createQueryUrl = (type) => {
     if (type === "m") {
       return createMetQueryUrl();
@@ -153,6 +162,7 @@ export const AppProvider = ({ children }) => {
     return createDMQueryUrl();
   };
 
+  // Create Drum Machine URL **********
   const createDMQueryUrl = () => {
     const query = new URLSearchParams();
     query.append("view", "dm");
@@ -195,6 +205,7 @@ export const AppProvider = ({ children }) => {
     return window.location.origin + "/?" + query.toString();
   };
 
+  // Create Metronome URL *************
   const createMetQueryUrl = () => {
     const query = new URLSearchParams();
     query.append("view", "met");
@@ -252,6 +263,7 @@ export const AppProvider = ({ children }) => {
     return window.location.origin + "/?" + query.toString();
   };
 
+  // Load from URL *************************************************************
   const loadFromQueryUrl = (queryParams) => {
     if (queryParams.get("view") === "met") {
       // changeView("metronome");
@@ -263,6 +275,8 @@ export const AppProvider = ({ children }) => {
   };
   let newTimeSignature = timeSignature;
   let newMeasures = measures;
+
+  // Load Drum Machine from URL *******
   const loadDMFromQueryUrl = (searchParams) => {
     for (const [param, value] of searchParams.entries()) {
       if (param === "bpm") {
@@ -337,6 +351,7 @@ export const AppProvider = ({ children }) => {
     rhythmSequence.current = newRS;
   };
 
+  // Load Metronome from URL **********
   const loadMetFromQueryUrl = (searchParams) => {
     for (const [param, value] of searchParams.entries()) {
       if (param === "bpm") {
