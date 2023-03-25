@@ -1,13 +1,16 @@
 import React, { useEffect, useContext, useCallback, useRef } from "react";
-import "../styles/Metronome.css";
-import ChangeMeter from "./ChangeMeter";
-import TempoControls from "./TempoControls";
-import ToneSelector from "./ToneSelector";
 
-import Practice from "./Practice";
-import PlaybackBar from "./PlaybackBar";
-import { AppContext } from "../contexts/AppContext";
+import "../styles/Metronome.css";
+
 import UserBar from "./UserBar";
+import TempoControls from "./TempoControls";
+
+import ChangeMeter from "./Metronome/ChangeMeter";
+import ToneSelector from "./Metronome/ToneSelector";
+import Practice from "./Metronome/Practice";
+import PlaybackBar from "./PlaybackBar";
+
+import { AppContext } from "../contexts/AppContext";
 import { UserContext } from "../contexts/UserContext";
 
 function Metronome({ savedState, isChanging }) {

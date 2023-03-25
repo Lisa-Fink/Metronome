@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from "react";
 import { GoChevronRight, GoChevronDown } from "react-icons/go";
-import { AppContext } from "../contexts/AppContext";
+import { AppContext } from "../../contexts/AppContext";
 
 function ToneSelector() {
   const {

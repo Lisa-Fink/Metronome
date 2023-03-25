@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import { GoChevronRight, GoChevronDown } from "react-icons/go";
-import { AppContext } from "../contexts/AppContext";
+import { AppContext } from "../../contexts/AppContext";
 
 function ChangeMeter() {
   const {

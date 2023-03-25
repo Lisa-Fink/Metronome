@@ -1,7 +1,8 @@
 import React, { useState, useContext } from "react";
 import { GoChevronRight, GoChevronDown } from "react-icons/go";
-import "../styles/Practice.css";
-import { AppContext } from "../contexts/AppContext";
+import { AppContext } from "../../contexts/AppContext";
+
+import "../../styles/Practice.css";
 
 function Practice() {
   const {
