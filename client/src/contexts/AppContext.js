@@ -469,6 +469,8 @@ export const AppProvider = ({ children }) => {
     loadFromQueryUrl,
     createMetQueryUrl,
     createDMQueryUrl,
+    NUM_CELLS_PER_BEAT,
+    MAX_INSTRUMENTS,
   };
 
   return (
