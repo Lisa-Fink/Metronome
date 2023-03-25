@@ -39,6 +39,8 @@ function DrumMachine({ savedState, isChanging }) {
     createDMQueryUrl,
     NUM_CELLS_PER_BEAT,
     MAX_INSTRUMENTS,
+    isStopped,
+    setIsStopped,
   } = useContext(AppContext);
 
   const isTyping = useRef(false);
@@ -83,25 +85,20 @@ function DrumMachine({ savedState, isChanging }) {
   const stopRef = useRef("false");
 
   // Resets the drum machine if settings are changed and playing
-  useEffect(() => {
-    if (isPlaying) {
-      restart();
-    }
-  }, [dMTitle]);
+  // useEffect(() => {
+  //   if (isPlaying) {
+  //     restart();
+  //   }
+  // }, [dMTitle, bpm]);
 
   useEffect(() => {
     // Finish reset after stop completes
-    if (!isPlaying && stopRef.current == true) {
+    if (!isPlaying && stopRef.current == true && isStopped) {
+      setIsStopped(false);
       stopRef.current = false;
       startDrumMachine(instruments, rhythmSequence.current, bpm);
     }
-  }, [isPlaying]);
-
-  useEffect(() => {
-    if (isPlaying) {
-      restart();
-    }
-  }, [bpm]);
+  }, [isStopped]);
 
   useEffect(() => {
     if (isPlaying) {
@@ -113,7 +110,7 @@ function DrumMachine({ savedState, isChanging }) {
       }
       restart();
     }
-  }, [timeSignature, measures, rhythmGrid, instruments]);
+  }, [timeSignature, measures, rhythmGrid, instruments, dMTitle, bpm]);
 
   // Saves and loads bpm and time signature settings when changing/loading view
   useEffect(() => {

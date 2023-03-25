@@ -4,7 +4,8 @@ const createDrumMachineUtils = (
   setIsPlaying,
   volumeRef,
   timerId,
-  isStopping
+  isStopping,
+  setIsStopped
 ) => {
   const playCustomRhythm = async (instrumentArr, rhythms, curBpm) => {
     isStopping.current = false;
@@ -31,6 +32,7 @@ const createDrumMachineUtils = (
           });
           if (isStopping.current) {
             isStopping.current = false;
+            setIsStopped(true);
             return;
           }
           await new Promise((resolve) => {
@@ -63,6 +65,18 @@ const createDrumMachineUtils = (
     let loaded = 0;
     const instrumentsToPlay = instruments.filter((instrument) => instrument[0]);
     let numToLoad = instrumentsToPlay.length;
+
+    // check if there are rhythm's added
+    let isRhythm = false;
+    for (let i = 0; i < instruments.length; i++) {
+      if (!instruments[i][0]) continue;
+      const checkRhythms = rhythms[i].filter((x) => x === 1).length;
+      if (checkRhythms > 0) {
+        isRhythm = true;
+        break;
+      }
+    }
+    if (!isRhythm) return;
 
     instrumentsToPlay.forEach((instrument, i) => {
       const audio = new Audio(

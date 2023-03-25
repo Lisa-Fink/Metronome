@@ -47,6 +47,8 @@ export const AppProvider = ({ children }) => {
   const [instruments, setInstruments] = useState([]);
   // audio data about when to start notes 1=start 0=not start
   const rhythmSequence = useRef([]);
+  // used for restart to wait until fully stopped before starting
+  const [isStopped, setIsStopped] = useState(false);
 
   const {
     startClick,
@@ -77,7 +79,8 @@ export const AppProvider = ({ children }) => {
     tempoPractice,
     setBpm,
     bpmRef,
-    isStopping
+    isStopping,
+    setIsStopped
   );
 
   /****************************************************************************/
@@ -471,6 +474,8 @@ export const AppProvider = ({ children }) => {
     createDMQueryUrl,
     NUM_CELLS_PER_BEAT,
     MAX_INSTRUMENTS,
+    isStopped,
+    setIsStopped,
   };
 
   return (

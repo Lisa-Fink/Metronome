@@ -23,7 +23,8 @@ const createAudioUtils = (
   tempoPractice,
   setBpm,
   originalBpm,
-  isStopping
+  isStopping,
+  setIsStopped
 ) => {
   const metronomeSettings = {
     bpm,
@@ -51,7 +52,13 @@ const createAudioUtils = (
   const { startClick, stopClick } = createMetronomeUtils(metronomeSettings);
 
   const { startDrumMachine, stopDrumMachine, playSample } =
-    createDrumMachineUtils(setIsPlaying, volumeRef, timerId, isStopping);
+    createDrumMachineUtils(
+      setIsPlaying,
+      volumeRef,
+      timerId,
+      isStopping,
+      setIsStopped
+    );
 
   const stopEverything = () => {
     stopClick();
