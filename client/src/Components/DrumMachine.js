@@ -546,7 +546,10 @@ function DrumMachine({ savedState, isChanging }) {
     // <div className="rhythm-grid-container">
     <>
       {rhythmGrid.map((row, rowIdx) => {
-        if (instruments[rowIdx][0] === undefined) {
+        if (
+          instruments[rowIdx][0] === undefined ||
+          instruments[rowIdx][0] === null
+        ) {
           return (
             <div
               className={`rhythm-grid-no-inst-row row${rowIdx + 2} col2`}
