@@ -80,8 +80,23 @@ function DrumMachine({ savedState, isChanging }) {
       );
     }
   }, []);
+  const stopRef = useRef("false");
 
   // Resets the drum machine if settings are changed and playing
+  useEffect(() => {
+    if (isPlaying) {
+      restart();
+    }
+  }, [dMTitle]);
+
+  useEffect(() => {
+    // Finish reset after stop completes
+    if (!isPlaying && stopRef.current == true) {
+      stopRef.current = false;
+      startDrumMachine(instruments, rhythmSequence.current, bpm);
+    }
+  }, [isPlaying]);
+
   useEffect(() => {
     if (isPlaying) {
       restart();
@@ -119,16 +134,16 @@ function DrumMachine({ savedState, isChanging }) {
     };
   }, [bpm, timeSignature]);
 
-  const restart = async () => {
+  const restart = () => {
     if (isPlaying) {
-      await stopDrumMachine();
-      startDrumMachine(instruments, rhythmSequence.current, bpm);
+      stopRef.current = true;
+      stopDrumMachine();
     }
   };
 
-  const startStop = useCallback(async () => {
+  const startStop = useCallback(() => {
     if (isPlaying) {
-      await stopDrumMachine();
+      stopDrumMachine();
     } else {
       startDrumMachine(instruments, rhythmSequence.current, bpm);
     }

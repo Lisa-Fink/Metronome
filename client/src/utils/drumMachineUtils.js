@@ -81,16 +81,6 @@ const createDrumMachineUtils = (
   const stopDrumMachine = () => {
     isStopping.current = true;
     setIsPlaying(false);
-    return new Promise((resolve) => {
-      const checkIsStopping = () => {
-        if (!isStopping.current) {
-          resolve();
-        } else {
-          setTimeout(checkIsStopping, 10); // check again in 10 milliseconds
-        }
-      };
-      checkIsStopping();
-    });
   };
   return { startDrumMachine, stopDrumMachine, playSample };
 };
