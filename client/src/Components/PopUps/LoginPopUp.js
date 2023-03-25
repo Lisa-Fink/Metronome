@@ -74,7 +74,11 @@ function LoginPopup({ setIsLoginOpen, handleSwitchSignUp }) {
       setErrorMessage("Please enter a valid password");
       return;
     }
-    loginUser(email, password, setErrorMessage);
+    try {
+      await loginUser(email, password);
+    } catch (error) {
+      setErrorMessage(error.message);
+    }
   };
 
   return (

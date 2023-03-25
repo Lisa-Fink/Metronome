@@ -38,8 +38,12 @@ function LoadPopUp({ data, loadFunc, deleteFunc, type, setUserPopUp }) {
     handleClose();
   };
 
-  const handleConfirmDel = (i) => {
-    deleteFunc(i, setErrorMessage);
+  const handleConfirmDel = async (i) => {
+    try {
+      await deleteFunc(i);
+    } catch (error) {
+      setErrorMessage(error.message);
+    }
     setShowConfirm(false);
   };
 

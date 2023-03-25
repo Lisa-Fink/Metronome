@@ -42,10 +42,14 @@ function UserBar({
     }
   };
 
-  const handleSaveClick = () => {
+  const handleSaveClick = async () => {
     // already saved
     if (isLoggedIn && title) {
-      saveUpdate(setErrorMessage);
+      try {
+        await saveUpdate();
+      } catch (error) {
+        setErrorMessage(error.message);
+      }
     } else if (isLoggedIn) {
       handleSaveAsClick();
     } else {

@@ -53,6 +53,9 @@ export const UserProvider = ({ children }) => {
   const metronome_id = useRef("");
   const dm_id = useRef("");
 
+  /****************************************************************************/
+  // User *********************************************************************
+
   useEffect(() => {
     // logs in user on refresh
     const auth = getAuth(app);
@@ -78,26 +81,7 @@ export const UserProvider = ({ children }) => {
     };
   }, [loggingIn.current, isLoggedIn]);
 
-  const loadMetronome = (index) => {
-    if (index < 0 || index >= userMetronomes.length) {
-      // TODO: Error handler?
-      return;
-    }
-    const chosen = userMetronomes[index];
-    metronome_id.current = chosen._id;
-    loadMetronomeData(chosen);
-  };
-
-  const loadDM = (index) => {
-    if (index < 0 || index >= userDrumMachines.length) {
-      // TODO: Error handler?
-      return;
-    }
-    const chosen = userDrumMachines[index];
-    dm_id.current = chosen._id;
-    loadDMData(chosen);
-  };
-
+  // Create / Sign Up User******************************************************
   const signUpUser = async (email, password) => {
     try {
       loggingIn.current = true;
@@ -157,6 +141,7 @@ export const UserProvider = ({ children }) => {
     }
   };
 
+  // Sign Out User *************************************************************
   const signOutUser = () => {
     const auth = getAuth();
     signOut(auth)
@@ -172,7 +157,8 @@ export const UserProvider = ({ children }) => {
       });
   };
 
-  const loginUser = async (email, password, setErrorMessage) => {
+  // Login User ****************************************************************
+  const loginUser = async (email, password) => {
     const auth = getAuth(app);
     try {
       setIsLoggedIn(true);
@@ -194,7 +180,7 @@ export const UserProvider = ({ children }) => {
       if (auth.currentUser) {
         signOutUser();
       }
-      setErrorMessage("Error Logging Into Account.");
+      throw new Error("Error Logging Into Account.");
     }
   };
 
@@ -216,11 +202,73 @@ export const UserProvider = ({ children }) => {
       setUserMetronomes(userDB.metronomes);
       setLightMode(userDB.lightSetting);
     } catch (error) {
-      // TODO change
-      throw new Error(error);
+      throw error;
     }
   };
 
+  // Update Light Mode *********************************************************
+  const saveLightModeSetting = async (lightMode) => {
+    try {
+      const auth = getAuth(app);
+      const user = auth.currentUser;
+      if (user == undefined) throw new Error("User not logged in.");
+      const token = await user.getIdToken();
+      const headers = new Headers();
+      headers.append("Authorization", `Bearer ${token}`);
+      headers.append("Content-Type", "application/json");
+      const response = await fetch("/users/light-setting", {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify({ lightSetting: lightMode }),
+      });
+    } catch (error) {}
+  };
+
+  // Delete User ***************************************************************
+  const delUser = async () => {
+    try {
+      const auth = getAuth(app);
+      const user = auth.currentUser;
+      if (user == undefined) throw new Error("User not logged in.");
+      const token = await user.getIdToken();
+      const headers = new Headers();
+      // Delete from mongo
+      headers.append("Authorization", `Bearer ${token}`);
+      const response = await fetch("/users", {
+        method: "DELETE",
+        headers,
+      });
+      if (response.status !== 204) {
+        throw new Error("Error deleting user.");
+      }
+      // Delete from FB
+      await deleteUser(user);
+      if (auth.currentUser) {
+        signOutUser();
+      }
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  };
+
+  /****************************************************************************/
+  // Metronome ****************************************************************
+
+  //  Load from index **********************************************************
+  const loadMetronome = (index) => {
+    if (index < 0 || index >= userMetronomes.length) {
+      // TODO: Error handler?
+      return;
+    }
+    const chosen = userMetronomes[index];
+    metronome_id.current = chosen._id;
+    loadMetronomeData(chosen);
+  };
+
+  // Save **********************************************************************
+
+  // Save New / SAve As ***************
   const saveNewMetronome = async (title) => {
     try {
       const auth = getAuth(app);
@@ -268,8 +316,8 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  const saveUpdateMetronome = async (setErrorMessage) => {
-    //TODO rewrite
+  // Save Updated *********************
+  const saveUpdateMetronome = async () => {
     try {
       const auth = getAuth(app);
       const user = auth.currentUser;
@@ -318,10 +366,62 @@ export const UserProvider = ({ children }) => {
         }
       }
     } catch (error) {
-      setErrorMessage("Error Updating the Metronome");
+      throw new Error("Error Updating the Metronome");
     }
   };
 
+  // Delete ********************************************************************
+  const deleteMetronome = async (metronomeIdx) => {
+    if (metronomeIdx < 0 || metronomeIdx >= userMetronomes.length)
+      throw new Error("Invalid Metronome");
+    const delete_id = userMetronomes[metronomeIdx]._id;
+    try {
+      const auth = getAuth(app);
+      const user = auth.currentUser;
+      if (user == undefined) throw new Error("User not logged in.");
+      const token = await user.getIdToken();
+      const headers = new Headers();
+      headers.append("Authorization", `Bearer ${token}`);
+      // delete metronome from db
+      const response = await fetch(`/users/metronomes/${delete_id}`, {
+        method: "DELETE",
+        headers,
+      });
+      if (response.status !== 204) {
+        throw new Error("Error deleting the metronome.");
+      }
+
+      // remove from userMetronomes
+      setUserMetronomes((prevMetronomes) =>
+        prevMetronomes.filter((x, i) => i !== metronomeIdx)
+      );
+      // check if the deleted metronome is currently loaded
+      if (metronome_id.current == delete_id) {
+        metronome_id.current = "";
+        setTitle("");
+      }
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  /****************************************************************************/
+  // Drum Machine *************************************************************
+
+  // Load from index ***********************************************************
+  const loadDM = (index) => {
+    if (index < 0 || index >= userDrumMachines.length) {
+      // TODO: Error handler?
+      return;
+    }
+    const chosen = userDrumMachines[index];
+    dm_id.current = chosen._id;
+    loadDMData(chosen);
+  };
+
+  // Save **********************************************************************
+
+  // Save New / Save As ***************
   const saveNewDM = async (title) => {
     try {
       const auth = getAuth(app);
@@ -365,7 +465,8 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  const saveUpdateDM = async (setErrorMessage) => {
+  // Save Updated *********************
+  const saveUpdateDM = async () => {
     //TODO rewrite
     try {
       const auth = getAuth(app);
@@ -407,45 +508,12 @@ export const UserProvider = ({ children }) => {
         }
       }
     } catch (error) {
-      setErrorMessage("Error Updating the Drum Machine ");
+      throw new Error("Error Updating the Drum Machine ");
     }
   };
 
-  const deleteMetronome = async (metronomeIdx, setErrorMessage) => {
-    if (metronomeIdx < 0 || metronomeIdx >= userMetronomes.length)
-      throw new Error("Invalid Metronome");
-    const delete_id = userMetronomes[metronomeIdx]._id;
-    try {
-      const auth = getAuth(app);
-      const user = auth.currentUser;
-      if (user == undefined) throw new Error("User not logged in.");
-      const token = await user.getIdToken();
-      const headers = new Headers();
-      headers.append("Authorization", `Bearer ${token}`);
-      // delete metronome from db
-      const response = await fetch(`/users/metronomes/${delete_id}`, {
-        method: "DELETE",
-        headers,
-      });
-      if (response.status !== 204) {
-        throw new Error("Error deleting the metronome.");
-      }
-
-      // remove from userMetronomes
-      setUserMetronomes((prevMetronomes) =>
-        prevMetronomes.filter((x, i) => i !== metronomeIdx)
-      );
-      // check if the deleted metronome is currently loaded
-      if (metronome_id.current == delete_id) {
-        metronome_id.current = "";
-        setTitle("");
-      }
-    } catch (error) {
-      setErrorMessage(error.message);
-    }
-  };
-
-  const deleteDM = async (dmIdx, setErrorMessage) => {
+  // Delete ********************************************************************
+  const deleteDM = async (dmIdx) => {
     if (dmIdx < 0 || dmIdx >= userDrumMachines.length)
       throw new Error("Invalid Drum Machine");
     const delete_id = userDrumMachines[dmIdx]._id;
@@ -475,50 +543,6 @@ export const UserProvider = ({ children }) => {
         setDMTitle("");
       }
     } catch (error) {
-      setErrorMessage(error.message);
-    }
-  };
-
-  const saveLightModeSetting = async (lightMode) => {
-    try {
-      const auth = getAuth(app);
-      const user = auth.currentUser;
-      if (user == undefined) throw new Error("User not logged in.");
-      const token = await user.getIdToken();
-      const headers = new Headers();
-      headers.append("Authorization", `Bearer ${token}`);
-      headers.append("Content-Type", "application/json");
-      const response = await fetch("/users/light-setting", {
-        method: "PATCH",
-        headers,
-        body: JSON.stringify({ lightSetting: lightMode }),
-      });
-    } catch (error) {}
-  };
-
-  const delUser = async () => {
-    try {
-      const auth = getAuth(app);
-      const user = auth.currentUser;
-      if (user == undefined) throw new Error("User not logged in.");
-      const token = await user.getIdToken();
-      const headers = new Headers();
-      // Delete from mongo
-      headers.append("Authorization", `Bearer ${token}`);
-      const response = await fetch("/users", {
-        method: "DELETE",
-        headers,
-      });
-      if (response.status !== 204) {
-        throw new Error("Error deleting user.");
-      }
-      // Delete from FB
-      await deleteUser(user);
-      if (auth.currentUser) {
-        signOutUser();
-      }
-    } catch (error) {
-      console.error(error);
       throw error;
     }
   };
