@@ -15,20 +15,13 @@ const validateUid = (req, res, next) => {
   if (!token) {
     return res.status(401).json({ message: "Unauthorized access" });
   }
-  if (token === "69") {
-    // Testing only
-    const uid = "abc123";
-    req.uid = uid; // attach uid to the request object
-    next();
-    return;
-  }
 
   admin
     .auth()
     .verifyIdToken(token)
     .then((decodedToken) => {
       const { uid } = decodedToken;
-      req.uid = uid; // attach uid to the request object
+      req.uid = uid;
       next();
     })
     .catch(() => {
