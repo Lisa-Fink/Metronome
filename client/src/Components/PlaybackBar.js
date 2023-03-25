@@ -3,7 +3,7 @@ import Volume from "./Volume";
 import { IoPlayOutline, IoPauseOutline, IoStopOutline } from "react-icons/io5";
 import { AppContext } from "../contexts/AppContext";
 
-function BottomControls({ startStop }) {
+function PlaybackBar({ startStop }) {
   const { isPlaying, volume, setVolume, volumeRef, paused } =
     useContext(AppContext);
 
@@ -25,4 +25,4 @@ function BottomControls({ startStop }) {
   );
 }
 
-export default BottomControls;
+export default PlaybackBar;

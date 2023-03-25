@@ -5,7 +5,7 @@ import TempoControls from "./TempoControls";
 import ToneSelector from "./ToneSelector";
 
 import Practice from "./Practice";
-import BottomControls from "./BottomControls";
+import PlaybackBar from "./PlaybackBar";
 import { AppContext } from "../contexts/AppContext";
 import UserBar from "./UserBar";
 import { UserContext } from "../contexts/UserContext";
@@ -175,7 +175,7 @@ function Metronome({ savedState, isChanging }) {
         <ChangeMeter />
       </div>
       <Practice />
-      <BottomControls startStop={startStop} />
+      <PlaybackBar startStop={startStop} />
     </div>
   );
 }
