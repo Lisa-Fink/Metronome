@@ -125,9 +125,14 @@
     padding: 16px;
 }
 
+#share-url {
+    word-wrap: break-word;
+    max-width: 300px;
+}
+
 .success {
     position: absolute;
-    top: 35%;
+    top: 26%;
     left: 50%;
     transform: translate(-50%, -50%);
 }

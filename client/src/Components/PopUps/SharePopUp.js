@@ -49,7 +49,7 @@ function SharePopUp({ url, setSharePopUp }) {
         </div>
         <h2>Share</h2>
         <div className="share-div">
-          <div>{url}</div>
+          <div id="share-url">{url}</div>
           <button onClick={handleCopy}>Copy</button>
         </div>
         <div className={copied ? "success" : "hidden"}>Copied to clipboard</div>
