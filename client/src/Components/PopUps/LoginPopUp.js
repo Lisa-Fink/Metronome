@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import "../../styles/PopUp.css";
 
 import { AiOutlineClose, AiOutlineCheckCircle } from "react-icons/ai";
@@ -12,6 +12,7 @@ function LoginPopup({ setIsLoginOpen, handleSwitchSignUp }) {
   const [errorMessage, setErrorMessage] = useState("");
 
   const { isLoggedIn, loginUser } = useContext(UserContext);
+  const loginInProgress = useRef(false);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -29,7 +30,7 @@ function LoginPopup({ setIsLoginOpen, handleSwitchSignUp }) {
   }, [setIsLoginOpen]);
 
   useEffect(() => {
-    if (isLoggedIn) {
+    if (isLoggedIn && !loginInProgress.current) {
       handleClose();
     }
   }, [isLoggedIn]);
@@ -59,7 +60,7 @@ function LoginPopup({ setIsLoginOpen, handleSwitchSignUp }) {
     if (e) {
       e.preventDefault();
     }
-
+    loginInProgress.current = false;
     setIsLoginOpen(false);
   };
 
@@ -75,7 +76,10 @@ function LoginPopup({ setIsLoginOpen, handleSwitchSignUp }) {
       return;
     }
     try {
+      loginInProgress.current = true;
       await loginUser(email, password);
+      loginInProgress.current = false;
+      setIsLoginOpen(false);
     } catch (error) {
       setErrorMessage(error.message);
     }
