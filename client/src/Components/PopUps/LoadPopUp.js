@@ -58,7 +58,7 @@ function LoadPopUp({ data, loadFunc, deleteFunc, type, setUserPopUp }) {
           {errorMessage}
         </div>
         <div className="load-container">
-          {data.length === 0 && "0 items saved."}
+          {!data || (data.length === 0 && "0 items saved.")}
           {data.map((obj, i) => (
             <div key={i} className="load-items-container">
               <div className="load-items">
