@@ -55,6 +55,8 @@ export const UserProvider = ({ children }) => {
   const metronome_id = useRef("");
   const dm_id = useRef("");
 
+  const API_URL = process.env.REACT_APP_API_URL;
+
   /****************************************************************************/
   // User *********************************************************************
   const changedPassword = useRef(false);
@@ -133,7 +135,7 @@ export const UserProvider = ({ children }) => {
         lightSetting: lightMode,
       };
 
-      const response = await fetch("/users/", {
+      const response = await fetch(`${API_URL}/users/`, {
         method: "POST",
         headers,
         body: JSON.stringify(body),
@@ -198,7 +200,7 @@ export const UserProvider = ({ children }) => {
       headers.append("Authorization", `Bearer ${token}`);
       headers.append("Content-Type", "application/json");
 
-      const response = await fetch(`/users/`, {
+      const response = await fetch(`${API_URL}/users/`, {
         method: "GET",
         headers,
       });
@@ -221,7 +223,7 @@ export const UserProvider = ({ children }) => {
       const headers = new Headers();
       headers.append("Authorization", `Bearer ${token}`);
       headers.append("Content-Type", "application/json");
-      const response = await fetch("/users/light-setting", {
+      const response = await fetch(`${API_URL}/users/light-setting`, {
         method: "PATCH",
         headers,
         body: JSON.stringify({ lightSetting: lightMode }),
@@ -264,7 +266,7 @@ export const UserProvider = ({ children }) => {
       const headers = new Headers();
       // Delete from mongo
       headers.append("Authorization", `Bearer ${token}`);
-      const response = await fetch("/users", {
+      const response = await fetch(`${API_URL}/users`, {
         method: "DELETE",
         headers,
       });
@@ -327,7 +329,7 @@ export const UserProvider = ({ children }) => {
           title,
         };
         // save settings to db
-        const response = await fetch(`/users/metronomes`, {
+        const response = await fetch(`${API_URL}/users/metronomes`, {
           method: "POST",
           headers,
           body: JSON.stringify({ settings: settings }),
@@ -412,7 +414,7 @@ export const UserProvider = ({ children }) => {
       const headers = new Headers();
       headers.append("Authorization", `Bearer ${token}`);
       // delete metronome from db
-      const response = await fetch(`/users/metronomes/${delete_id}`, {
+      const response = await fetch(`${API_URL}/users/metronomes/${delete_id}`, {
         method: "DELETE",
         headers,
       });
@@ -477,7 +479,7 @@ export const UserProvider = ({ children }) => {
         title,
       };
       // save settings to db
-      const response = await fetch(`/users/drum-machines`, {
+      const response = await fetch(`${API_URL}/users/drum-machines`, {
         method: "POST",
         headers,
         body: JSON.stringify({ settings: settings }),
@@ -519,11 +521,14 @@ export const UserProvider = ({ children }) => {
         title: dMTitle,
       };
       // save settings to db
-      const response = await fetch(`/users/drum-machines/${dm_id.current}`, {
-        method: "PUT",
-        headers,
-        body: JSON.stringify({ settings: settings }),
-      });
+      const response = await fetch(
+        `${API_URL}/users/drum-machines/${dm_id.current}`,
+        {
+          method: "PUT",
+          headers,
+          body: JSON.stringify({ settings: settings }),
+        }
+      );
       if (response.status !== 200) {
         throw new Error("Error saving the updated drum machine .");
       }
@@ -554,10 +559,13 @@ export const UserProvider = ({ children }) => {
       const headers = new Headers();
       headers.append("Authorization", `Bearer ${token}`);
       // delete metronome from db
-      const response = await fetch(`/users/drum-machines/${delete_id}`, {
-        method: "DELETE",
-        headers,
-      });
+      const response = await fetch(
+        `${API_URL}/users/drum-machines/${delete_id}`,
+        {
+          method: "DELETE",
+          headers,
+        }
+      );
       if (response.status !== 204) {
         throw new Error("Error deleting the drum machine.");
       }
