@@ -55,8 +55,10 @@ export const UserProvider = ({ children }) => {
   const metronome_id = useRef("");
   const dm_id = useRef("");
 
-  const API_URL = process.env.REACT_APP_API_URL;
-
+  const API_URL =
+    process.env.NODE_ENV === "development"
+      ? process.env.REACT_APP_API_URL
+      : "https://my-rhythm-player-api.azurewebsites.net";
   /****************************************************************************/
   // User *********************************************************************
   const changedPassword = useRef(false);
