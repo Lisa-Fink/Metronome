@@ -1,14 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 
-function SavePopUp({
-  title,
-  setTitle,
-  setUserPopUp,
-  saveFunc,
-  setError,
-  isTyping,
-}) {
+function SavePopUp({ title, setTitle, setUserPopUp, saveFunc, setError }) {
   const [newTitle, setNewTitle] = useState("");
 
   useEffect(() => {
@@ -72,8 +65,6 @@ function SavePopUp({
                 value={newTitle}
                 onChange={handleTitleChange}
                 placeholder="Title"
-                onFocus={() => (isTyping.current = true)}
-                onBlur={() => (isTyping.current = false)}
               />
             </div>
           </label>
