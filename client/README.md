@@ -24,9 +24,10 @@ My Rhythm Player is a web-based drum machine and metronome application built usi
 
 ## Features
 
-- Create, save, edit, and delete custom drum patterns and metronomes
-- Metronome with adjustable tempo, subdivisions, time signatures, and practice mode
-- User authentication using Firebase
+- Drum machine with custom rhythm sequences for up to 4 instruments.
+- Metronome with adjustable sounds, tempos, subdivisions, time signatures, and a practice mode.
+- Ability to create, save, edit, and delete custom drum patterns and metronomes.
+- Share metronomes and drum machines by creating links using query parameters, and load them in using query parameters.
 
 ## Installation
 
