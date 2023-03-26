@@ -51,8 +51,6 @@ function Metronome({ savedState, isChanging }) {
     deleteMetronome,
   } = useContext(UserContext);
 
-  const isTyping = useRef(false);
-
   const restart = () => {
     if (isPlaying) {
       isStopping.current = true;
@@ -103,7 +101,7 @@ function Metronome({ savedState, isChanging }) {
   // Adds start/stop with space bar press
   useEffect(() => {
     const handleKeyDown = (event) => {
-      if (event.keyCode === 32 && !isTyping.current) {
+      if (event.keyCode === 32 && document.activeElement.nodeName !== "INPUT") {
         // Space key
         startStop();
       }
@@ -163,7 +161,6 @@ function Metronome({ savedState, isChanging }) {
         saveUpdate={saveUpdateMetronome}
         data={userMetronomes}
         loadFunc={loadMetronome}
-        isTyping={isTyping}
         title={title}
         setTitle={setTitle}
         createUrlFunc={createMetQueryUrl}

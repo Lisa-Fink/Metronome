@@ -12,7 +12,6 @@ function UserBar({
   saveUpdate,
   loadFunc,
   data,
-  isTyping,
   title,
   setTitle,
   createUrlFunc,
@@ -97,7 +96,6 @@ function UserBar({
           setUserPopUp={setUserPopUp}
           setError={setErrorMessage}
           saveFunc={saveNew}
-          isTyping={isTyping}
         />
       )}
       {userPopUp === "load" && (
