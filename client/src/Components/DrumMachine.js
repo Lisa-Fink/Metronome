@@ -60,8 +60,8 @@ function DrumMachine({ savedState, isChanging }) {
 
   const [hoverGrid, setHoverGrid] = useState(createRhythmGrid());
   const hoverGridRef = useRef(createRhythmGrid());
+  const stopRef = useRef("false");
 
-  // Stops the metronome on load if it was playing
   useEffect(() => {
     // initialize instruments, rhythm grid, rhythm sequence if not set
     if (!instruments.length) {
@@ -82,14 +82,6 @@ function DrumMachine({ savedState, isChanging }) {
       );
     }
   }, []);
-  const stopRef = useRef("false");
-
-  // Resets the drum machine if settings are changed and playing
-  // useEffect(() => {
-  //   if (isPlaying) {
-  //     restart();
-  //   }
-  // }, [dMTitle, bpm]);
 
   useEffect(() => {
     // Finish reset after stop completes
@@ -133,6 +125,7 @@ function DrumMachine({ savedState, isChanging }) {
 
   const restart = () => {
     if (isPlaying) {
+      setIsStopped(false);
       stopRef.current = true;
       stopDrumMachine();
     }
