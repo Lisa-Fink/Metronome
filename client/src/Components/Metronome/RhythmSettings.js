@@ -82,7 +82,7 @@ function RhythmSettings() {
             <input
               type="checkbox"
               name="down-beat"
-              defaultChecked={downBeat}
+              checked={downBeat}
               onChange={(e) => setDownBeat(!downBeat)}
             />
           </label>

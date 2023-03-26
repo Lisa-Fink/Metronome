@@ -98,7 +98,7 @@ function PracticeSettings() {
             <select
               id="count-in"
               onChange={handleCountInChange}
-              defaultValue={countIn}
+              value={countIn}
             >
               <option value="0">None</option>
               <option value="1">1 Measure</option>
@@ -113,8 +113,8 @@ function PracticeSettings() {
               <input
                 type="checkbox"
                 id="section-number"
-                value={sectionPractice}
-                onClick={toggleSectionPractice}
+                checked={sectionPractice}
+                onChange={toggleSectionPractice}
               />
             </label>
           </div>
@@ -164,8 +164,8 @@ function PracticeSettings() {
                   <input
                     type="checkbox"
                     id="section-number"
-                    value={tempoPractice}
-                    onClick={toggleTempoPractice}
+                    checked={tempoPractice}
+                    onChange={toggleTempoPractice}
                   />
                 </label>
               </div>
