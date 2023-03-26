@@ -12,6 +12,8 @@ import {
   createUserWithEmailAndPassword,
   signOut,
   deleteUser,
+  updatePassword,
+  reauthenticateWithCredential,
 } from "firebase/auth";
 import "firebase/auth";
 import { AppContext } from "./AppContext";
@@ -55,8 +57,13 @@ export const UserProvider = ({ children }) => {
 
   /****************************************************************************/
   // User *********************************************************************
+  const changedPassword = useRef(false);
 
   useEffect(() => {
+    if (changePassword.current) {
+      changePassword.current = false;
+      return;
+    }
     // logs in user on refresh
     const auth = getAuth(app);
     const stateChanged = auth.onAuthStateChanged(async (fbUser) => {
@@ -136,7 +143,6 @@ export const UserProvider = ({ children }) => {
       }
       const data = await response.json();
     } catch (error) {
-      console.error(error);
       throw new Error("Error creating user");
     }
   };
@@ -153,7 +159,6 @@ export const UserProvider = ({ children }) => {
       })
       .catch((error) => {
         // An error happened.
-        console.error(error);
       });
   };
 
@@ -211,7 +216,7 @@ export const UserProvider = ({ children }) => {
     try {
       const auth = getAuth(app);
       const user = auth.currentUser;
-      if (user == undefined) throw new Error("User not logged in.");
+      if (!user) throw new Error("User not logged in.");
       const token = await user.getIdToken();
       const headers = new Headers();
       headers.append("Authorization", `Bearer ${token}`);
@@ -222,6 +227,31 @@ export const UserProvider = ({ children }) => {
         body: JSON.stringify({ lightSetting: lightMode }),
       });
     } catch (error) {}
+  };
+
+  // Update Password ***********************************************************
+  const changePassword = async (newPassword) => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (!user) throw new Error("User not logged in.");
+    try {
+      await updatePassword(user, newPassword);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  // Reauthenticate User **************
+  const reAuthenticate = async (credential) => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+    try {
+      changePassword.current = true;
+      await reauthenticateWithCredential(user, credential);
+    } catch (error) {
+      changePassword.current = false;
+      throw error;
+    }
   };
 
   // Delete User ***************************************************************
@@ -247,7 +277,6 @@ export const UserProvider = ({ children }) => {
         signOutUser();
       }
     } catch (error) {
-      console.error(error);
       throw error;
     }
   };
@@ -565,6 +594,8 @@ export const UserProvider = ({ children }) => {
     saveLightModeSetting,
     isLoggedIn,
     delUser,
+    changePassword,
+    reAuthenticate,
   };
   return (
     <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>

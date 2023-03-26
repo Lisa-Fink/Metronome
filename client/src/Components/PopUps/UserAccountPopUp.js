@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import { UserContext } from "../../contexts/UserContext";
 
 import "../../styles/PopUp.css";
@@ -8,6 +8,7 @@ import {
   AiOutlineCheckCircle,
   AiOutlineCloseCircle,
 } from "react-icons/ai";
+import { EmailAuthProvider } from "firebase/auth";
 
 function UserAccountPopup({ setIsAccountOpen }) {
   const [password, setPassword] = useState("");
@@ -17,9 +18,18 @@ function UserAccountPopup({ setIsAccountOpen }) {
   const [isUpdating, setIsUpdating] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  const [errorMessage, setErrorMessage] = useState("");
+  const [rePromptPass, setRePromptPass] = useState("");
+  const [email, setEmail] = useState("");
 
-  const { updatePassword, isLoggedIn, delUser } = useContext(UserContext);
+  const [rePrompt, setRePrompt] = useState(false);
+
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+
+  const { isLoggedIn, delUser, changePassword, reAuthenticate } =
+    useContext(UserContext);
+
+  const finishSuccess = useRef(false);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -37,12 +47,17 @@ function UserAccountPopup({ setIsAccountOpen }) {
   }, [setIsAccountOpen]);
 
   useEffect(() => {
+    if (finishSuccess.current === true && successMessage) {
+      finishSuccess.current = false;
+      return;
+    }
     setErrorMessage("");
+    setSuccessMessage("");
   }, [isUpdating, showConfirm]);
 
   useEffect(() => {
     // Automatically close if there is not a signed in user
-    if (!isLoggedIn) {
+    if (!isLoggedIn && !isUpdating) {
       handleClose();
     }
   }, [isLoggedIn]);
@@ -84,8 +99,7 @@ function UserAccountPopup({ setIsAccountOpen }) {
     setIsAccountOpen(false);
   };
 
-  const handleUpdateCancel = (e) => {
-    e.preventDefault();
+  const handleUpdateCancel = () => {
     setConfirmPassword("");
     setPassword("");
     setIsUpdating(false);
@@ -110,14 +124,21 @@ function UserAccountPopup({ setIsAccountOpen }) {
     }
 
     try {
-      // Creates user in firebase, sets user
-      await updatePassword(password, setErrorMessage);
-      // Adds/Creates user in db
-      setIsUpdating(false);
+      await changePassword(password);
+      updatePasswordSuccess();
     } catch (error) {
-      setErrorMessage("Unable to create account");
-      console.error(error);
+      if (error.code === "auth/requires-recent-login") {
+        setRePrompt("password");
+      } else {
+        setErrorMessage("Unable to change password.");
+      }
     }
+  };
+
+  const updatePasswordSuccess = () => {
+    finishSuccess.current = true;
+    handleUpdateCancel();
+    setSuccessMessage("Successfully Updated Password");
   };
 
   const handleDeleteClick = () => {
@@ -129,78 +150,146 @@ function UserAccountPopup({ setIsAccountOpen }) {
     try {
       await delUser();
     } catch (error) {
-      setErrorMessage("Unable to delete account.");
+      if (error.code === "auth/requires-recent-login") {
+        setRePrompt("delete");
+      } else {
+        setErrorMessage("Unable to delete account.");
+      }
     }
   };
 
+  const handleRePrompt = async () => {
+    try {
+      if (rePromptPass.length < 6)
+        throw new Error("Password must be at least 6 characters.");
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email))
+        throw new Error("Email address is not valid.");
+      const credential = EmailAuthProvider.credential(email, rePromptPass);
+      await reAuthenticate(credential);
+    } catch (err) {
+      setErrorMessage("Invalid Email/Password.");
+    }
+    setRePrompt(false);
+    if (rePrompt === "password") {
+      try {
+        await changePassword(password);
+        updatePasswordSuccess();
+      } catch (error) {
+        setErrorMessage("Unable to change password.");
+      }
+    } else if (rePrompt === "delete") {
+      handleDeleteConfirm();
+    }
+  };
+
+  const rePromptDiv = (
+    <div id="rePrompt">
+      <h3>Login again to continue</h3>
+      <div>{errorMessage}</div>
+      <label htmlFor="email">
+        Email:
+        <div className="input-div">
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="name@host.com"
+          ></input>
+        </div>
+      </label>
+      <label htmlFor="password">
+        Password:
+        <div className="input-div">
+          <input
+            name="password"
+            type="password"
+            value={rePromptPass}
+            onChange={(e) => setRePromptPass(e.target.value)}
+          />
+        </div>
+      </label>
+      <button onClick={handleRePrompt}>Submit</button>
+    </div>
+  );
+
   return (
-    <div className="pop-up-container">
+    <div className="pop-up-container account-pop">
       <div className="pop-up">
         <div id="x-container">
           <AiOutlineClose id="x-icon" onClick={handleClose} />
         </div>
-        <h2>Account</h2>
-        <div className="account-div">
-          {errorMessage && <div>{errorMessage}</div>}
-          {!isUpdating && (
-            <button className="type" onClick={handleUpdateClick}>
-              Update Password
-            </button>
-          )}
-          <div className={isUpdating ? "" : "hidden"}>
-            <form onSubmit={handleUpdatePassword}>
-              <legend>Update Password</legend>
-              <div className="invalid-error"></div>
-              <label>
-                New Password:
-                <div className="input-div">
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={handlePasswordChange}
-                  />
-                  {!invalidPassword && (
-                    <AiOutlineCheckCircle className="validate" />
-                  )}
-                </div>
-              </label>
-              <label>
-                Confirm New Password:
-                <div className="input-div">
-                  <input
-                    type="password"
-                    value={confirmPassword}
-                    onChange={handleConfirmPasswordChange}
-                  />
-                  {!invalidConfirmPassword && (
-                    <AiOutlineCheckCircle className="validate" />
-                  )}
-                </div>
-              </label>
+        {rePrompt !== false ? (
+          rePromptDiv
+        ) : (
+          <>
+            <h2>Account</h2>
+            {successMessage && <div>{successMessage}</div>}
+            <div className="account-div">
+              {errorMessage && <div>{errorMessage}</div>}
+              {!isUpdating && (
+                <button className="type" onClick={handleUpdateClick}>
+                  Update Password
+                </button>
+              )}
+              <div className={isUpdating ? "" : "hidden"}>
+                <form onSubmit={handleUpdatePassword}>
+                  <legend>Update Password</legend>
+                  <div className="invalid-error"></div>
+                  <label>
+                    New Password:
+                    <div className="input-div">
+                      <input
+                        type="password"
+                        value={password}
+                        onChange={handlePasswordChange}
+                      />
+                      {!invalidPassword && (
+                        <AiOutlineCheckCircle className="validate" />
+                      )}
+                    </div>
+                  </label>
+                  <label>
+                    Confirm New Password:
+                    <div className="input-div">
+                      <input
+                        type="password"
+                        value={confirmPassword}
+                        onChange={handleConfirmPasswordChange}
+                      />
+                      {!invalidConfirmPassword && (
+                        <AiOutlineCheckCircle className="validate" />
+                      )}
+                    </div>
+                  </label>
 
-              <div className="button-div">
-                <button type="submit">Update Password</button>
-                <button onClick={handleUpdateCancel}>Cancel</button>
+                  <div className="button-div">
+                    <button type="submit">Update Password</button>
+                    <button onClick={handleUpdateCancel}>Cancel</button>
+                  </div>
+                </form>
               </div>
-            </form>
-          </div>
-          <div className="delete-div">
-            <h3>DANGER</h3>
-            <button className="delete" onClick={handleDeleteClick}>
-              Delete Account
-            </button>
-            <div className={showConfirm ? "delete-act" : "hidden"}>
-              <p>WARNING: THIS WILL DELETE YOUR ACCOUNT!! Confirm </p>
-              <div className="delete-act-icon">
-                <AiOutlineCheckCircle onClick={handleDeleteConfirm} />
-                <AiOutlineCloseCircle onClick={() => setShowConfirm(false)} />
+              <div className="delete-div">
+                <h3>DANGER</h3>
+                <button className="delete" onClick={handleDeleteClick}>
+                  Delete Account
+                </button>
+                <div className={showConfirm ? "delete-act" : "hidden"}>
+                  <p>WARNING: THIS WILL DELETE YOUR ACCOUNT!! Confirm </p>
+                  <div className="delete-act-icon">
+                    <AiOutlineCheckCircle onClick={handleDeleteConfirm} />
+                    <AiOutlineCloseCircle
+                      onClick={() => setShowConfirm(false)}
+                    />
+                  </div>
+                </div>
               </div>
+              <button className="type" onClick={handleClose}>
+                Close
+              </button>
             </div>
-          </div>
-          <button className="type" onClick={handleClose}>
-            Close
-          </button>
-        </div>
+          </>
+        )}
       </div>
     </div>
   );

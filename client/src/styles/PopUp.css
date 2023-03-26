@@ -168,9 +168,11 @@ legend {
 .account-div {
     display: flex;
     flex-direction: column;
+    align-content: center;
     gap:40px;
     text-align: center;
     width: 300px;
+    margin: 0 auto;
 }
 
 
@@ -199,4 +201,8 @@ legend {
     background-color: var(--pop-up-transparent);
     padding: 6px;
     margin: 2px;
+}
+
+.account-pop {
+    text-align: center;
 }
