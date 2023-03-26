@@ -17,7 +17,6 @@ function Metronome({ savedState, isChanging }) {
   const {
     bpm,
     setBpm,
-    bpmRef,
     isPlaying,
     setIsPlaying,
     isStopping,
@@ -41,6 +40,8 @@ function Metronome({ savedState, isChanging }) {
     title,
     setTitle,
     createMetQueryUrl,
+    loaded,
+    setLoaded,
   } = useContext(AppContext);
 
   const {
@@ -58,9 +59,6 @@ function Metronome({ savedState, isChanging }) {
 
       setIsPlaying(false);
       setTimerId(null);
-      if (tempoPractice) {
-        setBpm(bpmRef.current);
-      }
     }
     startClick();
   };
@@ -114,9 +112,9 @@ function Metronome({ savedState, isChanging }) {
     };
   }, [startStop]);
 
-  // updates to new selected time signature
+  // restarts on change if playing
   useEffect(() => {
-    if (!isChanging.current && isPlaying) {
+    if (!isChanging.current && isPlaying && !loaded) {
       restart();
     }
   }, [
@@ -132,12 +130,25 @@ function Metronome({ savedState, isChanging }) {
     repeat,
     tempoInc,
     tempoPractice,
-    bpm,
   ]);
 
+  // restarts on load if playing
+  useEffect(() => {
+    if (isPlaying && loaded) {
+      restart();
+    }
+    if (loaded) {
+      setLoaded(false);
+    }
+  }, [loaded]);
+
+  // saves the shared bpm and time signature when changing to dm
   useEffect(() => {
     if (isChanging.current) {
-      if (savedState.current.bpm !== undefined) {
+      if (
+        savedState.current.bpm !== undefined ||
+        savedState.current.bpm !== null
+      ) {
         setBpm(savedState.current.bpm);
         setTimeSignature(savedState.current.timeSignature);
       }

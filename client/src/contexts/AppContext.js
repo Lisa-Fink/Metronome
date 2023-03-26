@@ -31,6 +31,8 @@ export const AppProvider = ({ children }) => {
   const [sectionPractice, setSectionPractice] = useState(false);
   const [tempoPractice, setTempoPractice] = useState(false);
 
+  const [loaded, setLoaded] = useState(false);
+
   const [lightMode, setLightMode] = useState(false);
 
   const [title, setTitle] = useState("");
@@ -104,6 +106,7 @@ export const AppProvider = ({ children }) => {
       tempoPractice,
       title,
     } = data;
+
     setBpm(bpm);
     setTimeSignature(timeSignature);
     setDownBeat(downBeat);
@@ -128,6 +131,7 @@ export const AppProvider = ({ children }) => {
     } else {
       setToneCategory("Percussion");
     }
+    setLoaded(true);
   };
 
   // Load Drum Machine ****************
@@ -476,6 +480,8 @@ export const AppProvider = ({ children }) => {
     MAX_INSTRUMENTS,
     isStopped,
     setIsStopped,
+    loaded,
+    setLoaded,
   };
 
   return (
