@@ -10,7 +10,7 @@ const PORT = process.env.PORT;
 const app = express();
 app.use(
   cors({
-    origin: ["http://localhost:8000"],
+    origin: [process.env.REACT_APP_FRONTEND_URL],
     credentials: true,
   })
 );
