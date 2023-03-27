@@ -138,7 +138,7 @@ const createMetronomeUtils = (metronomeSettings) => {
       if (toneCategory === "Percussion") {
         playAudio(tone, start, context);
       } else if (toneCategory === "Spoken Counts") {
-        playNumberCounter();
+        playNumberCounter(start, context);
       } else if (toneCategory === "Drum Sets") {
         playDrumSet();
       }

@@ -14,123 +14,147 @@ const numberPlayer = ({
   setTimerId,
   tempoPractice,
   setBpm,
+  playingSources,
 }) => {
-  const loadNumberCounterAudio = () => {
-    return new Promise((resolve) => {
-      const sounds = [];
-      let loaded = 0;
-      let totalToLoad = timeSignature;
-      if (subdivide > 1) {
-        if (subdivide === 2) {
-          totalToLoad += 1;
-        } else if (subdivide === 3) {
-          totalToLoad += 2;
-        } else if (subdivide === 4) {
-          totalToLoad += 3;
-        } else if (subdivide === 5) {
-          totalToLoad += 1;
-        } else if (subdivide === 6) {
-          totalToLoad += 2;
-        } else if (subdivide === 7) {
-          totalToLoad += 1;
-        } else if (subdivide === 8) {
-          totalToLoad += 4;
+  // Loads all of the sounds as buffers, and returns an array in the order they will be called
+  const loadNumberCounterAudio = async (audioCtx) => {
+    const fetchAudio = async (src) => {
+      const response = await fetch(src);
+      const arrayBuffer = await response.arrayBuffer();
+      return audioCtx.decodeAudioData(arrayBuffer);
+    };
+
+    const buffers = {};
+    const fetches = [];
+
+    // get all buffers for main beats
+    for (let i = 1; i <= timeSignature; i++) {
+      fetches.push(
+        fetchAudio(numberAudioFiles[i]).then((buffer) => (buffers[i] = buffer))
+      );
+    }
+
+    // add subdivision needed
+    if (
+      subdivide === 2 ||
+      subdivide === 3 ||
+      subdivide === 4 ||
+      subdivide === 6 ||
+      subdivide === 8
+    ) {
+      fetches.push(
+        fetchAudio(numberAudioFiles["and"]).then(
+          (buffer) => (buffers["and"] = buffer)
+        )
+      );
+    }
+    if (subdivide === 3 || subdivide === 4 || subdivide === 8) {
+      fetches.push(
+        fetchAudio(numberAudioFiles["a"]).then(
+          (buffer) => (buffers["a"] = buffer)
+        )
+      );
+    }
+    if (subdivide === 4 || subdivide === 8) {
+      fetches.push(
+        fetchAudio(numberAudioFiles["e"]).then(
+          (buffer) => (buffers["e"] = buffer)
+        )
+      );
+    }
+    if (
+      subdivide === 5 ||
+      subdivide === 6 ||
+      subdivide === 7 ||
+      subdivide === 8
+    ) {
+      fetches.push(
+        fetchAudio(numberAudioFiles["ta"]).then(
+          (buffer) => (buffers["ta"] = buffer)
+        )
+      );
+    }
+
+    await Promise.all(fetches);
+
+    const bufferArr = [];
+    // create in order array
+    for (let i = 1; i <= timeSignature; i++) {
+      bufferArr.push(buffers[i]);
+      if (subdivide === 2) {
+        bufferArr.push(buffers["and"]);
+      } else if (subdivide === 3) {
+        bufferArr.push(buffers["and"]);
+        bufferArr.push(buffers["a"]);
+      } else if (subdivide === 4) {
+        bufferArr.push(buffers["e"]);
+        bufferArr.push(buffers["and"]);
+        bufferArr.push(buffers["a"]);
+      } else if (subdivide === 5 || subdivide === 7) {
+        for (let j = 0; j < subdivide; j++) {
+          bufferArr.push(buffers["ta"]);
         }
+      } else if (subdivide === 6) {
+        bufferArr.push(buffers["ta"]);
+        bufferArr.push(buffers["ta"]);
+        bufferArr.push(buffers["and"]);
+        bufferArr.push(buffers["ta"]);
+        bufferArr.push(buffers["ta"]);
+      } else if (subdivide === 8) {
+        bufferArr.push(buffers["ta"]);
+        bufferArr.push(buffers["e"]);
+        bufferArr.push(buffers["ta"]);
+        bufferArr.push(buffers["and"]);
+        bufferArr.push(buffers["ta"]);
+        bufferArr.push(buffers["a"]);
+        bufferArr.push(buffers["ta"]);
       }
-      const audioLoad = () => {
-        loaded++;
-        if (loaded == totalToLoad) resolve(sounds);
-      };
-
-      // creates subdivide audio objects if needed
-      if (
-        subdivide === 2 ||
-        subdivide === 3 ||
-        subdivide === 4 ||
-        subdivide === 6 ||
-        subdivide === 8
-      ) {
-        const audio = new Audio("./audio/numbers/spoken/and.mp3");
-        audio.addEventListener("canplaythrough", audioLoad);
-        numberAudioFiles.and = audio;
-      }
-      if (subdivide === 3 || subdivide === 4 || subdivide === 8) {
-        numberAudioFiles.a = new Audio("./audio/numbers/spoken/a.mp3");
-        numberAudioFiles.a.addEventListener("canplaythrough", audioLoad);
-      }
-      if (subdivide === 4 || subdivide === 8) {
-        numberAudioFiles.e = new Audio("./audio/numbers/spoken/e.mp3");
-        numberAudioFiles.e.addEventListener("canplaythrough", audioLoad);
-      }
-      if (
-        subdivide === 5 ||
-        subdivide === 6 ||
-        subdivide === 7 ||
-        subdivide === 8
-      ) {
-        numberAudioFiles.ta = new Audio("./audio/numbers/spoken/ta.mp3");
-        numberAudioFiles.ta.addEventListener("canplaythrough", audioLoad);
-      }
-
-      // adds the main beat counts followed by subdivide if needed
-
-      for (let i = 1; i <= timeSignature; i++) {
-        const audio = new Audio(numberAudioFiles[i]);
-        sounds.push(audio);
-        audio.addEventListener("canplaythrough", audioLoad);
-        if (subdivide === 2) {
-          sounds.push(numberAudioFiles.and);
-        } else if (subdivide === 3) {
-          sounds.push(numberAudioFiles.and);
-          sounds.push(numberAudioFiles.a);
-        } else if (subdivide === 4) {
-          sounds.push(numberAudioFiles.e);
-          sounds.push(numberAudioFiles.and);
-          sounds.push(numberAudioFiles.a);
-        } else if (subdivide === 5) {
-          for (let i = 0; i < 4; i++) {
-            sounds.push(numberAudioFiles.ta);
-          }
-        } else if (subdivide === 6) {
-          sounds.push(numberAudioFiles.ta);
-          sounds.push(numberAudioFiles.ta);
-          sounds.push(numberAudioFiles.and);
-          sounds.push(numberAudioFiles.ta);
-          sounds.push(numberAudioFiles.ta);
-        } else if (subdivide === 7) {
-          for (let i = 0; i < 6; i++) {
-            sounds.push(numberAudioFiles.ta);
-          }
-        } else if (subdivide === 8) {
-          sounds.push(numberAudioFiles.ta);
-          sounds.push(numberAudioFiles.e);
-          sounds.push(numberAudioFiles.ta);
-          sounds.push(numberAudioFiles.and);
-          sounds.push(numberAudioFiles.ta);
-          sounds.push(numberAudioFiles.a);
-          sounds.push(numberAudioFiles.ta);
-        }
-      }
-    });
+    }
+    return bufferArr;
   };
 
-  const playNumberCounter = async () => {
-    const sounds = await loadNumberCounterAudio();
+  const playNumberCounter = async (start, audioCtx) => {
+    const sounds = await loadNumberCounterAudio(audioCtx);
 
     const interval = (60 / (bpm * subdivide)) * 1000;
     let beatCount = 0;
     let beat = 0;
     let curBpm = bpm;
     originalBpm.current = bpm;
+    let startTime = start ? start : audioCtx.currentTime;
 
     const intervalFn = () => {
-      const sound = sounds[beatCount];
-      sound.volume = volumeRef.current;
-      sound.currentTime = 0;
-      sound.play();
+      const source = audioCtx.createBufferSource();
+      source.buffer = sounds[beatCount];
+
+      const gainNode = audioCtx.createGain();
+      gainNode.gain.value = volumeRef.current;
+      gainNode.connect(audioCtx.destination);
+
+      source.connect(gainNode);
+      source.start(startTime);
+      playingSources.push([
+        source,
+        startTime,
+        gainNode,
+        sounds[beatCount].duration,
+      ]);
+      startTime += interval / 1000;
+
+      // Disconnect finished audio sources
+      while (playingSources.length) {
+        const [source, startTime, gainNode, dur] = playingSources[0];
+        if (startTime + dur < audioCtx.currentTime) {
+          source.disconnect(gainNode);
+          gainNode.disconnect(audioCtx.destination);
+          playingSources.shift();
+        } else {
+          break;
+        }
+      }
       beatCount++;
       beat++;
-      if (beatCount === timeSignature * subdivide) {
+      if (beatCount === sounds.length) {
         beatCount = 0;
       }
       // handle section practice
