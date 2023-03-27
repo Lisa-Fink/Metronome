@@ -52,6 +52,9 @@ export const AppProvider = ({ children }) => {
   // used for restart to wait until fully stopped before starting
   const [isStopped, setIsStopped] = useState(false);
 
+  const [playingSources, setPlayingSources] = useState([]);
+  const [audioCtx, setAudioCtx] = useState();
+
   const {
     startClick,
     stopClick,
@@ -82,7 +85,11 @@ export const AppProvider = ({ children }) => {
     setBpm,
     bpmRef,
     isStopping,
-    setIsStopped
+    setIsStopped,
+    playingSources,
+    setPlayingSources,
+    audioCtx,
+    setAudioCtx
   );
 
   /****************************************************************************/

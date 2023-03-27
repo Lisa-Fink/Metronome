@@ -1,26 +1,24 @@
 import { getAudioFiles } from "../../audioFiles";
 
-const audioPlayer = (
-  {
-    bpm,
-    subdivide,
-    originalBpm,
-    mainBeat,
-    timeSignature,
-    volumeRef,
-    tempoPractice,
-    sectionPractice,
-    tempoInc,
-    setIsPlaying,
-    downBeat,
-    numMeasures,
-    repeat,
-    setTimerId,
-    setBpm,
-  },
-  getAudioContext,
-  playingSources
-) => {
+const audioPlayer = ({
+  bpm,
+  subdivide,
+  originalBpm,
+  mainBeat,
+  timeSignature,
+  volumeRef,
+  tempoPractice,
+  sectionPractice,
+  tempoInc,
+  setIsPlaying,
+  downBeat,
+  numMeasures,
+  repeat,
+  setTimerId,
+  setBpm,
+  playingSources,
+  setPlayingSources,
+}) => {
   const loadAudioFiles = async (beats, mainBeats, downBeats, audioCtx) => {
     const fetchAudio = async (src) => {
       const response = await fetch(src);
@@ -35,7 +33,7 @@ const audioPlayer = (
     return { downBeatBuffer, regularBuffer, mainBeatBuffer };
   };
 
-  const playAudio = async (tone) => {
+  const playAudio = async (tone, start, audioCtx) => {
     const { beats, mainBeats, downBeats } = getAudioFiles(tone);
     const interval = (60 / (bpm * subdivide)) * 1000;
     let beatCount = 1;
@@ -43,9 +41,8 @@ const audioPlayer = (
     originalBpm.current = bpm;
 
     let curBpm = bpm;
-    const audioCtx = getAudioContext();
 
-    let startTime = audioCtx.currentTime;
+    let startTime = start ? start : audioCtx.currentTime;
 
     const { downBeatBuffer, regularBuffer, mainBeatBuffer } =
       await loadAudioFiles(beats, mainBeats, downBeats, audioCtx);
