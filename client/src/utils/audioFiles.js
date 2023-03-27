@@ -8,6 +8,10 @@ const numberAudioFiles = {
   7: "./audio/numbers/spoken/7.mp3",
   8: "./audio/numbers/spoken/8.mp3",
   9: "./audio/numbers/spoken/9.mp3",
+  e: "./audio/numbers/spoken/e.mp3",
+  and: "./audio/numbers/spoken/and.mp3",
+  a: "./audio/numbers/spoken/a.mp3",
+  ta: "./audio/numbers/spoken/ta.mp3",
 };
 
 const audioSamples = {
