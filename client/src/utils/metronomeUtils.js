@@ -10,15 +10,6 @@ import countInPlayer from "./metronome/samples/countInPlayer";
 const createMetronomeUtils = (metronomeSettings) => {
   // store audioContext objects to disable/disconnect later
   let osc, gain, downBeatGain, downBeatOsc, mainBeatGain, mainBeatOsc;
-  let audioContext;
-  // Returns the audio context or creates a new one if it doesn't exist
-  const getAudioContext = () => {
-    if (!audioContext) {
-      audioContext = new AudioContext();
-      return audioContext;
-    }
-    return audioContext;
-  };
 
   const { playNumberCounter } = numberPlayer(metronomeSettings);
 
@@ -29,7 +20,7 @@ const createMetronomeUtils = (metronomeSettings) => {
   const { createFluteTone, playFlute } = flutePlayer(metronomeSettings);
 
   const { createBeepTone, playBeep } = beepPlayer(metronomeSettings);
-  const { playCountIn } = countInPlayer(metronomeSettings, getAudioContext);
+  const { playCountIn } = countInPlayer(metronomeSettings);
 
   const {
     timerId,
@@ -45,21 +36,20 @@ const createMetronomeUtils = (metronomeSettings) => {
     key,
     setTimerId,
     playingSources,
-    setPlayingSources,
     audioCtx,
-    setAudioCtx,
   } = metronomeSettings;
 
   const stopClick = () => {
     if (playingSources.length) {
       playingSources.forEach(([source, startTime, gainNode]) => {
         source.disconnect(gainNode);
-        gainNode.disconnect(audioCtx.destination);
+        gainNode.disconnect(audioCtx.current.destination);
       });
-      setPlayingSources([]);
+      playingSources = [];
     }
 
-    getAudioContext().close();
+    audioCtx.current.close();
+    audioCtx.current = undefined;
     clearInterval(timerId);
     setIsPlaying(false);
     setTimerId(null);
@@ -98,14 +88,11 @@ const createMetronomeUtils = (metronomeSettings) => {
   const startClick = async () => {
     let start = undefined;
 
-    let context = audioCtx;
-    if (!audioCtx) {
-      const newCtx = new AudioContext();
-      setAudioCtx(newCtx);
-      context = newCtx;
+    if (!audioCtx.current) {
+      audioCtx.current = new AudioContext();
     }
     if (countIn > 0) {
-      start = await playCountIn(context);
+      start = await playCountIn();
     }
     if (toneCategory === "Basic Tones") {
       if (tone === "audioContextTone") {
@@ -136,9 +123,9 @@ const createMetronomeUtils = (metronomeSettings) => {
       //   audioContext.close().then(() => (audioContext = null));
       // }
       if (toneCategory === "Percussion") {
-        playAudio(tone, start, context);
+        playAudio(tone, start);
       } else if (toneCategory === "Spoken Counts") {
-        playNumberCounter(start, context);
+        playNumberCounter(start);
       } else if (toneCategory === "Drum Sets") {
         playDrumSet();
       }
@@ -151,7 +138,7 @@ const createMetronomeUtils = (metronomeSettings) => {
   // Basic Tones (Beep and Flute) w/ AudioContext
 
   const getTone = () => {
-    const audioContext = getAudioContext();
+    const audioContext = audioCtx;
     if (tone === "audioContextFlute") {
       return [
         createFluteTone(audioContext, key),

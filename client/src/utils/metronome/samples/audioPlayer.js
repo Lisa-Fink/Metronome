@@ -17,13 +17,13 @@ const audioPlayer = ({
   setTimerId,
   setBpm,
   playingSources,
-  setPlayingSources,
+  audioCtx,
 }) => {
-  const loadAudioFiles = async (beats, mainBeats, downBeats, audioCtx) => {
+  const loadAudioFiles = async (beats, mainBeats, downBeats) => {
     const fetchAudio = async (src) => {
       const response = await fetch(src);
       const arrayBuffer = await response.arrayBuffer();
-      return audioCtx.decodeAudioData(arrayBuffer);
+      return audioCtx.current.decodeAudioData(arrayBuffer);
     };
     const [downBeatBuffer, regularBuffer, mainBeatBuffer] = await Promise.all([
       fetchAudio(downBeats),
@@ -33,7 +33,7 @@ const audioPlayer = ({
     return { downBeatBuffer, regularBuffer, mainBeatBuffer };
   };
 
-  const playAudio = async (tone, start, audioCtx) => {
+  const playAudio = async (tone, start) => {
     const { beats, mainBeats, downBeats } = getAudioFiles(tone);
     const interval = (60 / (bpm * subdivide)) * 1000;
     let beatCount = 1;
@@ -42,15 +42,15 @@ const audioPlayer = ({
 
     let curBpm = bpm;
 
-    let startTime = start ? start : audioCtx.currentTime;
+    let startTime = start ? start : audioCtx.current.currentTime;
 
     const { downBeatBuffer, regularBuffer, mainBeatBuffer } =
-      await loadAudioFiles(beats, mainBeats, downBeats, audioCtx);
+      await loadAudioFiles(beats, mainBeats, downBeats, audioCtx.current);
 
     const intervalFn = () => {
-      const downBeatSource = audioCtx.createBufferSource();
-      const regularSource = audioCtx.createBufferSource();
-      const mainBeatSource = audioCtx.createBufferSource();
+      const downBeatSource = audioCtx.current.createBufferSource();
+      const regularSource = audioCtx.current.createBufferSource();
+      const mainBeatSource = audioCtx.current.createBufferSource();
       downBeatSource.buffer = downBeatBuffer;
       regularSource.buffer = regularBuffer;
       mainBeatSource.buffer = mainBeatBuffer;
@@ -61,9 +61,9 @@ const audioPlayer = ({
           ? mainBeatSource
           : regularSource;
 
-      const gainNode = audioCtx.createGain();
+      const gainNode = audioCtx.current.createGain();
       gainNode.gain.value = volumeRef.current;
-      gainNode.connect(audioCtx.destination);
+      gainNode.connect(audioCtx.current.destination);
       sound.connect(gainNode);
       sound.start(startTime);
       playingSources.push([sound, startTime, gainNode]);
@@ -72,9 +72,12 @@ const audioPlayer = ({
       // Disconnect finished audio sources
       while (playingSources.length) {
         const [source, startTime, gainNode] = playingSources[0];
-        if (startTime + downBeatBuffer.duration < audioCtx.currentTime) {
+        if (
+          startTime + downBeatBuffer.duration <
+          audioCtx.current.currentTime
+        ) {
           source.disconnect(gainNode);
-          gainNode.disconnect(audioCtx.destination);
+          gainNode.disconnect(audioCtx.current.destination);
           playingSources.shift();
         } else {
           break;

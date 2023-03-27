@@ -25,11 +25,10 @@ const createAudioUtils = (
   originalBpm,
   isStopping,
   setIsStopped,
-  playingSources,
-  setPlayingSources,
-  audioCtx,
-  setAudioCtx
+  audioCtx
 ) => {
+  let playingSources = [];
+
   const metronomeSettings = {
     bpm,
     downBeat,
@@ -53,9 +52,7 @@ const createAudioUtils = (
     originalBpm,
     isStopping,
     playingSources,
-    setPlayingSources,
     audioCtx,
-    setAudioCtx,
   };
   const { startClick, stopClick } = createMetronomeUtils(metronomeSettings);
 

@@ -15,13 +15,14 @@ const numberPlayer = ({
   tempoPractice,
   setBpm,
   playingSources,
+  audioCtx,
 }) => {
   // Loads all of the sounds as buffers, and returns an array in the order they will be called
-  const loadNumberCounterAudio = async (audioCtx) => {
+  const loadNumberCounterAudio = async () => {
     const fetchAudio = async (src) => {
       const response = await fetch(src);
       const arrayBuffer = await response.arrayBuffer();
-      return audioCtx.decodeAudioData(arrayBuffer);
+      return audioCtx.current.decodeAudioData(arrayBuffer);
     };
 
     const buffers = {};
@@ -113,23 +114,23 @@ const numberPlayer = ({
     return bufferArr;
   };
 
-  const playNumberCounter = async (start, audioCtx) => {
-    const sounds = await loadNumberCounterAudio(audioCtx);
+  const playNumberCounter = async (start) => {
+    const sounds = await loadNumberCounterAudio(audioCtx.current);
 
     const interval = (60 / (bpm * subdivide)) * 1000;
     let beatCount = 0;
     let beat = 0;
     let curBpm = bpm;
     originalBpm.current = bpm;
-    let startTime = start ? start : audioCtx.currentTime;
+    let startTime = start ? start : audioCtx.current.currentTime;
 
     const intervalFn = () => {
-      const source = audioCtx.createBufferSource();
+      const source = audioCtx.current.createBufferSource();
       source.buffer = sounds[beatCount];
 
-      const gainNode = audioCtx.createGain();
+      const gainNode = audioCtx.current.createGain();
       gainNode.gain.value = volumeRef.current;
-      gainNode.connect(audioCtx.destination);
+      gainNode.connect(audioCtx.current.destination);
 
       source.connect(gainNode);
       source.start(startTime);
@@ -144,9 +145,9 @@ const numberPlayer = ({
       // Disconnect finished audio sources
       while (playingSources.length) {
         const [source, startTime, gainNode, dur] = playingSources[0];
-        if (startTime + dur < audioCtx.currentTime) {
+        if (startTime + dur < audioCtx.current.currentTime) {
           source.disconnect(gainNode);
-          gainNode.disconnect(audioCtx.destination);
+          gainNode.disconnect(audioCtx.current.destination);
           playingSources.shift();
         } else {
           break;

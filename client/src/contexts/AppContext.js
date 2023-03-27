@@ -51,9 +51,7 @@ export const AppProvider = ({ children }) => {
   const rhythmSequence = useRef([]);
   // used for restart to wait until fully stopped before starting
   const [isStopped, setIsStopped] = useState(false);
-
-  const [playingSources, setPlayingSources] = useState([]);
-  const [audioCtx, setAudioCtx] = useState();
+  const audioCtx = useRef();
 
   const {
     startClick,
@@ -86,10 +84,7 @@ export const AppProvider = ({ children }) => {
     bpmRef,
     isStopping,
     setIsStopped,
-    playingSources,
-    setPlayingSources,
-    audioCtx,
-    setAudioCtx
+    audioCtx
   );
 
   /****************************************************************************/
