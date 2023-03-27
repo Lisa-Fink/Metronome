@@ -9,19 +9,27 @@ import countInPlayer from "./metronome/samples/countInPlayer";
 
 const createMetronomeUtils = (metronomeSettings) => {
   // store audioContext objects to disable/disconnect later
-  let audioContext,
-    osc,
-    gain,
-    downBeatGain,
-    downBeatOsc,
-    mainBeatGain,
-    mainBeatOsc;
+  let osc, gain, downBeatGain, downBeatOsc, mainBeatGain, mainBeatOsc;
+  let playingSources = [];
+  let audioContext;
+  // Returns the audio context or creates a new one if it doesn't exist
+  const getAudioContext = () => {
+    if (!audioContext) {
+      audioContext = new AudioContext();
+      return audioContext;
+    }
+    return audioContext;
+  };
 
   const { playNumberCounter } = numberPlayer(metronomeSettings);
 
   const { playDrumSet } = drumSetPlayer(metronomeSettings);
 
-  const { playAudio } = audioPlayer(metronomeSettings);
+  const { playAudio } = audioPlayer(
+    metronomeSettings,
+    getAudioContext,
+    playingSources
+  );
 
   const { createFluteTone, playFlute } = flutePlayer(metronomeSettings);
 
@@ -44,6 +52,15 @@ const createMetronomeUtils = (metronomeSettings) => {
   } = metronomeSettings;
 
   const stopClick = () => {
+    if (playingSources.length) {
+      console.log("clearing");
+      playingSources.forEach((source) => {
+        source.disconnect();
+      });
+    }
+    playingSources = [];
+
+    getAudioContext().close();
     clearInterval(timerId);
     setIsPlaying(false);
     setTimerId(null);
@@ -108,9 +125,9 @@ const createMetronomeUtils = (metronomeSettings) => {
         );
       }
     } else {
-      if (audioContext) {
-        audioContext.close().then(() => (audioContext = null));
-      }
+      // if (audioContext) {
+      //   audioContext.close().then(() => (audioContext = null));
+      // }
       if (toneCategory === "Percussion") {
         playAudio(tone);
       } else if (toneCategory === "Spoken Counts") {
@@ -125,15 +142,6 @@ const createMetronomeUtils = (metronomeSettings) => {
 
   /**********************************************************************************/
   // Basic Tones (Beep and Flute) w/ AudioContext
-
-  // Returns the audio context or creates a new one if it doesn't exist
-  const getAudioContext = () => {
-    if (!audioContext) {
-      audioContext = new AudioContext();
-      return audioContext;
-    }
-    return audioContext;
-  };
 
   const getTone = () => {
     const audioContext = getAudioContext();

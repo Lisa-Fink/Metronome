@@ -1,37 +1,38 @@
 import { getAudioFiles } from "../../audioFiles";
 
-const audioPlayer = ({
-  bpm,
-  subdivide,
-  originalBpm,
-  mainBeat,
-  timeSignature,
-  volumeRef,
-  tempoPractice,
-  sectionPractice,
-  tempoInc,
-  setIsPlaying,
-  downBeat,
-  numMeasures,
-  repeat,
-  setTimerId,
-  setBpm,
-}) => {
-  const loadAudioFiles = (beats, mainBeats, downBeats) => {
-    return new Promise((resolve) => {
-      let loaded = 0;
-      const onAudioLoad = () => {
-        loaded++;
-        if (loaded === 3)
-          resolve({ downBeatSound, regularSound, mainBeatSound });
-      };
-      const downBeatSound = new Audio(downBeats);
-      downBeatSound.addEventListener("canplaythrough", onAudioLoad);
-      const regularSound = new Audio(beats);
-      regularSound.addEventListener("canplaythrough", onAudioLoad);
-      const mainBeatSound = new Audio(mainBeats);
-      mainBeatSound.addEventListener("canplaythrough", onAudioLoad);
-    });
+const audioPlayer = (
+  {
+    bpm,
+    subdivide,
+    originalBpm,
+    mainBeat,
+    timeSignature,
+    volumeRef,
+    tempoPractice,
+    sectionPractice,
+    tempoInc,
+    setIsPlaying,
+    downBeat,
+    numMeasures,
+    repeat,
+    setTimerId,
+    setBpm,
+  },
+  getAudioContext,
+  playingSources
+) => {
+  const loadAudioFiles = async (beats, mainBeats, downBeats, audioCtx) => {
+    const fetchAudio = async (src) => {
+      const response = await fetch(src);
+      const arrayBuffer = await response.arrayBuffer();
+      return audioCtx.decodeAudioData(arrayBuffer);
+    };
+    const [downBeatBuffer, regularBuffer, mainBeatBuffer] = await Promise.all([
+      fetchAudio(downBeats),
+      fetchAudio(beats),
+      fetchAudio(mainBeats),
+    ]);
+    return { downBeatBuffer, regularBuffer, mainBeatBuffer };
   };
 
   const playAudio = async (tone) => {
@@ -42,25 +43,46 @@ const audioPlayer = ({
     originalBpm.current = bpm;
 
     let curBpm = bpm;
+    const audioCtx = getAudioContext();
 
-    const { downBeatSound, regularSound, mainBeatSound } = await loadAudioFiles(
-      beats,
-      mainBeats,
-      downBeats
-    );
+    let startTime = audioCtx.currentTime;
+
+    const { downBeatBuffer, regularBuffer, mainBeatBuffer } =
+      await loadAudioFiles(beats, mainBeats, downBeats, audioCtx);
 
     const intervalFn = () => {
+      const downBeatSource = audioCtx.createBufferSource();
+      const regularSource = audioCtx.createBufferSource();
+      const mainBeatSource = audioCtx.createBufferSource();
+      downBeatSource.buffer = downBeatBuffer;
+      regularSource.buffer = regularBuffer;
+      mainBeatSource.buffer = mainBeatBuffer;
       const sound =
         downBeat && beatCount === 1
-          ? downBeatSound
+          ? downBeatSource
           : subdivide > 1 && mainBeat && (beatCount - 1) % subdivide === 0
-          ? mainBeatSound
-          : regularSound;
+          ? mainBeatSource
+          : regularSource;
 
-      sound.volume = volumeRef.current;
+      const gainNode = audioCtx.createGain();
+      gainNode.gain.value = volumeRef.current;
+      gainNode.connect(audioCtx.destination);
+      sound.connect(gainNode);
+      sound.start(startTime);
+      playingSources.push([sound, startTime, gainNode]);
+      startTime += interval / 1000;
 
-      sound.currentTime = 0;
-      sound.play();
+      // Disconnect finished audio sources
+      while (playingSources.length) {
+        const [source, startTime, gainNode] = playingSources[0];
+        if (startTime + downBeatBuffer.duration < audioCtx.currentTime) {
+          source.disconnect(gainNode);
+          gainNode.disconnect(audioCtx.destination);
+          playingSources.shift();
+        } else {
+          break;
+        }
+      }
 
       beatCount++;
       beat++;
@@ -89,7 +111,7 @@ const audioPlayer = ({
         setBpm((prev) => {
           curBpm = curBpm + tempoInc;
           // adjust interval to new bpm
-          const newInterval = (60 / (curBpm * subdivide)) * 1000;
+          const newInterval = 60 / (curBpm * subdivide);
           clearInterval(id);
           id = setInterval(intervalFn, newInterval);
           setTimerId(id);
@@ -99,9 +121,11 @@ const audioPlayer = ({
     };
     intervalFn();
     let id = setInterval(intervalFn, interval);
+
     setTimerId(id);
     setIsPlaying(true);
   };
+
   return { playAudio };
 };
 
