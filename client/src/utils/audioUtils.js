@@ -62,7 +62,9 @@ const createAudioUtils = (
       volumeRef,
       timerId,
       isStopping,
-      setIsStopped
+      setIsStopped,
+      playingSources,
+      audioCtx
     );
 
   const stopEverything = () => {
@@ -82,4 +84,11 @@ const createAudioUtils = (
   };
 };
 
+const fetchAudio = async (src, audioCtx) => {
+  const response = await fetch(src);
+  const arrayBuffer = await response.arrayBuffer();
+  return audioCtx.current.decodeAudioData(arrayBuffer);
+};
+
 export default createAudioUtils;
+export { fetchAudio };

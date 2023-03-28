@@ -1,4 +1,5 @@
 import { numberAudioFiles } from "../../audioFiles";
+import { fetchAudio } from "../../audioUtils";
 
 const numberPlayer = ({
   bpm,
@@ -19,19 +20,16 @@ const numberPlayer = ({
 }) => {
   // Loads all of the sounds as buffers, and returns an array in the order they will be called
   const loadNumberCounterAudio = async () => {
-    const fetchAudio = async (src) => {
-      const response = await fetch(src);
-      const arrayBuffer = await response.arrayBuffer();
-      return audioCtx.current.decodeAudioData(arrayBuffer);
-    };
-
     const buffers = {};
     const fetches = [];
 
     // get all buffers for main beats
+    // put the fetch into fetches arr, which resolves into buffers object
     for (let i = 1; i <= timeSignature; i++) {
       fetches.push(
-        fetchAudio(numberAudioFiles[i]).then((buffer) => (buffers[i] = buffer))
+        fetchAudio(numberAudioFiles[i], audioCtx).then(
+          (buffer) => (buffers[i] = buffer)
+        )
       );
     }
 
@@ -44,21 +42,21 @@ const numberPlayer = ({
       subdivide === 8
     ) {
       fetches.push(
-        fetchAudio(numberAudioFiles["and"]).then(
+        fetchAudio(numberAudioFiles["and"], audioCtx).then(
           (buffer) => (buffers["and"] = buffer)
         )
       );
     }
     if (subdivide === 3 || subdivide === 4 || subdivide === 8) {
       fetches.push(
-        fetchAudio(numberAudioFiles["a"]).then(
+        fetchAudio(numberAudioFiles["a"], audioCtx).then(
           (buffer) => (buffers["a"] = buffer)
         )
       );
     }
     if (subdivide === 4 || subdivide === 8) {
       fetches.push(
-        fetchAudio(numberAudioFiles["e"]).then(
+        fetchAudio(numberAudioFiles["e"], audioCtx).then(
           (buffer) => (buffers["e"] = buffer)
         )
       );
@@ -70,7 +68,7 @@ const numberPlayer = ({
       subdivide === 8
     ) {
       fetches.push(
-        fetchAudio(numberAudioFiles["ta"]).then(
+        fetchAudio(numberAudioFiles["ta"], audioCtx).then(
           (buffer) => (buffers["ta"] = buffer)
         )
       );
@@ -124,14 +122,13 @@ const numberPlayer = ({
     originalBpm.current = bpm;
     let startTime = start ? start : audioCtx.current.currentTime;
 
+    const gainNode = audioCtx.current.createGain();
+    gainNode.connect(audioCtx.current.destination);
+
     const intervalFn = () => {
       const source = audioCtx.current.createBufferSource();
       source.buffer = sounds[beatCount];
-
-      const gainNode = audioCtx.current.createGain();
       gainNode.gain.value = volumeRef.current;
-      gainNode.connect(audioCtx.current.destination);
-
       source.connect(gainNode);
       source.start(startTime);
       playingSources.push([
@@ -147,7 +144,6 @@ const numberPlayer = ({
         const [source, startTime, gainNode, dur] = playingSources[0];
         if (startTime + dur < audioCtx.current.currentTime) {
           source.disconnect(gainNode);
-          gainNode.disconnect(audioCtx.current.destination);
           playingSources.shift();
         } else {
           break;

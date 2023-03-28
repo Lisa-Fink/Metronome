@@ -1,4 +1,5 @@
 import { getAudioFiles } from "../../audioFiles";
+import { fetchAudio } from "../../audioUtils";
 
 const audioPlayer = ({
   bpm,
@@ -20,15 +21,10 @@ const audioPlayer = ({
   audioCtx,
 }) => {
   const loadAudioFiles = async (beats, mainBeats, downBeats) => {
-    const fetchAudio = async (src) => {
-      const response = await fetch(src);
-      const arrayBuffer = await response.arrayBuffer();
-      return audioCtx.current.decodeAudioData(arrayBuffer);
-    };
     const [downBeatBuffer, regularBuffer, mainBeatBuffer] = await Promise.all([
-      fetchAudio(downBeats),
-      fetchAudio(beats),
-      fetchAudio(mainBeats),
+      fetchAudio(downBeats, audioCtx),
+      fetchAudio(beats, audioCtx),
+      fetchAudio(mainBeats, audioCtx),
     ]);
     return { downBeatBuffer, regularBuffer, mainBeatBuffer };
   };
@@ -47,6 +43,9 @@ const audioPlayer = ({
     const { downBeatBuffer, regularBuffer, mainBeatBuffer } =
       await loadAudioFiles(beats, mainBeats, downBeats, audioCtx.current);
 
+    const gainNode = audioCtx.current.createGain();
+    gainNode.connect(audioCtx.current.destination);
+
     const intervalFn = () => {
       const downBeatSource = audioCtx.current.createBufferSource();
       const regularSource = audioCtx.current.createBufferSource();
@@ -61,9 +60,7 @@ const audioPlayer = ({
           ? mainBeatSource
           : regularSource;
 
-      const gainNode = audioCtx.current.createGain();
       gainNode.gain.value = volumeRef.current;
-      gainNode.connect(audioCtx.current.destination);
       sound.connect(gainNode);
       sound.start(startTime);
       playingSources.push([sound, startTime, gainNode]);
@@ -76,7 +73,6 @@ const audioPlayer = ({
           audioCtx.current.currentTime
         ) {
           source.disconnect(gainNode);
-          gainNode.disconnect(audioCtx.current.destination);
           playingSources.shift();
         } else {
           break;
