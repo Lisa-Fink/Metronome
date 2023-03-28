@@ -385,7 +385,7 @@ export const UserProvider = ({ children }) => {
             body: JSON.stringify({ settings: settings }),
           }
         );
-        if (response.status !== 200 || response.status !== 204) {
+        if (response.status !== 200) {
           throw new Error("Error saving the updated metronome.");
         }
         // update the metronome stored in userMetronomes state
