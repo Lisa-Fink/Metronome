@@ -1,33 +1,46 @@
 import { audioSamples, idxToBeat } from "./audioFiles";
+import { fetchAudio } from "./audioUtils";
 
 const createDrumMachineUtils = (
   setIsPlaying,
   volumeRef,
   timerId,
   isStopping,
-  setIsStopped
+  setIsStopped,
+  playingSources,
+  audioCtx
 ) => {
-  const playCustomRhythm = async (instrumentArr, rhythms, curBpm) => {
+  const playCustomRhythm = async (instruments, rhythms, curBpm) => {
+    const buffers = await loadInstruments(instruments);
     isStopping.current = false;
+    const interval = (60 / (curBpm * 12)) * 1000; // (12 parts per beat)
+    let startTime = audioCtx.current.currentTime;
     let cur;
+
+    const gainNode = audioCtx.current.createGain();
+    gainNode.connect(audioCtx.current.destination);
 
     const intervalFunc = async () => {
       return new Promise(async (resolve) => {
         const beats = rhythms[0].length;
         for (let beat = 0; beat < beats; beat++) {
-          instrumentArr.forEach((sound, key) => {
+          buffers.forEach((drumBuffer, key) => {
             if (isStopping.current) {
               return;
             }
             cur = rhythms[key][beat];
             if (cur > 0) {
-              sound.currentTime = 0;
-              sound.volume = volumeRef.current;
-              sound.play();
-            } else if (cur < 0) {
-              if (!sound.currentTime === 0) {
-                sound.stop();
-              }
+              const source = audioCtx.current.createBufferSource();
+              source.buffer = drumBuffer;
+
+              source.connect(gainNode);
+              source.start(startTime);
+              playingSources.push([
+                source,
+                startTime,
+                gainNode,
+                drumBuffer.duration,
+              ]);
             }
           });
           if (isStopping.current) {
@@ -35,11 +48,25 @@ const createDrumMachineUtils = (
             setIsStopped(true);
             return;
           }
+          gainNode.gain.value = volumeRef.current;
+          startTime += interval / 1000;
+
+          // Disconnect finished audio sources
+          while (playingSources.length) {
+            const [source, startTime, gainNode, dur] = playingSources[0];
+            if (startTime + dur < audioCtx.current.currentTime) {
+              source.disconnect(gainNode);
+              // gainNode.disconnect(audioCtx.current.destination);
+              playingSources.shift();
+            } else {
+              break;
+            }
+          }
+
           await new Promise((resolve) => {
             setTimeout(() => {
               resolve();
-              // (12 parts per beat)
-            }, (60 / (curBpm * 12)) * 1000);
+            }, interval);
           });
         }
         resolve();
@@ -57,14 +84,21 @@ const createDrumMachineUtils = (
     sample.play();
   };
 
-  const startDrumMachine = (instruments, rhythms, curBpm) => {
+  const startDrumMachine = async (instruments, rhythms, curBpm) => {
     if (timerId) {
       clearInterval(timerId);
     }
-    const instData = [];
-    let loaded = 0;
-    const instrumentsToPlay = instruments.filter((instrument) => instrument[0]);
-    let numToLoad = instrumentsToPlay.length;
+    // remove any instruments that don't have rhythms added
+    const instrumentsToPlay = instruments.filter(
+      (instrument) =>
+        instrument[0] !== null &&
+        instrument[0] !== undefined &&
+        instrument[1] !== null &&
+        instrument[1] !== undefined &&
+        instrument[2] !== null &&
+        instrument[2] !== undefined
+    );
+    if (instrumentsToPlay.length === 0) return;
 
     // check if there are rhythm's added
     let isRhythm = false;
@@ -77,19 +111,21 @@ const createDrumMachineUtils = (
       }
     }
     if (!isRhythm) return;
+    if (!audioCtx.current) {
+      audioCtx.current = new AudioContext();
+    }
+    playCustomRhythm(instrumentsToPlay, rhythms, curBpm);
+  };
 
-    instrumentsToPlay.forEach((instrument, i) => {
-      const audio = new Audio(
-        audioSamples[instrument[0]][idxToBeat[instrument[2]]]
-      );
-      audio.addEventListener("canplaythrough", () => {
-        loaded++;
-        if (numToLoad == loaded) {
-          playCustomRhythm(instData, rhythms, curBpm);
-        }
-      });
-      instData.push(audio);
-    });
+  const loadInstruments = async (instruments) => {
+    return await Promise.all(
+      instruments.map((instrument) =>
+        fetchAudio(
+          audioSamples[instrument[0]][idxToBeat[instrument[2]]],
+          audioCtx
+        )
+      )
+    );
   };
 
   const stopDrumMachine = () => {
