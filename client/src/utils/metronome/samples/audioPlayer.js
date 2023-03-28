@@ -67,7 +67,6 @@ const audioPlayer = ({
       sound.connect(gainNode);
       sound.start(startTime);
       playingSources.push([sound, startTime, gainNode]);
-      startTime += interval / 1000;
 
       // Disconnect finished audio sources
       while (playingSources.length) {
@@ -108,15 +107,18 @@ const audioPlayer = ({
         beat > 0 &&
         beat % (timeSignature * subdivide * numMeasures) === 0
       ) {
+        // adjust interval to new bpm
+        curBpm = curBpm + tempoInc;
+        const newInterval = (60 / (curBpm * subdivide)) * 1000;
         setBpm((prev) => {
-          curBpm = curBpm + tempoInc;
-          // adjust interval to new bpm
-          const newInterval = 60 / (curBpm * subdivide);
           clearInterval(id);
           id = setInterval(intervalFn, newInterval);
           setTimerId(id);
           return prev + tempoInc;
         });
+        startTime += newInterval / 1000;
+      } else {
+        startTime += interval / 1000;
       }
     };
     intervalFn();
