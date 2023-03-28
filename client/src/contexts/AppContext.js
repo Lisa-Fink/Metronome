@@ -128,7 +128,7 @@ export const AppProvider = ({ children }) => {
       setToneCategory("Spoken Counts");
     } else if (tone === "Drum Set") {
       setToneCategory("Drum Sets");
-    } else if (tone === "Generic Beep" || tone === "Synth Flute") {
+    } else if (tone === "audioContextBeep" || tone === "audioContextFlute") {
       setToneCategory("Basic Tones");
     } else {
       setToneCategory("Percussion");
