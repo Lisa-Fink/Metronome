@@ -35,7 +35,7 @@ const audioPlayer = ({
 
   const playAudio = async (tone, start) => {
     const { beats, mainBeats, downBeats } = getAudioFiles(tone);
-    const interval = (60 / (bpm * subdivide)) * 1000;
+    let interval = (60 / (bpm * subdivide)) * 1000;
     let beatCount = 1;
     let beat = 0;
     originalBpm.current = bpm;
@@ -110,16 +110,15 @@ const audioPlayer = ({
         // adjust interval to new bpm
         curBpm = curBpm + tempoInc;
         const newInterval = (60 / (curBpm * subdivide)) * 1000;
+        interval = newInterval;
         setBpm((prev) => {
           clearInterval(id);
           id = setInterval(intervalFn, newInterval);
           setTimerId(id);
           return prev + tempoInc;
         });
-        startTime += newInterval / 1000;
-      } else {
-        startTime += interval / 1000;
       }
+      startTime += interval / 1000;
     };
     intervalFn();
     let id = setInterval(intervalFn, interval);
