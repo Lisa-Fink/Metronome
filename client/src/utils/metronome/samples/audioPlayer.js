@@ -81,6 +81,7 @@ const audioPlayer = ({
 
       beatCount++;
       beat++;
+      startTime += interval / 1000;
       if (beatCount > timeSignature * subdivide) {
         beatCount = 1;
       }
@@ -114,7 +115,6 @@ const audioPlayer = ({
           return prev + tempoInc;
         });
       }
-      startTime += interval / 1000;
     };
     intervalFn();
     let id = setInterval(intervalFn, interval);
