@@ -378,14 +378,14 @@ export const UserProvider = ({ children }) => {
         };
         // save settings to db
         const response = await fetch(
-          `/users/metronomes/${metronome_id.current}`,
+          `${API_URL}/users/metronomes/${metronome_id.current}`,
           {
             method: "PUT",
             headers,
             body: JSON.stringify({ settings: settings }),
           }
         );
-        if (response.status !== 200) {
+        if (response.status !== 200 || response.status !== 204) {
           throw new Error("Error saving the updated metronome.");
         }
         // update the metronome stored in userMetronomes state
