@@ -47,9 +47,10 @@ const createMetronomeUtils = (metronomeSettings) => {
       });
       playingSources = [];
     }
-
-    audioCtx.current.close();
-    audioCtx.current = undefined;
+    if (audioCtx.current) {
+      audioCtx.current.close();
+      audioCtx.current = undefined;
+    }
     clearInterval(timerId);
     setIsPlaying(false);
     setTimerId(null);

@@ -8,29 +8,30 @@ const countInPlayer = ({
   volumeRef,
   countIn,
   setTimerId,
+  audioCtx,
 }) => {
-  const loadCountIn = async (audioContext) => {
+  const loadCountIn = async () => {
     const src = audioSamples.Triangle.downBeats;
     const response = await fetch(src);
     const arrayBuffer = await response.arrayBuffer();
-    return await audioContext.decodeAudioData(arrayBuffer);
+    return await audioCtx.current.decodeAudioData(arrayBuffer);
   };
 
-  const playCountIn = async (audioCtx) => {
+  const playCountIn = async () => {
     setIsPlaying(true);
     // use triangle down beat
-    const clickBuffer = await loadCountIn(audioCtx);
+    const clickBuffer = await loadCountIn(audioCtx.current);
 
     const interval = (60 / (bpm * subdivide)) * 1000;
     let beat = 0;
-    let startTime = audioCtx.currentTime;
+    let startTime = audioCtx.current.currentTime;
     return new Promise((resolve) => {
       const id = setInterval(() => {
-        const source = audioCtx.createBufferSource();
+        const source = audioCtx.current.createBufferSource();
         source.buffer = clickBuffer;
-        const gainNode = audioCtx.createGain();
+        const gainNode = audioCtx.current.createGain();
         gainNode.gain.value = volumeRef.current;
-        gainNode.connect(audioCtx.destination);
+        gainNode.connect(audioCtx.current.destination);
         source.connect(gainNode);
         source.start(startTime);
         startTime += interval / 1000;
