@@ -14,14 +14,16 @@ const flutePlayer = ({
   downBeat,
   volumeRef,
   setTimerId,
+  playingSources,
+  audioCtx,
+  key,
 }) => {
-  const createFluteTone = (audioContext, frequency) => {
-    const newOsc = audioContext.createOscillator();
-    const newGain = audioContext.createGain();
-    const convolver = audioContext.createConvolver();
-    const rate = audioContext.sampleRate;
+  const createFluteTone = (frequency, gain, convolver) => {
+    const newOsc = audioCtx.current.createOscillator();
+
+    const rate = audioCtx.current.sampleRate;
     const length = rate * 0.05; // Shorten the length to 50ms
-    const buffer = audioContext.createBuffer(2, length, rate);
+    const buffer = audioCtx.current.createBuffer(2, length, rate);
     const dataL = buffer.getChannelData(0);
     const dataR = buffer.getChannelData(1);
 
@@ -33,60 +35,68 @@ const flutePlayer = ({
     }
 
     convolver.buffer = buffer;
-    newOsc.connect(newGain);
-    newGain.connect(convolver);
-    convolver.connect(audioContext.destination);
+    newOsc.connect(gain);
 
     newOsc.frequency.value = frequency;
-    newGain.gain.value = 0; // Set the initial gain to 0
 
-    return {
-      newOsc,
-      newGain,
-    };
+    return newOsc;
   };
 
-  const playFlute = (
-    osc,
-    downBeatOsc,
-    mainBeatOsc,
-    gain,
-    mainBeatGain,
-    downBeatGain
-  ) => {
-    osc.start();
-    downBeatOsc.start();
-    if (mainBeat && mainBeatOsc) {
-      mainBeatOsc.start();
-    }
-    const interval = (60 / (bpm * subdivide)) * 1000;
+  const playFlute = (start) => {
+    let interval = (60 / (bpm * subdivide)) * 1000;
     let beatCount = 1;
     let current;
     let beat = 0;
     let curBpm = bpm;
     originalBpm.current = bpm;
 
+    const regularFreq = key;
+    const downBeatFreq = key * 2;
+    const mainBeatFreq = key * 1.5;
+
+    let noteLen = interval / 2 / 1000;
+    let startTime = start ? start : audioCtx.current.currentTime;
+
     const intervalFn = () => {
+      const gain = audioCtx.current.createGain();
+      const con = audioCtx.current.createConvolver();
+      con.connect(audioCtx.current.destination);
+      gain.connect(con);
       if (downBeat && beatCount === 1) {
-        current = downBeatGain;
+        current = createFluteTone(downBeatFreq, gain, con);
       } else if (
         subdivide > 1 &&
         mainBeat &&
         (beatCount - 1) % subdivide === 0
       ) {
-        current = mainBeatGain;
+        current = createFluteTone(mainBeatFreq, gain, con);
       } else {
         if (beatCount === timeSignature * subdivide) {
           beatCount = 0;
         }
-        current = gain;
+        current = createFluteTone(regularFreq, gain, con);
       }
-      current.gain.value = volumeRef.current;
+
+      gain.gain.setValueAtTime(volumeRef.current, startTime);
+      current.start(startTime + 0.01);
+
+      const endTime = startTime + noteLen;
+      current.stop(endTime);
+
+      playingSources.push([gain, endTime, current]);
       beatCount++;
       beat++;
-      setTimeout(() => {
-        current.gain.value = 0;
-      }, interval / 2);
+      startTime += interval / 1000;
+
+      // Disconnect finished sounds
+      while (playingSources.length > 1) {
+        const [gainNode, endTime, osc] = playingSources[0];
+        if (endTime < audioCtx.current.currentTime) {
+          osc.disconnect(gainNode);
+          playingSources.shift();
+        }
+      }
+
       // handle section practice
       if (
         sectionPractice &&
@@ -106,12 +116,14 @@ const flutePlayer = ({
         beat > 0 &&
         beat % (timeSignature * subdivide * numMeasures) === 0
       ) {
+        curBpm = curBpm + tempoInc;
+        // adjust interval to new bpm
+        const newInterval = (60 / (curBpm * subdivide)) * 1000;
+        interval = newInterval;
+        noteLen = newInterval / 2 / 1000;
         setBpm((prev) => {
-          curBpm = curBpm + tempoInc;
-          // adjust interval to new bpm
-          const newInterval = (60 / (curBpm * subdivide)) * 1000;
           clearInterval(id);
-          id = setInterval(intervalFn, newInterval);
+          id = setInterval(intervalFn, interval);
           setTimerId(id);
           return prev + tempoInc;
         });
@@ -122,7 +134,7 @@ const flutePlayer = ({
     setTimerId(id);
     setIsPlaying(true);
   };
-  return { createFluteTone, playFlute };
+  return { playFlute };
 };
 
 export default flutePlayer;

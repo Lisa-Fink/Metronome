@@ -15,36 +15,57 @@ const beepPlayer = ({
   setTimerId,
   key,
   numMeasures,
+  playingSources,
+  audioCtx,
 }) => {
-  const playBeep = (newOsc, newGain) => {
-    newOsc.start();
-    const interval = (60 / (bpm * subdivide)) * 1000;
+  const playBeep = (start) => {
+    let interval = (60 / (bpm * subdivide)) * 1000;
     let beatCount = 1;
     let beat = 0;
     let curBpm = bpm;
     originalBpm.current = bpm;
+    let noteLen = interval / 1.5 / 1000;
+
+    let startTime = start ? start : audioCtx.current.currentTime;
+    const gain = audioCtx.current.createGain();
+    gain.connect(audioCtx.current.destination);
 
     const intervalFn = () => {
+      const osc = createBeepTone(gain);
       if (downBeat && beatCount === 1) {
-        newOsc.frequency.value = key * 4; // Set the frequency for high pitch
+        osc.frequency.value = key * 4; // Set the frequency for high pitch
       } else if (
         subdivide > 1 &&
         mainBeat &&
         (beatCount - 1) % subdivide === 0
       ) {
-        newOsc.frequency.value = key * 3; // Set the frequency for main beat
+        osc.frequency.value = key * 3; // Set the frequency for main beat
       } else {
         if (beatCount === timeSignature * subdivide) {
           beatCount = 0;
         }
-        newOsc.frequency.value = key * 2;
+        osc.frequency.value = key * 2;
       }
-      newGain.gain.value = volumeRef.current;
+      gain.gain.setValueAtTime(volumeRef.current, startTime);
+      osc.start(startTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, startTime + noteLen); // remove click at end
+      const endTime = startTime + noteLen;
+      osc.stop(endTime);
+      playingSources.push([osc, endTime, gain]);
       beatCount++;
       beat++;
-      setTimeout(() => {
-        newGain.gain.value = 0;
-      }, interval / 2);
+      startTime += interval / 1000;
+
+      // Disconnect finished sounds
+      while (playingSources.length) {
+        const [source, endTime, gainNode] = playingSources[0];
+        if (endTime < audioCtx.current.currentTime) {
+          source.disconnect(gainNode);
+          playingSources.shift();
+        } else {
+          break;
+        }
+      }
 
       // handle section practice
       if (
@@ -65,10 +86,12 @@ const beepPlayer = ({
         beat > 0 &&
         beat % (timeSignature * subdivide * numMeasures) === 0
       ) {
+        curBpm = curBpm + tempoInc;
+        // adjust interval to new bpm
+        const newInterval = (60 / (curBpm * subdivide)) * 1000;
+        interval = newInterval;
+        noteLen = newInterval / 1.5 / 1000;
         setBpm((prev) => {
-          curBpm = curBpm + tempoInc;
-          // adjust interval to new bpm
-          const newInterval = (60 / (curBpm * subdivide)) * 1000;
           clearInterval(id);
           id = setInterval(intervalFn, newInterval);
           setTimerId(id);
@@ -82,17 +105,13 @@ const beepPlayer = ({
     setIsPlaying(true);
   };
 
-  const createBeepTone = (audioContext) => {
-    const newOsc = audioContext.createOscillator();
-    const newGain = audioContext.createGain();
-    newOsc.connect(newGain);
-    newGain.connect(audioContext.destination);
-    newGain.gain.value = 0; // Set the initial gain to 0
-
-    return { newOsc, newGain };
+  const createBeepTone = (gain) => {
+    const newOsc = audioCtx.current.createOscillator();
+    newOsc.connect(gain);
+    return newOsc;
   };
 
-  return { createBeepTone, playBeep };
+  return { playBeep };
 };
 
 export default beepPlayer;

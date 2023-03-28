@@ -8,18 +8,15 @@ import beepPlayer from "./metronome/generated/beepPlayer";
 import countInPlayer from "./metronome/samples/countInPlayer";
 
 const createMetronomeUtils = (metronomeSettings) => {
-  // store audioContext objects to disable/disconnect later
-  let osc, gain, downBeatGain, downBeatOsc, mainBeatGain, mainBeatOsc;
-
   const { playNumberCounter } = numberPlayer(metronomeSettings);
 
   const { playDrumSet } = drumSetPlayer(metronomeSettings);
 
   const { playAudio } = audioPlayer(metronomeSettings);
 
-  const { createFluteTone, playFlute } = flutePlayer(metronomeSettings);
+  const { playFlute } = flutePlayer(metronomeSettings);
 
-  const { createBeepTone, playBeep } = beepPlayer(metronomeSettings);
+  const { playBeep } = beepPlayer(metronomeSettings);
   const { playCountIn } = countInPlayer(metronomeSettings);
 
   const {
@@ -40,13 +37,8 @@ const createMetronomeUtils = (metronomeSettings) => {
   } = metronomeSettings;
 
   const stopClick = () => {
-    if (playingSources.length) {
-      playingSources.forEach(([source, startTime, gainNode]) => {
-        source.disconnect(gainNode);
-        gainNode.disconnect(audioCtx.current.destination);
-      });
-      playingSources = [];
-    }
+    playingSources.length = 0;
+
     if (audioCtx.current) {
       audioCtx.current.close();
       audioCtx.current = undefined;
@@ -60,95 +52,33 @@ const createMetronomeUtils = (metronomeSettings) => {
     if (sectionPractice && tempoPractice) {
       setBpm(originalBpm.current);
     }
-    if (osc) {
-      osc.stop();
-      osc = null;
-    }
-    if (gain) {
-      gain.disconnect();
-      gain = null;
-    }
-    if (downBeatOsc) {
-      downBeatOsc.stop();
-      downBeatOsc = null;
-    }
-    if (downBeatGain) {
-      downBeatGain.disconnect();
-      downBeatGain = null;
-    }
-    if (mainBeatOsc) {
-      mainBeatOsc.stop();
-      mainBeatOsc = null;
-    }
-    if (mainBeatGain) {
-      mainBeatGain.disconnect();
-      mainBeatGain = null;
-    }
   };
 
   const startClick = async () => {
     let start = undefined;
 
-    if (!audioCtx.current) {
-      audioCtx.current = new AudioContext();
-    }
+    audioCtx.current = new AudioContext();
+
     if (countIn > 0) {
       start = await playCountIn();
     }
     if (toneCategory === "Basic Tones") {
       if (tone === "audioContextTone") {
-        const { newOsc, newGain } = getTone();
-        osc = newOsc;
-        gain = newGain;
-        playBeep(newOsc, newGain);
+        playBeep(start);
       } else if (tone === "audioContextFlute") {
-        const [regular, downBeat, mainBeat] = getTone();
-        const { newOsc, newGain } = regular;
-        downBeatOsc = downBeat.newOsc;
-        downBeatGain = downBeat.newGain;
-        mainBeatOsc = mainBeat.newOsc;
-        mainBeatGain = mainBeat.newGain;
-        osc = newOsc;
-        gain = newGain;
-        playFlute(
-          osc,
-          downBeatOsc,
-          mainBeatOsc,
-          gain,
-          mainBeatGain,
-          downBeatGain
-        );
+        playFlute(start);
       }
     } else {
-      // if (audioContext) {
-      //   audioContext.close().then(() => (audioContext = null));
-      // }
       if (toneCategory === "Percussion") {
         playAudio(tone, start);
       } else if (toneCategory === "Spoken Counts") {
         playNumberCounter(start);
       } else if (toneCategory === "Drum Sets") {
-        playDrumSet();
+        playDrumSet(start);
       }
     }
   };
 
-  /**********************************************************************************/
-
-  /**********************************************************************************/
-  // Basic Tones (Beep and Flute) w/ AudioContext
-
-  const getTone = () => {
-    const audioContext = audioCtx;
-    if (tone === "audioContextFlute") {
-      return [
-        createFluteTone(audioContext, key),
-        createFluteTone(audioContext, key * 2),
-        createFluteTone(audioContext, key * 1.5),
-      ];
-    }
-    return createBeepTone(audioContext);
-  };
   return { startClick, stopClick };
 };
 
