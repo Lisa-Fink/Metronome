@@ -6,7 +6,7 @@ import {
   validateSettings,
 } from "../middleware/validateMetronome.mjs";
 
-const metronomeRouter = Router({ mergeParams: true });
+const metronomeRouter = Router();
 metronomeRouter.use(uidToUser);
 
 // CREATE controller
@@ -66,7 +66,11 @@ metronomeRouter.put(
         req.params.metronome_id,
         req.body.settings
       );
-      res.json(metronome);
+      if (metronome) {
+        res.json(metronome);
+      } else {
+        res.status(404).json({ Error: "Metronome not found." });
+      }
     } catch (error) {
       console.error(`Error updating the metronome: ${error.message}`);
       res
