@@ -1,4 +1,5 @@
 import { audioSamples } from "../../audioFiles";
+import { fetchAudio } from "../../audioUtils";
 
 const drumSetPlayer = ({
   bpm,
@@ -16,37 +17,26 @@ const drumSetPlayer = ({
   setIsPlaying,
   setTimerId,
   setBpm,
+  playingSources,
+  audioCtx,
 }) => {
-  const loadDrumSet = () => {
-    return new Promise((resolve) => {
-      let loaded = 0;
-      const loadFn = () => {
-        loaded++;
-        if (loaded === 6) {
-          resolve({ bass, hiHat, hiHatSubdivide, snare, crash, clap });
-        }
-      };
+  const loadDrumSet = async () => {
+    const bass = audioSamples["Bass Drum"].beats;
+    const hiHat = audioSamples.Cymbal.mainBeats;
+    const hiHatSubdivide = audioSamples.Cymbal.beats;
+    const snare = audioSamples["Snare Drum"].mainBeats;
+    const crash = audioSamples.Cymbal.downBeats;
+    const clap = audioSamples.Clap.mainBeats;
 
-      const bass = new Audio(audioSamples["Bass Drum"].beats);
-      bass.addEventListener("canplaythrough", loadFn);
-      const hiHat = new Audio(audioSamples.Cymbal.mainBeats);
-      hiHat.addEventListener("canplaythrough", loadFn);
-      const hiHatSubdivide = new Audio(audioSamples.Cymbal.beats);
-      hiHatSubdivide.addEventListener("canplaythrough", loadFn);
-      const snare = new Audio(audioSamples["Snare Drum"].mainBeats);
-      snare.addEventListener("canplaythrough", loadFn);
-      const crash = new Audio(audioSamples.Cymbal.downBeats);
-      crash.addEventListener("canplaythrough", loadFn);
-      const clap = new Audio(audioSamples.Clap.mainBeats);
-      clap.addEventListener("canplaythrough", loadFn);
-    });
+    const instruments = [bass, hiHat, hiHatSubdivide, snare, crash, clap];
+    return await Promise.all(
+      instruments.map((instrument) => fetchAudio(instrument, audioCtx))
+    );
   };
 
   const playDrumSet = async () => {
-    const { bass, hiHat, hiHatSubdivide, snare, crash, clap } =
+    const [bass, hiHat, hiHatSubdivide, snare, crash, clap] =
       await loadDrumSet();
-
-    let interval = (60 / (bpm * subdivide)) * 1000;
 
     const main = [crash, clap];
 
@@ -143,50 +133,64 @@ const drumSetPlayer = ({
     let beat = 0;
     originalBpm.current = bpm;
     let curBpm = bpm;
+    let interval = (60 / (bpm * subdivide)) * 1000;
+    let startTime = audioCtx.current.currentTime;
+
+    const gainNode = audioCtx.current.createGain();
+    gainNode.connect(audioCtx.current.destination);
 
     const intervalFn = () => {
       // even number of beats
       const rhythm = rhythmMap[timeSignature];
+      const playing = [];
+
       if (sub-- > 1) {
         if (mainBeat) {
-          hiHatSubdivide.currentTime = 0;
-          hiHatSubdivide.volume = volumeRef.current;
-          hiHatSubdivide.play();
+          playing.push(hiHatSubdivide);
         } else {
-          hiHat.currentTime = 0;
-          hiHat.volume = volumeRef.current;
-          hiHat.play();
+          playing.push(hiHat);
         }
       } else {
         if (subdivide > 1) {
           sub = subdivide;
         }
         current = rhythm[idx++];
-        if (current === bass) {
-          bass.currentTime = 0;
-        }
+
         if (current !== undefined) {
-          current.currentTime = 0;
-          current.volume = volumeRef.current;
-          current.play();
+          playing.push(current);
         }
-        hiHat.currentTime = 0;
-        hiHat.volume = volumeRef.current;
-        hiHat.play();
+        playing.push(hiHat);
       }
       if (downBeat) {
         if (beatCount === 0) {
-          main[0].currentTime = 0;
-          main[0].volume = volumeRef.current;
-          main[0].play();
+          playing.push(main[0]);
         } else if (beatCount === timeSignature * subdivide) {
-          main[1].currentTime = 0;
-          main[1].volume = volumeRef.current;
-          main[1].play();
+          playing.push(main[1]);
+        }
+      }
+      playing.forEach((drumBuffer) => {
+        const source = audioCtx.current.createBufferSource();
+        source.connect(gainNode);
+        source.buffer = drumBuffer;
+        gainNode.gain.value = volumeRef.current;
+        source.connect(gainNode);
+        source.start(startTime);
+        playingSources.push([source, startTime, gainNode, drumBuffer.duration]);
+      });
+
+      // Disconnect finished audio sources
+      while (playingSources.length) {
+        const [source, startTime, gainNode, dur] = playingSources[0];
+        if (startTime + dur < audioCtx.current.currentTime) {
+          source.disconnect(gainNode);
+          playingSources.shift();
+        } else {
+          break;
         }
       }
       beatCount++;
       beat++;
+      startTime += interval / 1000;
       if (beatCount === timeSignature * subdivide * 2) {
         beatCount = 0;
         idx = 0;
@@ -210,10 +214,11 @@ const drumSetPlayer = ({
         beat > 0 &&
         beat % (timeSignature * subdivide * numMeasures) === 0
       ) {
+        curBpm = curBpm + tempoInc;
+        // adjust interval to new bpm
+        const newInterval = (60 / (curBpm * subdivide)) * 1000;
+        interval = newInterval;
         setBpm((prev) => {
-          curBpm = curBpm + tempoInc;
-          // adjust interval to new bpm
-          const newInterval = (60 / (curBpm * subdivide)) * 1000;
           clearInterval(id);
           id = setInterval(intervalFn, newInterval);
           setTimerId(id);
