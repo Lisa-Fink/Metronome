@@ -12,11 +12,12 @@ const numberPlayer = ({
   tempoInc,
   setIsPlaying,
   volumeRef,
-  setTimerId,
   tempoPractice,
   setBpm,
   playingSources,
   audioCtx,
+  stopCheck,
+  stopSection,
 }) => {
   // Loads all of the sounds as buffers, and returns an array in the order they will be called
   const loadNumberCounterAudio = async () => {
@@ -115,17 +116,20 @@ const numberPlayer = ({
   const playNumberCounter = async (start) => {
     const sounds = await loadNumberCounterAudio(audioCtx.current);
 
-    let interval = (60 / (bpm * subdivide)) * 1000;
+    let addToStart = 60 / (bpm * subdivide);
+    let interval = addToStart * 1000;
     let beatCount = 0;
     let beat = 0;
     let curBpm = bpm;
     originalBpm.current = bpm;
-    let startTime = start ? start : audioCtx.current.currentTime;
+
+    let startTime = start ? start : audioCtx.current.currentTime + 0.3;
 
     const gainNode = audioCtx.current.createGain();
     gainNode.connect(audioCtx.current.destination);
 
-    const intervalFn = () => {
+    const play = (sounds) => {
+      if (stopCheck()) return;
       const source = audioCtx.current.createBufferSource();
       source.buffer = sounds[beatCount];
       gainNode.gain.value = volumeRef.current;
@@ -137,7 +141,6 @@ const numberPlayer = ({
         gainNode,
         sounds[beatCount].duration,
       ]);
-      startTime += interval / 1000;
 
       // Disconnect finished audio sources
       while (playingSources.length) {
@@ -149,8 +152,10 @@ const numberPlayer = ({
           break;
         }
       }
+
       beatCount++;
       beat++;
+      startTime += addToStart;
       if (beatCount === sounds.length) {
         beatCount = 0;
       }
@@ -159,38 +164,32 @@ const numberPlayer = ({
         sectionPractice &&
         beat === numMeasures * timeSignature * subdivide * repeat
       ) {
-        // section with all repeats have finished
-        clearInterval(id);
-        setIsPlaying(false);
-        setTimerId(null);
-        // clean up tempo change
-        if (tempoPractice && tempoInc > 0) {
-          setBpm(originalBpm.current);
-        }
+        // section with all repeats have finished or stop was pressed
+        stopSection();
+        return;
       } else if (
         sectionPractice &&
         tempoPractice &&
         beat > 0 &&
         beat % (timeSignature * subdivide * numMeasures) === 0
       ) {
-        curBpm = curBpm + tempoInc;
         // adjust interval to new bpm
-        const newInterval = (60 / (curBpm * subdivide)) * 1000;
+        curBpm = curBpm + tempoInc;
+        addToStart = 60 / (curBpm * subdivide);
+        const newInterval = addToStart * 1000;
         interval = newInterval;
         setBpm((prev) => {
-          clearInterval(id);
-          id = setInterval(intervalFn, newInterval);
-          setTimerId(id);
           return prev + tempoInc;
         });
       }
+      if (!stopCheck()) {
+        setTimeout(() => play(sounds), interval);
+      }
     };
-    intervalFn();
-    let id = setInterval(intervalFn, interval);
-
-    setTimerId(id);
+    play(sounds);
     setIsPlaying(true);
   };
+
   return { playNumberCounter };
 };
 export default numberPlayer;

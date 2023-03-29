@@ -15,10 +15,11 @@ const audioPlayer = ({
   downBeat,
   numMeasures,
   repeat,
-  setTimerId,
   setBpm,
   playingSources,
   audioCtx,
+  stopCheck,
+  stopSection,
 }) => {
   const loadAudioFiles = async (beats, mainBeats, downBeats) => {
     const [downBeatBuffer, regularBuffer, mainBeatBuffer] = await Promise.all([
@@ -31,14 +32,15 @@ const audioPlayer = ({
 
   const playAudio = async (tone, start) => {
     const { beats, mainBeats, downBeats } = getAudioFiles(tone);
-    let interval = (60 / (bpm * subdivide)) * 1000;
+    let addToStart = 60 / (bpm * subdivide);
+    let interval = addToStart * 1000;
     let beatCount = 1;
     let beat = 0;
     originalBpm.current = bpm;
 
     let curBpm = bpm;
 
-    let startTime = start ? start : audioCtx.current.currentTime;
+    let startTime = start ? start : audioCtx.current.currentTime + 0.3;
 
     const { downBeatBuffer, regularBuffer, mainBeatBuffer } =
       await loadAudioFiles(beats, mainBeats, downBeats, audioCtx.current);
@@ -46,7 +48,8 @@ const audioPlayer = ({
     const gainNode = audioCtx.current.createGain();
     gainNode.connect(audioCtx.current.destination);
 
-    const intervalFn = () => {
+    const play = (curTone) => {
+      if (stopCheck()) return;
       const downBeatSource = audioCtx.current.createBufferSource();
       const regularSource = audioCtx.current.createBufferSource();
       const mainBeatSource = audioCtx.current.createBufferSource();
@@ -63,15 +66,17 @@ const audioPlayer = ({
       gainNode.gain.value = volumeRef.current;
       sound.connect(gainNode);
       sound.start(startTime);
-      playingSources.push([sound, startTime, gainNode]);
+      playingSources.push([
+        sound,
+        startTime,
+        gainNode,
+        downBeatBuffer.duration,
+      ]);
 
       // Disconnect finished audio sources
       while (playingSources.length) {
-        const [source, startTime, gainNode] = playingSources[0];
-        if (
-          startTime + downBeatBuffer.duration <
-          audioCtx.current.currentTime
-        ) {
+        const [source, startTime, gainNode, dur] = playingSources[0];
+        if (startTime + dur < audioCtx.current.currentTime) {
           source.disconnect(gainNode);
           playingSources.shift();
         } else {
@@ -81,7 +86,7 @@ const audioPlayer = ({
 
       beatCount++;
       beat++;
-      startTime += interval / 1000;
+      startTime += addToStart;
       if (beatCount > timeSignature * subdivide) {
         beatCount = 1;
       }
@@ -91,13 +96,8 @@ const audioPlayer = ({
         beat === numMeasures * timeSignature * subdivide * repeat
       ) {
         // section with all repeats have finished
-        clearInterval(id);
-        setIsPlaying(false);
-        setTimerId(null);
-        // clean up tempo change
-        if (tempoPractice && tempoInc > 0) {
-          setBpm(originalBpm.current);
-        }
+        stopSection();
+        return;
       } else if (
         sectionPractice &&
         tempoPractice &&
@@ -106,20 +106,18 @@ const audioPlayer = ({
       ) {
         // adjust interval to new bpm
         curBpm = curBpm + tempoInc;
-        const newInterval = (60 / (curBpm * subdivide)) * 1000;
+        addToStart = 60 / (curBpm * subdivide);
+        const newInterval = addToStart * 1000;
         interval = newInterval;
         setBpm((prev) => {
-          clearInterval(id);
-          id = setInterval(intervalFn, newInterval);
-          setTimerId(id);
           return prev + tempoInc;
         });
       }
+      if (!stopCheck()) {
+        setTimeout(() => play(curTone), interval);
+      }
     };
-    intervalFn();
-    let id = setInterval(intervalFn, interval);
-
-    setTimerId(id);
+    play(tone);
     setIsPlaying(true);
   };
 

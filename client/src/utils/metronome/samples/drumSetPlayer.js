@@ -15,10 +15,11 @@ const drumSetPlayer = ({
   numMeasures,
   repeat,
   setIsPlaying,
-  setTimerId,
   setBpm,
   playingSources,
   audioCtx,
+  stopCheck,
+  stopSection,
 }) => {
   const loadDrumSet = async () => {
     const bass = audioSamples["Bass Drum"].beats;
@@ -133,15 +134,16 @@ const drumSetPlayer = ({
     let beat = 0;
     originalBpm.current = bpm;
     let curBpm = bpm;
-    let interval = (60 / (bpm * subdivide)) * 1000;
-    let startTime = start ? start : audioCtx.current.currentTime;
+    let addToStart = 60 / (bpm * subdivide);
+    let interval = addToStart * 1000;
+    let startTime = start ? start : audioCtx.current.currentTime + 0.3;
 
     const gainNode = audioCtx.current.createGain();
     gainNode.connect(audioCtx.current.destination);
+    const rhythm = rhythmMap[timeSignature];
 
-    const intervalFn = () => {
-      // even number of beats
-      const rhythm = rhythmMap[timeSignature];
+    const play = (rhythm) => {
+      if (stopCheck()) return;
       const playing = [];
 
       if (sub-- > 1) {
@@ -190,7 +192,7 @@ const drumSetPlayer = ({
       }
       beatCount++;
       beat++;
-      startTime += interval / 1000;
+      startTime += addToStart;
       if (beatCount === timeSignature * subdivide * 2) {
         beatCount = 0;
         idx = 0;
@@ -201,37 +203,31 @@ const drumSetPlayer = ({
         beat === numMeasures * timeSignature * subdivide * repeat
       ) {
         // section with all repeats have finished
-        clearInterval(id);
-        setIsPlaying(false);
-        setTimerId(null);
-        // clean up tempo change
-        if (tempoPractice && tempoInc > 0) {
-          setBpm(originalBpm.current);
-        }
+        stopSection();
+        return;
       } else if (
         sectionPractice &&
         tempoPractice &&
         beat > 0 &&
         beat % (timeSignature * subdivide * numMeasures) === 0
       ) {
-        curBpm = curBpm + tempoInc;
         // adjust interval to new bpm
-        const newInterval = (60 / (curBpm * subdivide)) * 1000;
+        curBpm = curBpm + tempoInc;
+        addToStart = 60 / (curBpm * subdivide);
+        const newInterval = addToStart * 1000;
         interval = newInterval;
         setBpm((prev) => {
-          clearInterval(id);
-          id = setInterval(intervalFn, newInterval);
-          setTimerId(id);
           return prev + tempoInc;
         });
       }
+      if (!stopCheck()) {
+        setTimeout(() => play(rhythm), interval);
+      }
     };
-    intervalFn();
-    let id = setInterval(intervalFn, interval);
-
-    setTimerId(id);
+    play(rhythm);
     setIsPlaying(true);
   };
+
   return { playDrumSet };
 };
 export default drumSetPlayer;

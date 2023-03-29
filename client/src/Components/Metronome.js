@@ -1,4 +1,10 @@
-import React, { useEffect, useContext, useCallback, useRef } from "react";
+import React, {
+  useEffect,
+  useContext,
+  useCallback,
+  useState,
+  useRef,
+} from "react";
 
 import "../styles/Metronome.css";
 
@@ -18,8 +24,6 @@ function Metronome({ savedState, isChanging }) {
     bpm,
     setBpm,
     isPlaying,
-    setIsPlaying,
-    isStopping,
     timerId,
     setTimerId,
     timeSignature,
@@ -42,6 +46,8 @@ function Metronome({ savedState, isChanging }) {
     createMetQueryUrl,
     loaded,
     setLoaded,
+    isStopped,
+    setIsStopped,
   } = useContext(AppContext);
 
   const {
@@ -52,15 +58,23 @@ function Metronome({ savedState, isChanging }) {
     deleteMetronome,
   } = useContext(UserContext);
 
+  const isRestart = useRef(false);
+  // finish restart after stop finishes
+  useEffect(() => {
+    if (isStopped && !isPlaying && isRestart.current) {
+      // setIsRestart(false);
+      isRestart.current = false;
+      setIsStopped(false);
+      startClick();
+    }
+  }, [isStopped, isPlaying]);
+
   const restart = () => {
     if (isPlaying) {
-      isStopping.current = true;
-      clearInterval(timerId);
-
-      setIsPlaying(false);
-      setTimerId(null);
+      isRestart.current = true;
+      // setIsRestart(true);
+      stopClick();
     }
-    startClick();
   };
 
   // Memoize the startStop function with useCallback
@@ -140,7 +154,23 @@ function Metronome({ savedState, isChanging }) {
     if (loaded) {
       setLoaded(false);
     }
-  }, [loaded]);
+  }, [
+    loaded,
+    bpm,
+    timeSignature,
+    downBeat,
+    subdivide,
+    mainBeat,
+    key,
+    tone,
+    countIn,
+    numMeasures,
+    repeat,
+    tempoInc,
+    sectionPractice,
+    tempoPractice,
+    title,
+  ]);
 
   // saves the shared bpm and time signature when changing to dm
   useEffect(() => {

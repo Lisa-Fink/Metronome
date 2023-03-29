@@ -110,6 +110,7 @@ export const AppProvider = ({ children }) => {
     } = data;
 
     setBpm(bpm);
+    bpmRef.current = bpm;
     setTimeSignature(timeSignature);
     setDownBeat(downBeat);
     setSubdivide(subdivide);

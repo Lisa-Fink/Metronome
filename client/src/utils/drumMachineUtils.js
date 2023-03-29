@@ -4,78 +4,74 @@ import { fetchAudio } from "./audioUtils";
 const createDrumMachineUtils = (
   setIsPlaying,
   volumeRef,
-  timerId,
   isStopping,
-  setIsStopped,
   playingSources,
-  audioCtx
+  audioCtx,
+  stopCheck,
+  timerId,
+  setTimerId
 ) => {
   const playCustomRhythm = async (instruments, rhythms, curBpm) => {
+    if (stopCheck()) return;
     const buffers = await loadInstruments(instruments);
     isStopping.current = false;
-    const interval = (60 / (curBpm * 12)) * 1000; // (12 parts per beat)
-    let startTime = audioCtx.current.currentTime;
+    const addToStart = 60 / (curBpm * 12); // (12 parts per beat)
+    const timeSig = rhythms[0].length / 12;
+    const interval = (60 / curBpm) * timeSig * 1000;
+    let startTime = audioCtx.current.currentTime + 0.5;
     let cur;
 
     const gainNode = audioCtx.current.createGain();
     gainNode.connect(audioCtx.current.destination);
 
     const intervalFunc = async () => {
-      return new Promise(async (resolve) => {
-        const beats = rhythms[0].length;
-        for (let beat = 0; beat < beats; beat++) {
-          buffers.forEach((drumBuffer, key) => {
-            if (isStopping.current) {
-              return;
-            }
-            cur = rhythms[key][beat];
-            if (cur > 0) {
-              const source = audioCtx.current.createBufferSource();
-              source.buffer = drumBuffer;
-
-              source.connect(gainNode);
-              source.start(startTime);
-              playingSources.push([
-                source,
-                startTime,
-                gainNode,
-                drumBuffer.duration,
-              ]);
-            }
-          });
-          if (isStopping.current) {
-            isStopping.current = false;
-            setIsStopped(true);
-            return;
-          }
-          gainNode.gain.value = volumeRef.current;
-          startTime += interval / 1000;
-
-          // Disconnect finished audio sources
-          while (playingSources.length) {
-            const [source, startTime, gainNode, dur] = playingSources[0];
-            if (startTime + dur < audioCtx.current.currentTime) {
-              source.disconnect(gainNode);
-              // gainNode.disconnect(audioCtx.current.destination);
-              playingSources.shift();
-            } else {
+      const beats = rhythms[0].length;
+      for (let beat = 0; beat < beats; beat++) {
+        for (let key = 0; key < buffers.length; key++) {
+          const drumBuffer = buffers[key];
+          cur = rhythms[key][beat];
+          if (cur > 0) {
+            if (!audioCtx.current || isStopping.current) {
               break;
             }
-          }
+            const source = audioCtx.current.createBufferSource();
+            source.buffer = drumBuffer;
 
-          await new Promise((resolve) => {
-            setTimeout(() => {
-              resolve();
-            }, interval);
-          });
+            source.connect(gainNode);
+            source.start(startTime);
+            playingSources.push([
+              source,
+              startTime,
+              gainNode,
+              drumBuffer.duration,
+            ]);
+          }
         }
-        resolve();
-      });
+        if (!audioCtx.current || isStopping.current) {
+          break;
+        }
+        gainNode.gain.value = volumeRef.current;
+        startTime += addToStart;
+      }
+      if (!audioCtx.current || isStopping.current) return;
+      // Disconnect finished audio sources
+      while (playingSources.length) {
+        const [source, startTime, gainNode, dur] = playingSources[0];
+        if (startTime + dur < audioCtx.current.currentTime) {
+          source.disconnect(gainNode);
+          // gainNode.disconnect(audioCtx.current.destination);
+          playingSources.shift();
+        } else {
+          break;
+        }
+      }
+      if (!audioCtx.current || isStopping.current) return;
+      const id = setTimeout(() => intervalFunc(), interval);
+      setTimerId(id);
     };
+
+    intervalFunc(1);
     setIsPlaying(true);
-    while (!isStopping.current) {
-      await intervalFunc();
-    }
   };
 
   const playSample = (name, idx, volume) => {
@@ -85,9 +81,6 @@ const createDrumMachineUtils = (
   };
 
   const startDrumMachine = async (instruments, rhythms, curBpm) => {
-    if (timerId) {
-      clearInterval(timerId);
-    }
     // remove any instruments that don't have rhythms added
     const instrumentsToPlay = instruments.filter(
       (instrument) =>
@@ -130,7 +123,9 @@ const createDrumMachineUtils = (
 
   const stopDrumMachine = () => {
     isStopping.current = true;
-    setIsPlaying(false);
+    stopCheck();
+    clearTimeout(timerId);
+    setTimerId(null);
   };
   return { startDrumMachine, stopDrumMachine, playSample };
 };

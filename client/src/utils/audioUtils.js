@@ -29,6 +29,21 @@ const createAudioUtils = (
 ) => {
   let playingSources = [];
 
+  const stopCheck = () => {
+    if (isStopping.current) {
+      playingSources.length = 0;
+      if (audioCtx.current) {
+        audioCtx.current.close();
+        audioCtx.current = undefined;
+      }
+      isStopping.current = false;
+      setIsPlaying(false);
+      setIsStopped(true);
+      return true;
+    }
+    return false;
+  };
+
   const metronomeSettings = {
     bpm,
     downBeat,
@@ -53,6 +68,8 @@ const createAudioUtils = (
     isStopping,
     playingSources,
     audioCtx,
+    setIsStopped,
+    stopCheck,
   };
   const { startClick, stopClick } = createMetronomeUtils(metronomeSettings);
 
@@ -60,11 +77,12 @@ const createAudioUtils = (
     createDrumMachineUtils(
       setIsPlaying,
       volumeRef,
-      timerId,
       isStopping,
-      setIsStopped,
       playingSources,
-      audioCtx
+      audioCtx,
+      stopCheck,
+      timerId,
+      setTimerId
     );
 
   const stopEverything = () => {

@@ -85,7 +85,7 @@ function DrumMachine({ savedState, isChanging }) {
 
   useEffect(() => {
     // Finish reset after stop completes
-    if (!isPlaying && stopRef.current == true && isStopped) {
+    if (stopRef.current && isStopped) {
       setIsStopped(false);
       stopRef.current = false;
       startDrumMachine(instruments, rhythmSequence.current, bpm);

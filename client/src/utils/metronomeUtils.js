@@ -8,6 +8,41 @@ import beepPlayer from "./metronome/generated/beepPlayer";
 import countInPlayer from "./metronome/samples/countInPlayer";
 
 const createMetronomeUtils = (metronomeSettings) => {
+  const {
+    isStopping,
+    tempoPractice,
+    setBpm,
+    originalBpm,
+    countIn,
+    toneCategory,
+    tone,
+    playingSources,
+    audioCtx,
+    stopCheck,
+    tempoInc,
+  } = metronomeSettings;
+
+  const stopSection = () => {
+    if (playingSources.length > 0) {
+      const interval = setInterval(() => {
+        const [source, startTime, gainNode, dur] = playingSources[0];
+        if (startTime + dur < audioCtx.current.currentTime) {
+          playingSources.shift();
+          if (playingSources.length === 0) {
+            stopClick();
+            stopCheck();
+            clearInterval(interval);
+          }
+        }
+      }, 100);
+    } else {
+      stopClick();
+      stopCheck();
+    }
+  };
+
+  metronomeSettings.stopSection = stopSection;
+
   const { playNumberCounter } = numberPlayer(metronomeSettings);
 
   const { playDrumSet } = drumSetPlayer(metronomeSettings);
@@ -19,39 +54,11 @@ const createMetronomeUtils = (metronomeSettings) => {
   const { playBeep } = beepPlayer(metronomeSettings);
   const { playCountIn } = countInPlayer(metronomeSettings);
 
-  const {
-    timerId,
-    setIsPlaying,
-    isStopping,
-    sectionPractice,
-    tempoPractice,
-    setBpm,
-    originalBpm,
-    countIn,
-    toneCategory,
-    tone,
-    key,
-    setTimerId,
-    playingSources,
-    audioCtx,
-  } = metronomeSettings;
-
   const stopClick = () => {
-    playingSources.length = 0;
-
-    if (audioCtx.current) {
-      audioCtx.current.close();
-      audioCtx.current = undefined;
-    }
-    clearInterval(timerId);
-    setIsPlaying(false);
-    setTimerId(null);
-
-    isStopping.current = true;
-
-    if (sectionPractice && tempoPractice) {
+    if (tempoPractice && tempoInc > 0) {
       setBpm(originalBpm.current);
     }
+    isStopping.current = true;
   };
 
   const startClick = async () => {
@@ -62,6 +69,7 @@ const createMetronomeUtils = (metronomeSettings) => {
     if (countIn > 0) {
       start = await playCountIn();
     }
+    if (start < 0) return;
     if (toneCategory === "Basic Tones") {
       if (tone === "audioContextTone") {
         playBeep(start);
