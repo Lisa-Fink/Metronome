@@ -57,7 +57,7 @@ const flutePlayer = ({
     const mainBeatFreq = key * 1.5;
 
     let noteLen = interval / 2 / 1000;
-    let startTime = start ? start : audioCtx.current.currentTime + 0.3;
+    let startTime = start;
 
     const play = () => {
       if (stopCheck()) return;

@@ -40,7 +40,7 @@ const audioPlayer = ({
 
     let curBpm = bpm;
 
-    let startTime = start ? start : audioCtx.current.currentTime + 0.3;
+    let startTime = start;
 
     const { downBeatBuffer, regularBuffer, mainBeatBuffer } =
       await loadAudioFiles(beats, mainBeats, downBeats, audioCtx.current);

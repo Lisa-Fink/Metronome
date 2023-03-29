@@ -123,7 +123,7 @@ const numberPlayer = ({
     let curBpm = bpm;
     originalBpm.current = bpm;
 
-    let startTime = start ? start : audioCtx.current.currentTime + 0.3;
+    let startTime = start;
 
     const gainNode = audioCtx.current.createGain();
     gainNode.connect(audioCtx.current.destination);

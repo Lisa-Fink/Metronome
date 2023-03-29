@@ -136,7 +136,7 @@ const drumSetPlayer = ({
     let curBpm = bpm;
     let addToStart = 60 / (bpm * subdivide);
     let interval = addToStart * 1000;
-    let startTime = start ? start : audioCtx.current.currentTime + 0.3;
+    let startTime = start;
 
     const gainNode = audioCtx.current.createGain();
     gainNode.connect(audioCtx.current.destination);

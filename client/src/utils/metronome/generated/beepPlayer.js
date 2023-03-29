@@ -28,7 +28,7 @@ const beepPlayer = ({
     originalBpm.current = bpm;
     let noteLen = interval / 1.5 / 1000;
 
-    let startTime = start ? start : audioCtx.current.currentTime + 0.3;
+    let startTime = start;
     const gain = audioCtx.current.createGain();
     gain.connect(audioCtx.current.destination);
 

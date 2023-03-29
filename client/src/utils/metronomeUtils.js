@@ -62,12 +62,12 @@ const createMetronomeUtils = (metronomeSettings) => {
   };
 
   const startClick = async () => {
-    let start = undefined;
-
     audioCtx.current = new AudioContext();
 
+    let start = audioCtx.current.currentTime + 0.3;
+
     if (countIn > 0) {
-      start = await playCountIn();
+      start = await playCountIn(start);
     }
     if (start < 0) return;
     if (toneCategory === "Basic Tones") {

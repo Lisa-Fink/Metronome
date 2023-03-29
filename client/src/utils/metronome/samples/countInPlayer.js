@@ -16,7 +16,7 @@ const countInPlayer = ({
     return await fetchAudio(audioSamples.Triangle.downBeats, audioCtx);
   };
 
-  const playCountIn = async () => {
+  const playCountIn = async (start) => {
     setIsPlaying(true);
     // use triangle down beat
     const clickBuffer = await loadCountIn(audioCtx.current);
@@ -24,7 +24,7 @@ const countInPlayer = ({
     const addToStart = 60 / (bpm * subdivide);
     const interval = (60 / (bpm * subdivide)) * 1000;
     let beat = 0;
-    let startTime = audioCtx.current.currentTime + 0.3;
+    let startTime = start;
     return new Promise((resolve) => {
       const id = setInterval(() => {
         const source = audioCtx.current.createBufferSource();
@@ -38,7 +38,7 @@ const countInPlayer = ({
         beat++;
         if (beat == countIn * timeSignature * subdivide) {
           clearInterval(id);
-          resolve(startTime + addToStart);
+          resolve(startTime);
         }
         if (stopCheck()) {
           clearInterval(id);
