@@ -34,7 +34,7 @@ const drumSetPlayer = ({
     );
   };
 
-  const playDrumSet = async () => {
+  const playDrumSet = async (start) => {
     const [bass, hiHat, hiHatSubdivide, snare, crash, clap] =
       await loadDrumSet();
 
@@ -134,7 +134,7 @@ const drumSetPlayer = ({
     originalBpm.current = bpm;
     let curBpm = bpm;
     let interval = (60 / (bpm * subdivide)) * 1000;
-    let startTime = audioCtx.current.currentTime;
+    let startTime = start ? start : audioCtx.current.currentTime;
 
     const gainNode = audioCtx.current.createGain();
     gainNode.connect(audioCtx.current.destination);
