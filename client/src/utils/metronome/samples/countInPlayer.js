@@ -1,4 +1,5 @@
 import { audioSamples } from "../../audioFiles";
+import { fetchAudio } from "../../audioUtils";
 
 const countInPlayer = ({
   bpm,
@@ -11,10 +12,7 @@ const countInPlayer = ({
   audioCtx,
 }) => {
   const loadCountIn = async () => {
-    const src = audioSamples.Triangle.downBeats;
-    const response = await fetch(src);
-    const arrayBuffer = await response.arrayBuffer();
-    return await audioCtx.current.decodeAudioData(arrayBuffer);
+    return await fetchAudio(audioSamples.Triangle.downBeats, audioCtx);
   };
 
   const playCountIn = async () => {
