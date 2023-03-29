@@ -78,7 +78,7 @@ const flutePlayer = ({
       }
 
       gain.gain.setValueAtTime(volumeRef.current, startTime);
-      current.start(startTime + 0.01);
+      current.start(startTime);
 
       const endTime = startTime + noteLen;
       current.stop(endTime);
