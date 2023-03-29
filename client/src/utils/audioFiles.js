@@ -59,9 +59,9 @@ const audioSamples = {
   },
   "Bass Drum": {
     beats: "./audio/bassDrum/solid-kick-bassdrum.wav",
-    mainBeats: "./audio/bassDrum/solid-kick-bassdrum.wav",
-    downBeats: "./audio/bassDrum/solid-kick-bassdrum.wav",
-    descriptions: ["Solid Kick"],
+    mainBeats: "./audio/bassDrum/bass-drum-kick_C.wav",
+    downBeats: "./audio/bassDrum/hard-kick-drum.wav",
+    descriptions: ["Solid Kick", "High Kick", "Hard Kick"],
   },
 };
 
