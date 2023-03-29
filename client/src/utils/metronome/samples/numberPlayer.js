@@ -115,7 +115,7 @@ const numberPlayer = ({
   const playNumberCounter = async (start) => {
     const sounds = await loadNumberCounterAudio(audioCtx.current);
 
-    const interval = (60 / (bpm * subdivide)) * 1000;
+    let interval = (60 / (bpm * subdivide)) * 1000;
     let beatCount = 0;
     let beat = 0;
     let curBpm = bpm;
@@ -173,10 +173,11 @@ const numberPlayer = ({
         beat > 0 &&
         beat % (timeSignature * subdivide * numMeasures) === 0
       ) {
+        curBpm = curBpm + tempoInc;
+        // adjust interval to new bpm
+        const newInterval = (60 / (curBpm * subdivide)) * 1000;
+        interval = newInterval;
         setBpm((prev) => {
-          curBpm = curBpm + tempoInc;
-          // adjust interval to new bpm
-          const newInterval = (60 / (curBpm * subdivide)) * 1000;
           clearInterval(id);
           id = setInterval(intervalFn, newInterval);
           setTimerId(id);
