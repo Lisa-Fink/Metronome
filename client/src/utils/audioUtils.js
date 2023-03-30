@@ -30,7 +30,7 @@ const createAudioUtils = (
   let playingSources = [];
 
   const stopCheck = () => {
-    if (isStopping.current) {
+    if (isStopping.current || !audioCtx.current) {
       playingSources.length = 0;
       if (audioCtx.current) {
         audioCtx.current.close();

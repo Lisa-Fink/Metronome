@@ -85,15 +85,20 @@ function DrumMachine({ savedState, isChanging }) {
 
   useEffect(() => {
     // Finish reset after stop completes
-    if (stopRef.current && isStopped) {
+    if (
+      isChanging.current === false &&
+      stopRef.current === true &&
+      isStopped === true &&
+      isPlaying === false
+    ) {
       setIsStopped(false);
       stopRef.current = false;
       startDrumMachine(instruments, rhythmSequence.current, bpm);
     }
-  }, [isStopped]);
+  }, [isStopped, stopRef, isChanging, isPlaying]);
 
   useEffect(() => {
-    if (isPlaying) {
+    if (isPlaying && !isChanging.current) {
       if (rhythmGrid.flat().every((instRhythm) => instRhythm === false)) {
         // Stop if all rhythms are false
         // Note: could move this to any function that could remove rhythms
@@ -106,7 +111,7 @@ function DrumMachine({ savedState, isChanging }) {
 
   // Saves and loads bpm and time signature settings when changing/loading view
   useEffect(() => {
-    if (isChanging.current) {
+    if (isChanging.current && isChanging.current !== "met") {
       if (savedState.current.bpm !== undefined) {
         setBpm(savedState.current.bpm);
         setTimeSignature(savedState.current.timeSignature);
@@ -114,18 +119,22 @@ function DrumMachine({ savedState, isChanging }) {
       isChanging.current = false;
     }
     return () => {
-      if (isChanging.current) {
+      if (isChanging.current && isChanging.current !== "met") {
+        isChanging.current = "met";
         savedState.current = Object.assign({}, savedState.current, {
           bpm,
           timeSignature,
         });
+        if (isPlaying) {
+          stopDrumMachine();
+          stopRef.current = false;
+        }
       }
     };
-  }, [bpm, timeSignature]);
+  }, [bpm, timeSignature, isPlaying]);
 
   const restart = () => {
     if (isPlaying) {
-      setIsStopped(false);
       stopRef.current = true;
       stopDrumMachine();
     }
@@ -152,7 +161,7 @@ function DrumMachine({ savedState, isChanging }) {
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [startStop, isPlaying]);
+  }, [startStop]);
 
   const handleEditDelete = (e) => {
     const val = e.currentTarget.value;

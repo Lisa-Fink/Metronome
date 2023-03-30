@@ -84,11 +84,6 @@ function Metronome({ savedState, isChanging }) {
       // stopping
       stopClick();
     } else {
-      // Stops playing incase there is an interval running
-      if (timerId) {
-        clearInterval(timerId);
-        setTimerId(null);
-      }
       startClick();
     }
   }, [
@@ -190,9 +185,12 @@ function Metronome({ savedState, isChanging }) {
           bpm,
           timeSignature,
         });
+        if (isPlaying) {
+          stopClick();
+        }
       }
     };
-  }, [bpm, timeSignature]);
+  }, [bpm, timeSignature, isPlaying]);
 
   return (
     <div className="metronome-body">
