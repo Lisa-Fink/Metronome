@@ -10,7 +10,7 @@ export const AppProvider = ({ children }) => {
   const isStopping = useRef(false);
   const [volume, setVolume] = useState(0.16);
   const volumeRef = useRef(volume); // updates in realtime during playback
-  const [timerId, setTimerId] = useState(null);
+  const timerId = useRef(null);
 
   const [timeSignature, setTimeSignature] = useState(4);
   const [downBeat, setDownBeat] = useState(false);
@@ -67,7 +67,6 @@ export const AppProvider = ({ children }) => {
     setIsPlaying,
     key,
     mainBeat,
-    setTimerId,
     subdivide,
     timeSignature,
     tone,
@@ -84,7 +83,9 @@ export const AppProvider = ({ children }) => {
     bpmRef,
     isStopping,
     setIsStopped,
-    audioCtx
+    audioCtx,
+    instruments,
+    rhythmSequence
   );
 
   /****************************************************************************/
@@ -155,6 +156,7 @@ export const AppProvider = ({ children }) => {
     updateRS(rhythmSequence);
     setRhythmGrid(rhythmGrid);
     setDMTitle(title);
+    setLoaded(true);
   };
 
   const updateRS = (newRS) => {
@@ -426,7 +428,6 @@ export const AppProvider = ({ children }) => {
     setVolume,
     volumeRef,
     timerId,
-    setTimerId,
     timeSignature,
     setTimeSignature,
     downBeat,
