@@ -3,7 +3,7 @@ import { BiDownArrow, BiUpArrow } from "react-icons/bi";
 import { AppContext } from "../contexts/AppContext";
 
 function TempoControls({ start }) {
-  const { bpm, setBpm, isPlaying, paused, setPaused, audioCtx } =
+  const { bpm, setBpm, isPlaying, paused, setPaused, audioCtx, timerId } =
     useContext(AppContext);
 
   const MAX_BPM = 240;
@@ -12,9 +12,16 @@ function TempoControls({ start }) {
   const mouseDownIntervalId = useRef(null);
 
   const quickStop = () => {
+    setPaused(true);
+    clearTimeout(timerId.current);
     audioCtx.current.close();
     audioCtx.current = undefined;
-    setPaused(true);
+  };
+
+  const quickStart = () => {
+    clearTimeout(timerId.current);
+    setPaused(false);
+    start();
   };
 
   const incrementBPM = () => {
@@ -127,8 +134,7 @@ function TempoControls({ start }) {
           onChange={handleBpmSliderChange}
           onMouseUp={() => {
             if (paused) {
-              start();
-              setPaused(false);
+              quickStart();
             }
           }}
         />
