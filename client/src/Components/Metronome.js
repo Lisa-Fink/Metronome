@@ -24,8 +24,6 @@ function Metronome({ savedState, isChanging }) {
     bpm,
     setBpm,
     isPlaying,
-    timerId,
-    setTimerId,
     timeSignature,
     setTimeSignature,
     downBeat,
@@ -62,7 +60,6 @@ function Metronome({ savedState, isChanging }) {
   // finish restart after stop finishes
   useEffect(() => {
     if (isStopped && !isPlaying && isRestart.current) {
-      // setIsRestart(false);
       isRestart.current = false;
       setIsStopped(false);
       startClick();
@@ -72,7 +69,6 @@ function Metronome({ savedState, isChanging }) {
   const restart = () => {
     if (isPlaying) {
       isRestart.current = true;
-      // setIsRestart(true);
       stopClick();
     }
   };
@@ -88,7 +84,6 @@ function Metronome({ savedState, isChanging }) {
     }
   }, [
     isPlaying,
-    timerId,
     timeSignature,
     downBeat,
     tone,
