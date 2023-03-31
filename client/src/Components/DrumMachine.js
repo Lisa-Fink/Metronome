@@ -41,6 +41,8 @@ function DrumMachine({ savedState, isChanging }) {
     MAX_INSTRUMENTS,
     isStopped,
     setIsStopped,
+    loaded,
+    setLoaded,
   } = useContext(AppContext);
 
   const isTyping = useRef(false);
@@ -93,21 +95,24 @@ function DrumMachine({ savedState, isChanging }) {
     ) {
       setIsStopped(false);
       stopRef.current = false;
-      startDrumMachine(instruments, rhythmSequence.current, bpm);
+      startDrumMachine();
     }
   }, [isStopped, stopRef, isChanging, isPlaying]);
 
   useEffect(() => {
-    if (isPlaying && !isChanging.current) {
+    // Restarts if a setting was changed or if loaded new, or stop if all rhythms were removed
+    if (isPlaying && !isChanging.current && loaded) {
+      if (loaded) {
+        setLoaded(false);
+      }
       if (rhythmGrid.flat().every((instRhythm) => instRhythm === false)) {
         // Stop if all rhythms are false
-        // Note: could move this to any function that could remove rhythms
         stopDrumMachine();
         return;
       }
       restart();
     }
-  }, [timeSignature, measures, rhythmGrid, instruments, dMTitle, bpm]);
+  }, [timeSignature, measures, rhythmGrid, instruments, dMTitle, loaded]);
 
   // Saves and loads bpm and time signature settings when changing/loading view
   useEffect(() => {
@@ -144,7 +149,7 @@ function DrumMachine({ savedState, isChanging }) {
     if (isPlaying) {
       stopDrumMachine();
     } else {
-      startDrumMachine(instruments, rhythmSequence.current, bpm);
+      startDrumMachine();
     }
   }, [isPlaying, instruments, rhythmSequence, bpm]);
   // Adds start/stop with space bar press
