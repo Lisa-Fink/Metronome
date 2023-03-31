@@ -8,7 +8,6 @@ const createAudioUtils = (
   setIsPlaying,
   key,
   mainBeat,
-  setTimerId,
   subdivide,
   timeSignature,
   tone,
@@ -25,18 +24,17 @@ const createAudioUtils = (
   originalBpm,
   isStopping,
   setIsStopped,
-  audioCtx
+  audioCtx,
+  instruments,
+  rhythmSequence
 ) => {
-  let playingSources = [];
-
-  const stopCheck = (timerId) => {
+  const stopCheck = () => {
     if (isStopping.current || !audioCtx.current) {
-      playingSources.length = 0;
       if (audioCtx.current) {
         audioCtx.current.close();
         audioCtx.current = undefined;
       }
-      clearTimeout(timerId);
+      clearTimeout(timerId.current);
       isStopping.current = false;
       setIsPlaying(false);
       setIsStopped(true);
@@ -51,7 +49,6 @@ const createAudioUtils = (
     setIsPlaying,
     key,
     mainBeat,
-    setTimerId,
     subdivide,
     timeSignature,
     tone,
@@ -67,7 +64,6 @@ const createAudioUtils = (
     setBpm,
     originalBpm,
     isStopping,
-    playingSources,
     audioCtx,
     setIsStopped,
     stopCheck,
@@ -79,17 +75,16 @@ const createAudioUtils = (
       setIsPlaying,
       volumeRef,
       isStopping,
-      playingSources,
       audioCtx,
       stopCheck,
-      timerId,
-      setTimerId
+      bpm,
+      instruments,
+      rhythmSequence,
+      timerId
     );
 
   const stopEverything = () => {
-    stopClick();
-    stopDrumMachine();
-    setIsPlaying(false);
+    stopCheck();
   };
 
   return {
@@ -104,6 +99,7 @@ const createAudioUtils = (
 };
 
 const fetchAudio = async (src, audioCtx) => {
+  if (!audioCtx.current) return;
   const response = await fetch(src);
   const arrayBuffer = await response.arrayBuffer();
   return audioCtx.current.decodeAudioData(arrayBuffer);
