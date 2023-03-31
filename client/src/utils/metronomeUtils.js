@@ -7,7 +7,9 @@ const createMetronomeUtils = (metronomeSettings) => {
   const {
     isStopping,
     tempoPractice,
+    sectionPractice,
     setBpm,
+    bpm,
     originalBpm,
     countIn,
     audioCtx,
@@ -37,7 +39,7 @@ const createMetronomeUtils = (metronomeSettings) => {
   const { play } = metronomePlayer(metronomeSettings);
 
   const stopClick = () => {
-    if (tempoPractice && tempoInc > 0) {
+    if (sectionPractice && tempoPractice && tempoInc > 0) {
       setBpm(originalBpm.current);
     }
     isStopping.current = true;
@@ -47,7 +49,7 @@ const createMetronomeUtils = (metronomeSettings) => {
     audioCtx.current = new AudioContext();
 
     let start = audioCtx.current.currentTime + 0.1;
-
+    originalBpm.current = bpm;
     if (countIn > 0) {
       start = await playCountIn(start);
     }

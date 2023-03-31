@@ -17,7 +17,6 @@ const metronomePlayer = ({
   audioCtx,
   stopCheck,
   stopSection,
-  originalBpm,
   bpm,
   setIsPlaying,
   downBeat,
@@ -157,7 +156,6 @@ const metronomePlayer = ({
     const gainNode = audioCtx.current.createGain();
     gainNode.connect(audioCtx.current.destination);
     const { sounds, getSound } = await getPlayerSettings();
-    originalBpm.current = bpm;
     addToStart = 60 / (bpm * subdivide);
     beatCount = 1;
     beat = 0;
