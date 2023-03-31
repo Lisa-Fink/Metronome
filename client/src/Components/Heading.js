@@ -10,7 +10,7 @@ import { UserContext } from "../contexts/UserContext";
 import { AppContext } from "../contexts/AppContext";
 
 function Heading({ view, setView, isChanging }) {
-  const { lightMode, setLightMode, stopEverything, isPlaying } =
+  const { lightMode, setLightMode, isStopping, isPlaying } =
     useContext(AppContext);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isSignUpOpen, setIsSignUpOpen] = useState(false);
@@ -60,28 +60,32 @@ function Heading({ view, setView, isChanging }) {
 
   const handleRhythmClick = async () => {
     isChanging.current = true;
-    stopEverything();
     if (!isPlaying) {
       setView("rhythm");
     } else {
+      isStopping.current = true;
       changeToWhenRdy.current = "rhythm";
     }
   };
 
   const handleMetronomeClick = async () => {
     isChanging.current = true;
-    stopEverything();
     if (!isPlaying) {
       setView("metronome");
     } else {
+      isStopping.current = true;
       changeToWhenRdy.current = "metronome";
     }
   };
 
   useEffect(() => {
+    // Changes the view when ready (after isPlaying is set to false)
     if (isChanging.current && !isPlaying && changeToWhenRdy.current) {
       const toChange = changeToWhenRdy.current;
       changeToWhenRdy.current = "";
+      if (isStopping.current) {
+        isStopping.current = false;
+      }
       setView(toChange);
     }
   }, [isPlaying]);
