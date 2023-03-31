@@ -20,7 +20,7 @@ export const AppProvider = ({ children }) => {
   const [key, setKey] = useState(261.63);
   const [tone, setTone] = useState("Wood Block");
 
-  const paused = useRef(false);
+  const [paused, setPaused] = useState(false);
   const [toneCategory, setToneCategory] = useState("Percussion");
 
   // Practice settings
@@ -440,6 +440,7 @@ export const AppProvider = ({ children }) => {
     tone,
     setTone,
     paused,
+    setPaused,
     toneCategory,
     setToneCategory,
     countIn,
@@ -485,6 +486,7 @@ export const AppProvider = ({ children }) => {
     setIsStopped,
     loaded,
     setLoaded,
+    audioCtx,
   };
 
   return (

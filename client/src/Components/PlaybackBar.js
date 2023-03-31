@@ -10,9 +10,9 @@ function PlaybackBar({ startStop }) {
   return (
     <div id="bottom">
       <button id="metronome-btn" onClick={startStop}>
-        {paused.current ? "Paused " : isPlaying ? "Stop " : "Play "}
+        {paused ? "Paused " : isPlaying ? "Stop " : "Play "}
 
-        {paused.current ? (
+        {paused ? (
           <IoPauseOutline />
         ) : isPlaying ? (
           <IoStopOutline />

@@ -22,7 +22,7 @@ const countInPlayer = ({
     const clickBuffer = await loadCountIn(audioCtx.current);
 
     const addToStart = 60 / (bpm * subdivide);
-    const interval = (60 / (bpm * subdivide)) * 1000;
+    const interval = ((60 / (bpm * subdivide)) * 1000) / 1.5;
     let beat = 0;
     let startTime = start;
     return new Promise((resolve) => {
