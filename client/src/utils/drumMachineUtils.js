@@ -10,7 +10,8 @@ const createDrumMachineUtils = (
   bpm,
   instruments,
   rhythmSequence,
-  timerId
+  timerId,
+  gainRef
 ) => {
   let addToStart,
     timeSig,
@@ -45,7 +46,7 @@ const createDrumMachineUtils = (
       if (!audioCtx.current || isStopping.current) {
         break;
       }
-      gainNode.gain.value = volumeRef.current;
+      // gainNode.gain.value = volumeRef.current;
       startTime += addToStart;
     }
     if (!audioCtx.current || isStopping.current) {
@@ -89,6 +90,8 @@ const createDrumMachineUtils = (
     const gainNode = audioCtx.current.createGain();
     gainNode.connect(audioCtx.current.destination);
     const buffers = await loadInstruments(instrumentsToPlay);
+    gainNode.gain.value = volumeRef.current;
+    gainRef.current = gainNode;
 
     curBpm = bpm;
     addToStart = 60 / (curBpm * 12); // (12 parts per beat)

@@ -16,23 +16,23 @@ const getOsc = (
 ) => {
   const osc = createBeepTone(gain, audioCtx);
   if (downBeat && beatCount === 1) {
-    osc.frequency.value = key * 4; // Set the frequency for high pitch
+    osc.frequency.value = key * 4;
   } else if (subdivide > 1 && mainBeat && (beatCount - 1) % subdivide === 0) {
-    osc.frequency.value = key * 3; // Set the frequency for main beat
+    osc.frequency.value = key * 3;
   } else {
     if (beatCount === timeSignature * subdivide) {
       beatCount = 0;
     }
     osc.frequency.value = key * 2;
+    osc.connect(gain);
   }
   return osc;
 };
 
-const beepStart = (osc, startTime, gain, addToStart) => {
-  const noteLen = addToStart / 1.5;
-  osc.start(startTime);
-  gain.gain.exponentialRampToValueAtTime(0.01, startTime + noteLen); // remove click at end
+const beepStart = (osc, startTime, addToStart) => {
+  const noteLen = addToStart / 2;
   const endTime = startTime + noteLen;
+  osc.start(startTime);
   osc.stop(endTime);
 };
 

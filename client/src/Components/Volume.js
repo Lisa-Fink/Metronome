@@ -1,14 +1,22 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import { BsVolumeUp, BsVolumeMute } from "react-icons/bs";
+import { AppContext } from "../contexts/AppContext";
 
 function Volume({ volume, setVolume, volumeRef }) {
+  const { gain } = useContext(AppContext);
   const [showVolume, setShowVolume] = useState(false);
   const oldVolume = useRef(0);
 
+  useEffect(() => {
+    if (gain.current) {
+      gain.current.gain.value = volumeRef.current;
+    }
+  }, [volume, volumeRef]);
+
   const changeVolume = (e) => {
     const newVolume = e.target.value;
-    setVolume(newVolume);
     volumeRef.current = newVolume / 3;
+    setVolume(newVolume);
   };
 
   const hoverVolume = (e) => {
@@ -23,8 +31,8 @@ function Volume({ volume, setVolume, volumeRef }) {
 
   const mute = (e) => {
     oldVolume.current = volume;
-    setVolume(0);
     volumeRef.current = 0;
+    setVolume(0);
   };
 
   const unMute = (e) => {

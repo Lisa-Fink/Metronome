@@ -26,13 +26,15 @@ const createAudioUtils = (
   setIsStopped,
   audioCtx,
   instruments,
-  rhythmSequence
+  rhythmSequence,
+  gain
 ) => {
   const stopCheck = () => {
     if (isStopping.current || !audioCtx.current) {
       if (audioCtx.current) {
         audioCtx.current.close();
         audioCtx.current = undefined;
+        gain.current = undefined;
       }
       clearTimeout(timerId.current);
       isStopping.current = false;
@@ -67,6 +69,7 @@ const createAudioUtils = (
     audioCtx,
     setIsStopped,
     stopCheck,
+    gain,
   };
   const { startClick, stopClick } = createMetronomeUtils(metronomeSettings);
 
@@ -80,7 +83,8 @@ const createAudioUtils = (
       bpm,
       instruments,
       rhythmSequence,
-      timerId
+      timerId,
+      gain
     );
 
   const stopEverything = () => {

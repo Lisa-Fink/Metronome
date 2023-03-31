@@ -16,6 +16,7 @@ const createMetronomeUtils = (metronomeSettings) => {
     stopCheck,
     tempoInc,
     timerId,
+    gain,
   } = metronomeSettings;
 
   const stopSection = (startTime) => {

@@ -13,12 +13,12 @@ const createFluteTone = (frequency, mainGain, audioCtx) => {
     const x = Math.sin(2 * Math.PI * frequency * t);
     dataL[i] = dataR[i] = x;
   }
-  const gain = audioCtx.current.createGain();
+  // const gain = audioCtx.current.createGain();
   const con = audioCtx.current.createConvolver();
   con.connect(mainGain);
-  gain.connect(con);
+  // gain.connect(con);
   con.buffer = buffer;
-  newOsc.connect(gain);
+  newOsc.connect(con);
   newOsc.frequency.value = frequency;
 
   return newOsc;

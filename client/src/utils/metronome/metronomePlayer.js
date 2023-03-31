@@ -25,6 +25,7 @@ const metronomePlayer = ({
   toneCategory,
   key,
   timerId,
+  gain,
 }) => {
   let addToStart,
     beatCount,
@@ -74,14 +75,16 @@ const metronomePlayer = ({
 
   const scheduleStart = (sound, gainNode) => {
     if (stopCheck()) return;
-    gainNode.gain.value = volumeRef.current;
+    if (tone === "audioContextTone") {
+      beepStart(sound, startTime, addToStart);
+      return;
+    }
+    // gainNode.gain.value = volumeRef.current;
     if (toneCategory === "Drum Sets") {
       drumStart(sound, startTime, gainNode);
       return;
-    } else if (tone === "audioContextTone") {
-      beepStart(sound, startTime, gainNode, addToStart);
-      return;
-    } else if (tone === "audioContextFlute") {
+    }
+    if (tone === "audioContextFlute") {
       fluteStart(sound, startTime, addToStart);
       return;
     }
@@ -154,7 +157,9 @@ const metronomePlayer = ({
   const play = async (start) => {
     setIsPlaying(true);
     const gainNode = audioCtx.current.createGain();
+    gain.current = gainNode;
     gainNode.connect(audioCtx.current.destination);
+    gainNode.gain.value = volumeRef.current;
     const { sounds, getSound } = await getPlayerSettings();
     addToStart = 60 / (bpm * subdivide);
     beatCount = 1;
