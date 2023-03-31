@@ -208,7 +208,7 @@ function Metronome({ savedState, isChanging }) {
       <h2>Metronome</h2>
       <div id="sections">
         <div id="left-col">
-          <TempoControls startStop={startStop} />
+          <TempoControls start={startClick} />
           <ToneSelector />
         </div>
         <RhythmSettings />

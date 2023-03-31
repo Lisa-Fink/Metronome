@@ -2,13 +2,20 @@ import React, { useRef, useContext } from "react";
 import { BiDownArrow, BiUpArrow } from "react-icons/bi";
 import { AppContext } from "../contexts/AppContext";
 
-function TempoControls({ startStop }) {
-  const { bpm, setBpm, isPlaying, paused } = useContext(AppContext);
+function TempoControls({ start }) {
+  const { bpm, setBpm, isPlaying, paused, setPaused, audioCtx } =
+    useContext(AppContext);
 
   const MAX_BPM = 240;
   const MIN_BPM = 40;
 
   const mouseDownIntervalId = useRef(null);
+
+  const quickStop = () => {
+    audioCtx.current.close();
+    audioCtx.current = undefined;
+    setPaused(true);
+  };
 
   const incrementBPM = () => {
     setBpm((prevBpm) => {
@@ -36,9 +43,8 @@ function TempoControls({ startStop }) {
   const handleMouseDownUpArrow = () => {
     if (bpm < MAX_BPM) {
       // Stop the audio when the mouse button is held down
-      if (isPlaying) {
-        startStop();
-        paused.current = true;
+      if (isPlaying && !paused) {
+        quickStop();
       }
       const interval = setInterval(() => {
         incrementBPM();
@@ -50,9 +56,8 @@ function TempoControls({ startStop }) {
   const handleMouseDownDownArrow = () => {
     if (bpm > MIN_BPM) {
       // Stop the audio when the mouse button is held down
-      if (isPlaying) {
-        startStop();
-        paused.current = true;
+      if (isPlaying && !paused) {
+        quickStop();
       }
       const interval = setInterval(() => {
         decrementBPM();
@@ -62,9 +67,10 @@ function TempoControls({ startStop }) {
   };
 
   const stopBpmChange = () => {
-    if (paused.current) {
-      startStop();
-      paused.current = false;
+    if (paused) {
+      console.log("start bpm change");
+      start();
+      setPaused(false);
     }
     clearInterval(mouseDownIntervalId.current);
   };
@@ -72,9 +78,8 @@ function TempoControls({ startStop }) {
   const handleBpmSliderChange = (event) => {
     const newBpm = event.target.value;
     setBpm(parseInt(newBpm));
-    if (isPlaying) {
-      startStop();
-      paused.current = true;
+    if (isPlaying && !paused) {
+      quickStop();
     }
   };
 
@@ -122,9 +127,10 @@ function TempoControls({ startStop }) {
           value={bpm}
           onChange={handleBpmSliderChange}
           onMouseUp={() => {
-            if (paused.current) {
-              startStop();
-              paused.current = false;
+            if (paused) {
+              console.log("mouse up");
+              start();
+              setPaused(false);
             }
           }}
         />

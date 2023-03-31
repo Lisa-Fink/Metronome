@@ -187,7 +187,7 @@ function DrumMachine({ savedState, isChanging }) {
 
       <div className="top">
         <div className="left">
-          <TempoControls startStop={startStop} />
+          <TempoControls start={startDrumMachine} />
         </div>
         <CountSelector
           hoverGridRef={hoverGridRef}
