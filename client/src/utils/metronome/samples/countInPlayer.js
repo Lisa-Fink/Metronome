@@ -10,12 +10,12 @@ const countInPlayer = ({
   countIn,
   audioCtx,
   stopCheck,
+  timerId,
 }) => {
   let beat = 0;
   let startTime = 0;
   let isPlaying = false;
   let end = false;
-  let schedulerId = null;
   let addToStart;
 
   const loadCountIn = async () => {
@@ -42,11 +42,11 @@ const countInPlayer = ({
       }
     }
     if (end !== false) {
-      clearTimeout(schedulerId);
+      clearTimeout(timerId.current);
       return Promise.resolve(end);
     }
     return new Promise((resolve) => {
-      schedulerId = setTimeout(
+      timerId.current = setTimeout(
         () => resolve(scheduleNextClick(clickBuffer, gainNode)),
         25
       );

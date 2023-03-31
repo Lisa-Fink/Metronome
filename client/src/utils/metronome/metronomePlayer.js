@@ -25,6 +25,7 @@ const metronomePlayer = ({
   tone,
   toneCategory,
   key,
+  timerId,
 }) => {
   let addToStart,
     beatCount,
@@ -32,8 +33,7 @@ const metronomePlayer = ({
     curBpm,
     startTime,
     scheduleTime,
-    lookAheadTime,
-    timerId;
+    lookAheadTime;
 
   const advance = () => {
     beatCount++;
@@ -55,7 +55,7 @@ const metronomePlayer = ({
       beat === numMeasures * timeSignature * subdivide * repeat
     ) {
       // section with all repeats have finished
-      stopSection(startTime - addToStart, timerId);
+      stopSection(startTime - addToStart);
       return false;
     } else if (
       sectionPractice &&
@@ -74,7 +74,7 @@ const metronomePlayer = ({
   };
 
   const scheduleStart = (sound, gainNode) => {
-    if (stopCheck(timerId)) return;
+    if (stopCheck()) return;
     gainNode.gain.value = volumeRef.current;
     if (toneCategory === "Drum Sets") {
       drumStart(sound, startTime, gainNode);
@@ -126,7 +126,7 @@ const metronomePlayer = ({
       }
     }
     if (ended || !audioCtx.current) return;
-    timerId = setTimeout(
+    timerId.current = setTimeout(
       () => scheduler(sounds, gainNode, getSound),
       scheduleTime
     );

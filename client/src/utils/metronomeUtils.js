@@ -13,9 +13,10 @@ const createMetronomeUtils = (metronomeSettings) => {
     audioCtx,
     stopCheck,
     tempoInc,
+    timerId,
   } = metronomeSettings;
 
-  const stopSection = (startTime, timerId) => {
+  const stopSection = (startTime) => {
     if (startTime > audioCtx.current.currentTime) {
       const interval = setInterval(() => {
         if (audioCtx.current.currentTime > startTime + 0.2) {
