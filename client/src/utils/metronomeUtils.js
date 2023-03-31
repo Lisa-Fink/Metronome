@@ -15,18 +15,18 @@ const createMetronomeUtils = (metronomeSettings) => {
     tempoInc,
   } = metronomeSettings;
 
-  const stopSection = (startTime) => {
+  const stopSection = (startTime, timerId) => {
     if (startTime > audioCtx.current.currentTime) {
       const interval = setInterval(() => {
         if (audioCtx.current.currentTime > startTime + 0.2) {
           stopClick();
-          stopCheck();
+          stopCheck(timerId);
           clearInterval(interval);
         }
       }, 100);
     } else {
       stopClick();
-      stopCheck();
+      stopCheck(timerId);
     }
   };
 
@@ -45,13 +45,12 @@ const createMetronomeUtils = (metronomeSettings) => {
   const startClick = async () => {
     audioCtx.current = new AudioContext();
 
-    let start = audioCtx.current.currentTime + 0.3;
+    let start = audioCtx.current.currentTime + 0.1;
 
     if (countIn > 0) {
       start = await playCountIn(start);
     }
-    if (start < 0) return;
-
+    if (start === undefined || start < 0) return;
     play(start);
   };
   return { startClick, stopClick };

@@ -29,13 +29,14 @@ const createAudioUtils = (
 ) => {
   let playingSources = [];
 
-  const stopCheck = () => {
+  const stopCheck = (timerId) => {
     if (isStopping.current || !audioCtx.current) {
       playingSources.length = 0;
       if (audioCtx.current) {
         audioCtx.current.close();
         audioCtx.current = undefined;
       }
+      clearTimeout(timerId);
       isStopping.current = false;
       setIsPlaying(false);
       setIsStopped(true);

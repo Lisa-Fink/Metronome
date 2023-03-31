@@ -27,13 +27,13 @@ const metronomePlayer = ({
   key,
 }) => {
   let addToStart,
-    interval,
     beatCount,
     beat,
     curBpm,
     startTime,
     scheduleTime,
-    lookAheadTime;
+    lookAheadTime,
+    timerId;
 
   const advance = () => {
     beatCount++;
@@ -55,7 +55,7 @@ const metronomePlayer = ({
       beat === numMeasures * timeSignature * subdivide * repeat
     ) {
       // section with all repeats have finished
-      stopSection(startTime - addToStart);
+      stopSection(startTime - addToStart, timerId);
       return false;
     } else if (
       sectionPractice &&
@@ -63,11 +63,9 @@ const metronomePlayer = ({
       beat > 0 &&
       beat % (timeSignature * subdivide * numMeasures) === 0
     ) {
-      // adjust interval to new bpm
+      // adjust to new bpm
       curBpm = curBpm + tempoInc;
       addToStart = 60 / (curBpm * subdivide);
-      const newInterval = addToStart * 1000;
-      interval = newInterval;
       setBpm((prev) => {
         return prev + tempoInc;
       });
@@ -76,7 +74,7 @@ const metronomePlayer = ({
   };
 
   const scheduleStart = (sound, gainNode) => {
-    if (stopCheck()) return;
+    if (stopCheck(timerId)) return;
     gainNode.gain.value = volumeRef.current;
     if (toneCategory === "Drum Sets") {
       drumStart(sound, startTime, gainNode);
@@ -128,7 +126,10 @@ const metronomePlayer = ({
       }
     }
     if (ended || !audioCtx.current) return;
-    setTimeout(() => scheduler(sounds, gainNode, getSound), scheduleTime);
+    timerId = setTimeout(
+      () => scheduler(sounds, gainNode, getSound),
+      scheduleTime
+    );
   };
 
   const getPlayerSettings = async () => {
@@ -158,12 +159,11 @@ const metronomePlayer = ({
     const { sounds, getSound } = await getPlayerSettings();
     originalBpm.current = bpm;
     addToStart = 60 / (bpm * subdivide);
-    interval = addToStart * 1000;
     beatCount = 1;
     beat = 0;
     curBpm = bpm;
     startTime = start;
-    scheduleTime = 25;
+    scheduleTime = (addToStart * 1000) / 3;
     lookAheadTime = 1;
 
     scheduler(sounds, gainNode, getSound);
