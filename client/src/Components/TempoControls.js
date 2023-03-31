@@ -68,7 +68,6 @@ function TempoControls({ start }) {
 
   const stopBpmChange = () => {
     if (paused) {
-      console.log("start bpm change");
       start();
       setPaused(false);
     }
@@ -128,7 +127,6 @@ function TempoControls({ start }) {
           onChange={handleBpmSliderChange}
           onMouseUp={() => {
             if (paused) {
-              console.log("mouse up");
               start();
               setPaused(false);
             }
