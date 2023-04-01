@@ -82,9 +82,14 @@
     max-height: 600px;
 }
 
+.instrument-descriptions > li {
+    border-bottom: 1px var(--pop-up-border) dotted;
+    padding-bottom: 8px;
+}
+
 .inst-list {
     overflow-y:auto;
-    height: 400px;
+    max-height: 400px;
 }
 
 .load-items {
