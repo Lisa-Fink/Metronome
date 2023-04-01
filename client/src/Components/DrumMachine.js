@@ -100,8 +100,8 @@ function DrumMachine({ savedState, isChanging }) {
   }, [isStopped, stopRef, isChanging, isPlaying]);
 
   useEffect(() => {
-    // Restarts if a setting was changed or if loaded new, or stop if all rhythms were removed
-    if (isPlaying && !isChanging.current && loaded) {
+    // Restarts if a setting was changed or stop if all rhythms were removed
+    if (isPlaying && !isChanging.current) {
       if (loaded) {
         setLoaded(false);
       }
@@ -112,7 +112,22 @@ function DrumMachine({ savedState, isChanging }) {
       }
       restart();
     }
-  }, [timeSignature, measures, rhythmGrid, instruments, dMTitle, loaded]);
+  }, [timeSignature, measures, rhythmGrid, instruments, dMTitle]);
+
+  useEffect(() => {
+    // Restarts if a setting was changed or stop if all rhythms were removed
+    if (loaded && isPlaying && !isChanging.current) {
+      if (loaded) {
+        setLoaded(false);
+      }
+      if (rhythmGrid.flat().every((instRhythm) => instRhythm === false)) {
+        // Stop if all rhythms are false
+        stopDrumMachine();
+        return;
+      }
+      restart();
+    }
+  }, [loaded]);
 
   // Saves and loads bpm and time signature settings when changing/loading view
   useEffect(() => {
