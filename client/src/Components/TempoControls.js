@@ -94,6 +94,13 @@ function TempoControls({ start }) {
   const handleBpmChange = (e) => {
     setBpm(e.target.value);
   };
+
+  const handleSliderRelease = () => {
+    if (paused) {
+      quickStart();
+    }
+  };
+
   return (
     <div id="tempo">
       <label>
@@ -134,11 +141,8 @@ function TempoControls({ start }) {
           max={MAX_BPM}
           value={bpm}
           onChange={handleBpmSliderChange}
-          onMouseUp={() => {
-            if (paused) {
-              quickStart();
-            }
-          }}
+          onMouseUp={handleSliderRelease}
+          onTouchEnd={handleSliderRelease}
         />
       </label>
     </div>
