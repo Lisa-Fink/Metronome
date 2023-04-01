@@ -170,7 +170,7 @@ function DrumMachine({ savedState, isChanging }) {
   // Adds start/stop with space bar press
   useEffect(() => {
     const handleKeyDown = (event) => {
-      if (!isTyping && event.keyCode === 32) {
+      if (event.keyCode === 32 && document.activeElement.nodeName !== "INPUT") {
         // Space key
         startStop();
       }
