@@ -30,11 +30,13 @@ header h1 {
 nav {
     display: flex;
     flex-direction: row;
+    align-items: center;
 }
 
 #heading-right {
     display: flex;
     flex-direction: row;
+    align-items: center;
 }
 
 #user-div {
@@ -49,4 +51,7 @@ nav {
 
 .type:hover {
     background-color: var(--metronome-bg);
+}
+#sign-out {
+    white-space: nowrap;
 }
