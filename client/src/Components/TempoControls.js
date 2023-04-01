@@ -14,8 +14,10 @@ function TempoControls({ start }) {
   const quickStop = () => {
     setPaused(true);
     clearTimeout(timerId.current);
-    audioCtx.current.close();
-    audioCtx.current = undefined;
+    if (audioCtx.current) {
+      audioCtx.current.close();
+      audioCtx.current = undefined;
+    }
   };
 
   const quickStart = () => {
