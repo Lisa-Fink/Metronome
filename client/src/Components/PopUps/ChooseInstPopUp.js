@@ -99,6 +99,11 @@ function ChooseInstPopUp({
             </div>
           ))}
         </div>
+        <div className="button-div center">
+          <button className="type" onClick={handleClose}>
+            Close
+          </button>
+        </div>
       </div>
     </div>
   );
