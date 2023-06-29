@@ -61,7 +61,6 @@ export const AppProvider = ({ children }) => {
     playSample,
     startDrumMachine,
     stopDrumMachine,
-    stopEverything,
   } = createAudioUtils(
     bpm,
     downBeat,
@@ -460,7 +459,6 @@ export const AppProvider = ({ children }) => {
     setTempoPractice,
     startClick,
     stopClick,
-    stopEverything,
     getInstrumentList,
     playSample,
     startDrumMachine,
