@@ -2,6 +2,10 @@ import { getInstrumentList } from "./audioFiles";
 import createDrumMachineUtils from "./drumMachineUtils";
 import createMetronomeUtils from "./metronomeUtils";
 
+// Creates utility functions for audio playback using the state variables.
+// Initializes a metronome and drum machine audio player with the given settings.
+// Returns an object containing functions to manage audio playback (start and
+// stop the metronome or drum machine, play samples, retrieve instrument lists).
 const createAudioUtils = (
   bpm,
   downBeat,
@@ -29,6 +33,7 @@ const createAudioUtils = (
   rhythmSequence,
   gain
 ) => {
+  // Checks if audio context is stopping and cleans up resources if needed
   const stopCheck = () => {
     if (isStopping.current || !audioCtx.current) {
       if (audioCtx.current) {
@@ -71,8 +76,11 @@ const createAudioUtils = (
     stopCheck,
     gain,
   };
+
+  // Create metronome utility functions
   const { startClick, stopClick } = createMetronomeUtils(metronomeSettings);
 
+  // Create drum machine utility functions
   const { startDrumMachine, stopDrumMachine, playSample } =
     createDrumMachineUtils(
       setIsPlaying,
@@ -87,10 +95,6 @@ const createAudioUtils = (
       gain
     );
 
-  const stopEverything = () => {
-    stopCheck();
-  };
-
   return {
     startClick,
     stopClick,
@@ -98,10 +102,10 @@ const createAudioUtils = (
     getInstrumentList,
     startDrumMachine,
     stopDrumMachine,
-    stopEverything,
   };
 };
 
+// Fetches audio data from a source URL and decodes it using the audio context
 const fetchAudio = async (src, audioCtx) => {
   if (!audioCtx.current) return;
   const response = await fetch(src);

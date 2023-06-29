@@ -1,6 +1,7 @@
 import { audioSamples } from "../../audioFiles";
 import { fetchAudio } from "../../audioUtils";
 
+// Creates the count in player, returning the play function
 const countInPlayer = ({
   bpm,
   setIsPlaying,

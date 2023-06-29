@@ -35,6 +35,8 @@ const metronomePlayer = ({
     scheduleTime,
     lookAheadTime;
 
+  // Advances startTime, beatCount, and beat to the next click time/beat
+  // Makes adjustments for section practice (stops at end, or increases tempo)
   const advance = () => {
     beatCount++;
     beat++;
@@ -73,6 +75,7 @@ const metronomePlayer = ({
     return true;
   };
 
+  // Schedules the next click to play
   const scheduleStart = (sound, gainNode) => {
     if (stopCheck()) return;
     if (tone === "audioContextTone") {
@@ -88,16 +91,23 @@ const metronomePlayer = ({
       fluteStart(sound, startTime, addToStart);
       return;
     }
+    // Regular audio samples
     sound.connect(gainNode);
     sound.start(startTime);
   };
 
+  // Manages the scheduling of each metronome click sound
+  // Uses the audio context's currentTime to precisely execute the playback.
+  // Schedules each click that occurs between the current time and the lookAheadTime.
+  // It ensures that enough clicks are scheduled in advance for accurate playback timing.
+  // Sets a timeout to wait before scheduling again, based on the scheduleTime.
   const scheduler = (sounds, gainNode, getSound) => {
     let ended = false;
     while (
       audioCtx.current &&
       startTime < audioCtx.current.currentTime + lookAheadTime
     ) {
+      // call getSound method to set currentSound to the correct tone (downbeat/main beat/subdivide)
       let currentSound;
       if (toneCategory === "Basic Tones") {
         currentSound = getSound(
@@ -122,12 +132,14 @@ const metronomePlayer = ({
         );
       }
       scheduleStart(currentSound, gainNode);
+      // call advance to set startTime to the next schedule time, returning False if stopping
       if (!advance()) {
         ended = true;
         break;
       }
     }
     if (ended || !audioCtx.current) return;
+    // Wait before scheduling again
     timerId.current = setTimeout(
       () => scheduler(sounds, gainNode, getSound),
       scheduleTime

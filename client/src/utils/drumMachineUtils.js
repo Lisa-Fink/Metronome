@@ -1,6 +1,10 @@
 import { audioSamples, idxToBeat } from "./audioFiles";
 import { fetchAudio } from "./audioUtils";
 
+// Creates utility functions for the drum machine audio player.
+// Takes in parameters for audio playback and drum machine settings.
+// Returns an object containing functions to start and stop the drum machine player,
+// as well as play individual samples.
 const createDrumMachineUtils = (
   setIsPlaying,
   volumeRef,
@@ -22,6 +26,7 @@ const createDrumMachineUtils = (
     rhythms,
     isScheduling;
 
+  // Schedules the playback for an entire drum machine sequence
   const scheduleSeqStart = async (buffers, gainNode) => {
     // set isScheduling to avoid entering a loop on consecutive start/stop calls
     if (isScheduling) return;
@@ -57,6 +62,11 @@ const createDrumMachineUtils = (
     isScheduling = false;
   };
 
+  // Manages the scheduling of each drum machine sequence.
+  // Uses the audio context's currentTime to precisely execute the playback.
+  // Schedules each sequence that occurs between the current time and the lookAheadTime.
+  // It ensures that enough sequences are scheduled in advance for accurate playback timing.
+  // Sets a timeout to wait before scheduling again, based on the scheduleTime.
   const scheduler = (buffers, gainNode) => {
     if (stopCheck() || !audioCtx.current) return;
     while (
