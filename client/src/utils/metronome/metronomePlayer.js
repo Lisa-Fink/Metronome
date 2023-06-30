@@ -1,8 +1,8 @@
-import getBeepSounds, { beepStart } from "./generated/beepSounds";
-import getFluteSounds, { fluteStart } from "./generated/fluteSounds";
-import getAudioSounds from "./samples/audioSounds";
-import getDrumSounds, { drumStart } from "./samples/drumSetSounds";
-import getNumberSounds from "./samples/numberSounds";
+import BeepSounds from "./sounds/generated/BeepSoundsC";
+import FluteSounds from "./sounds/generated/FluteSoundsC";
+import DrumSetSounds from "./sounds/samples/DrumSetSounds";
+import NumberSounds from "./sounds/samples/NumberSounds";
+import PercussionSounds from "./sounds/samples/PercussionSounds";
 
 const metronomePlayer = ({
   subdivide,
@@ -33,7 +33,8 @@ const metronomePlayer = ({
     curBpm,
     startTime,
     scheduleTime,
-    lookAheadTime;
+    lookAheadTime,
+    metronomeSounds;
 
   // Advances startTime, beatCount, and beat to the next click time/beat
   // Makes adjustments for section practice (stops at end, or increases tempo)
@@ -75,63 +76,20 @@ const metronomePlayer = ({
     return true;
   };
 
-  // Schedules the next click to play
-  const scheduleStart = (sound, gainNode) => {
-    if (stopCheck()) return;
-    if (tone === "audioContextTone") {
-      beepStart(sound, startTime, addToStart);
-      return;
-    }
-    // gainNode.gain.value = volumeRef.current;
-    if (toneCategory === "Drum Sets") {
-      drumStart(sound, startTime, gainNode);
-      return;
-    }
-    if (tone === "audioContextFlute") {
-      fluteStart(sound, startTime, addToStart);
-      return;
-    }
-    // Regular audio samples
-    sound.connect(gainNode);
-    sound.start(startTime);
-  };
-
   // Manages the scheduling of each metronome click sound
   // Uses the audio context's currentTime to precisely execute the playback.
   // Schedules each click that occurs between the current time and the lookAheadTime.
   // It ensures that enough clicks are scheduled in advance for accurate playback timing.
   // Sets a timeout to wait before scheduling again, based on the scheduleTime.
-  const scheduler = (sounds, gainNode, getSound) => {
+  const scheduler = () => {
     let ended = false;
     while (
       audioCtx.current &&
       startTime < audioCtx.current.currentTime + lookAheadTime
     ) {
-      // call getSound method to set currentSound to the correct tone (downbeat/main beat/subdivide)
-      let currentSound;
-      if (toneCategory === "Basic Tones") {
-        currentSound = getSound(
-          gainNode,
-          subdivide,
-          mainBeat,
-          downBeat,
-          beatCount,
-          key,
-          timeSignature,
-          audioCtx
-        );
-      } else {
-        currentSound = getSound(
-          sounds,
-          beatCount,
-          audioCtx,
-          downBeat,
-          mainBeat,
-          subdivide,
-          timeSignature
-        );
-      }
-      scheduleStart(currentSound, gainNode);
+      if (stopCheck()) return;
+      metronomeSounds.scheduleStart(startTime, beatCount, addToStart);
+
       // call advance to set startTime to the next schedule time, returning False if stopping
       if (!advance()) {
         ended = true;
@@ -140,30 +98,63 @@ const metronomePlayer = ({
     }
     if (ended || !audioCtx.current) return;
     // Wait before scheduling again
-    timerId.current = setTimeout(
-      () => scheduler(sounds, gainNode, getSound),
-      scheduleTime
-    );
+    timerId.current = setTimeout(() => scheduler(), scheduleTime);
   };
 
-  const getPlayerSettings = async () => {
+  const getSoundPlayer = async () => {
+    let sounds;
     if (toneCategory === "Basic Tones") {
       if (tone === "audioContextTone") {
-        const beepSounds = getBeepSounds();
-        return { getSound: beepSounds.getOsc };
+        return new BeepSounds(
+          audioCtx,
+          subdivide,
+          gain.current,
+          downBeat,
+          mainBeat,
+          timeSignature,
+          key
+        );
       } else if (tone === "audioContextFlute") {
-        const fluteSounds = getFluteSounds();
-        return { getSound: fluteSounds.getOsc };
+        return new FluteSounds(
+          audioCtx,
+          subdivide,
+          gain.current,
+          downBeat,
+          mainBeat,
+          timeSignature,
+          key
+        );
       }
     } else {
       if (toneCategory === "Percussion") {
-        return await getAudioSounds(tone, audioCtx);
+        sounds = new PercussionSounds(
+          audioCtx,
+          subdivide,
+          gain.current,
+          downBeat,
+          mainBeat,
+          tone
+        );
       } else if (toneCategory === "Spoken Counts") {
-        return await getNumberSounds(audioCtx, timeSignature, subdivide);
+        sounds = new NumberSounds(
+          audioCtx,
+          subdivide,
+          gain.current,
+          timeSignature
+        );
       } else if (toneCategory === "Drum Sets") {
-        return await getDrumSounds(audioCtx);
+        sounds = new DrumSetSounds(
+          audioCtx,
+          subdivide,
+          gain.current,
+          downBeat,
+          mainBeat,
+          timeSignature
+        );
       }
     }
+    await sounds.loadAudio();
+    return sounds;
   };
 
   const play = async (start) => {
@@ -172,7 +163,7 @@ const metronomePlayer = ({
     gain.current = gainNode;
     gainNode.connect(audioCtx.current.destination);
     gainNode.gain.value = volumeRef.current;
-    const { sounds, getSound } = await getPlayerSettings();
+    metronomeSounds = await getSoundPlayer();
     addToStart = 60 / (bpm * subdivide);
     beatCount = 1;
     beat = 0;
@@ -181,7 +172,7 @@ const metronomePlayer = ({
     scheduleTime = (addToStart * 1000) / 3;
     lookAheadTime = 1;
 
-    scheduler(sounds, gainNode, getSound);
+    scheduler();
   };
   return { play };
 };
