@@ -1,6 +1,6 @@
 import { AudioContext } from "standardized-audio-context";
 
-import countInPlayer from "./metronome/samples/countInPlayer";
+import countInPlayer from "./metronome/countInPlayer";
 import metronomePlayer from "./metronome/metronomePlayer";
 
 const createMetronomeUtils = (metronomeSettings) => {
