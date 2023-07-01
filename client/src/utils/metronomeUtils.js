@@ -1,6 +1,4 @@
 import { AudioContext } from "standardized-audio-context";
-
-import countInPlayer from "./metronome/countInPlayer";
 import metronomePlayer from "./metronome/metronomePlayer";
 
 const createMetronomeUtils = (metronomeSettings) => {
@@ -11,12 +9,10 @@ const createMetronomeUtils = (metronomeSettings) => {
     setBpm,
     bpm,
     originalBpm,
-    countIn,
     audioCtx,
     stopCheck,
     tempoInc,
     timerId,
-    gain,
   } = metronomeSettings;
 
   const stopSection = (startTime) => {
@@ -36,7 +32,6 @@ const createMetronomeUtils = (metronomeSettings) => {
 
   metronomeSettings.stopSection = stopSection;
 
-  const { playCountIn } = countInPlayer(metronomeSettings);
   const { play } = metronomePlayer(metronomeSettings);
 
   const stopClick = () => {
@@ -51,9 +46,6 @@ const createMetronomeUtils = (metronomeSettings) => {
 
     let start = audioCtx.current.currentTime + 0.1;
     originalBpm.current = bpm;
-    if (countIn > 0) {
-      start = await playCountIn(start);
-    }
     if (start === undefined || start < 0) return;
     play(start);
   };

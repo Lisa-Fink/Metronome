@@ -26,6 +26,7 @@ const metronomePlayer = ({
   key,
   timerId,
   gain,
+  countIn,
 }) => {
   let addToStart,
     beatCount,
@@ -157,6 +158,49 @@ const metronomePlayer = ({
     return sounds;
   };
 
+  // Schedules the playback of the count in chimes
+  // Modified scheduler (to run a specific amount of times using variable i)
+  // Uses a while loop with recursive calls to efficiently and accurately
+  // schedule the playback, and enable fast stopping.
+  const countInScheduler = (countInSounds, i) => {
+    if (i >= countIn * subdivide * timeSignature && audioCtx.current) return;
+    let ended = false;
+    while (
+      i < countIn * subdivide * timeSignature &&
+      audioCtx.current &&
+      startTime < audioCtx.current.currentTime + lookAheadTime
+    ) {
+      if (stopCheck()) {
+        return;
+      }
+      countInSounds.scheduleStart(startTime, beatCount);
+      if (!advance()) {
+        ended = true;
+        break;
+      }
+      i++;
+    }
+    if (ended || !audioCtx.current) return;
+    // Wait before scheduling again
+    timerId.current = setTimeout(
+      () => countInScheduler(countInSounds, i),
+      scheduleTime
+    );
+  };
+
+  const scheduleCountIn = async () => {
+    const countInSounds = new PercussionSounds(
+      audioCtx,
+      subdivide,
+      gain.current,
+      downBeat,
+      mainBeat,
+      "Triangle"
+    );
+    await countInSounds.loadAudio();
+    countInScheduler(countInSounds, 0);
+  };
+
   const play = async (start) => {
     setIsPlaying(true);
     const gainNode = audioCtx.current.createGain();
@@ -172,6 +216,11 @@ const metronomePlayer = ({
     scheduleTime = (addToStart * 1000) / 3;
     lookAheadTime = 1;
 
+    // handle count in
+    if (countIn) {
+      await scheduleCountIn();
+    }
+    if (stopCheck()) return;
     scheduler();
   };
   return { play };
