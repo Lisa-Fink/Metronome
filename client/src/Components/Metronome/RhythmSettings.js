@@ -124,7 +124,7 @@ function RhythmSettings() {
             <input
               type="checkbox"
               name="main-beat"
-              defaultChecked={mainBeat}
+              checked={mainBeat}
               onChange={toggleMainBeat}
             />
           </label>

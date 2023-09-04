@@ -383,8 +383,13 @@ export const AppProvider = ({ children }) => {
           setSubdivide(converted);
         }
       } else if (param === "mainBeat") {
-        if (typeof value === Boolean) {
-          setMainBeat(value);
+        if (value === "true") {
+          console.log("setting");
+          setMainBeat(true);
+        }
+      } else if (param === "downBeat") {
+        if (value === "true") {
+          setDownBeat(true);
         }
       } else if (param === "key") {
         // TODO: check if exact match
